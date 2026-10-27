@@ -37,9 +37,9 @@ declare module 'pdfkit' {
   }
 
   interface DocumentOptions {
-    size: string;
+    size: readonly [widthPt: number, heightPt: number];
     margins: { top: number; bottom: number; left: number; right: number };
-    font: Uint8Array;
+    font: null;
     tagged: true;
     subset: 'PDF/UA';
     pdfVersion: '1.7';
@@ -52,16 +52,10 @@ declare module 'pdfkit' {
     stop(position: number, color: string): LinearGradient;
   }
 
-  interface PDFPage {
-    readonly width: number;
-    readonly height: number;
-  }
-
   export class PDFDocument {
     constructor(options: DocumentOptions);
     x: number;
     y: number;
-    readonly page: PDFPage;
     registerFont(name: string, source: Uint8Array): this;
     font(name: string): this;
     fontSize(sizePt: number): this;

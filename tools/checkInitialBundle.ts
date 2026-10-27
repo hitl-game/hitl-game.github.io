@@ -3,8 +3,8 @@ import path from 'node:path';
 
 import { findInitialChunks, matchesSizeLimitGlob } from './findInitialChunks.ts';
 
-// Lazy-only code that must never reach the files index.html loads (architecture D14).
-const lazyOnlyMarkers = [{ name: 'PDFKit', marker: 'PDFKit' }];
+// PDFKit stays a lazy chunk (architecture D14): its producer string never appears in a file index.html loads.
+const pdfkitMarker = 'PDFKit';
 
 interface SizeLimitEntry {
   readonly name: string;
@@ -28,9 +28,9 @@ const findProblems = async (initialChunks: readonly string[]): Promise<string[]>
   const problems = await Promise.all(
     initialChunks.map(async (assetPath) => {
       const code = await readAsset(assetPath);
-      const leaks = lazyOnlyMarkers
-        .filter(({ marker }) => code.includes(marker))
-        .map(({ name }) => `${assetPath}: contains ${name}, which must stay a lazy chunk`);
+      const leaks = code.includes(pdfkitMarker)
+        ? [`${assetPath}: contains PDFKit, which must stay a lazy chunk`]
+        : [];
       const isBudgeted = budgetGlobs.some((glob) => matchesSizeLimitGlob(assetPath, glob));
       return isBudgeted
         ? leaks
@@ -48,7 +48,7 @@ const problems = await findProblems(initialChunks);
 
 if (problems.length > 0) {
   process.stderr.write(
-    `Initial bundle check failed:\n${problems.map((p) => `  ${p}`).join('\n')}\n`,
+    `Initial bundle check failed:\n${problems.map((problem) => `  ${problem}`).join('\n')}\n`,
   );
   process.exitCode = 1;
 } else {

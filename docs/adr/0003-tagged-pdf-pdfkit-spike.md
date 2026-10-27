@@ -54,7 +54,7 @@ All numbers come from the sample in `src/report/pdf`, generated in the built app
 - **Glyph coverage.** The Fontsource `latin` subset: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD. That is 230 mapped code points and 515 glyphs per weight (fontTools `cmap` and `maxp`). It covers English and most Western European text.
   - **Consequence for later locales.** A locale that needs Latin Extended, Cyrillic, Greek or Vietnamese needs the matching Fontsource subset, merged into the file or added as a second font. PDFKit has no font fallback: a missing glyph renders as `.notdef`, and veraPDF does not flag it. Each locale's PDF test must contain that locale's characters.
 - **PDFKit embeds a real subset.** The PDF holds `CIDFontType2` fonts with a `FontFile2` program, named `XXXXXX+Inter-Regular` and `XXXXXX+Inter-Bold`. The standard 14 fonts are never used:
-  - the document is created with `font: <Inter bytes>`, so PDFKit never loads its default Helvetica;
+  - the document is created with `font: null`, so PDFKit never loads its default Helvetica (PDFKit's default-font parameter only applies to `undefined`). Passing the Inter bytes as the default font instead made PDFKit parse them again on every `doc.font('inter-400')` call: seven fontkit opens for two fonts, because `font()` returns on the name match before caching the registered name;
   - the browser build throws if a standard font is requested without being registered first;
   - the footer ("Page 1 of 1") uses Inter.
 
@@ -129,6 +129,8 @@ Source SHA-256 values (Fontsource 5.3.0): `inter-latin-400-normal.woff` `e20fa0b
 - **Tables.** `doc.table({ structParent, data })` builds `Table` > `TR` > `TH`/`TD`, with `Scope` and `Headers` attributes when a header cell has `scope: 'column'`.
   - Cell borders are drawn inside the cell's marked content, not as artifacts. The sample sets `border: 0` and draws the table rules as `Layout` artifacts.
   - Header cells take a font per cell: `font: { src: 'inter-700' }`, a name registered with `doc.registerFont`.
+  - After every cell with its own font, `doc.table` rolls the font back by passing the registered bytes, not the name, so PDFKit parses the font again and discards the duplicate. Cheap for the sample's two header cells; Story 6.5 should keep per-cell fonts to the header row.
+  - A `TH` cell lists itself in its own `/Headers` array (`accessibleCell` fills the header lookup before computing it). veraPDF accepts it; it is PDFKit behaviour, not something to patch locally.
 - **Heading tag.** The title is tagged `H1`, not `H`. Story 6.5 needs section headings, and PDF/UA-1 does not allow strongly structured `H` to be mixed with numbered headings, so numbered headings are used from the start.
 - **Footer placement.** Text placed below the bottom margin starts a new page. The footer sits just inside the margin (`footerTopPt`). `addRunId` and `drawPageLabel` assume the body ends above it, which holds for the one-page sample; a longer body overprints the footer or pushes it to a new page with a wrong "Page 1 of 1". Story 6.5 must draw the footer per page and take the label from `doc.bufferedPageRange()`.
 - **Output.** The renderer collects the document's `data` events into one `Uint8Array`. PDFKit also ships `toBytes` and `toBlob` in `pdfkit/output`, but they are marked experimental, so the spike does not use them.
@@ -136,9 +138,9 @@ Source SHA-256 values (Fontsource 5.3.0): `inter-latin-400-normal.woff` `e20fa0b
 
 ## What Story 6.5 must reuse
 
-- `src/report/layout/documentLayout.ts`: page size, margins and type sizes in points, plus colours. Move the colours to the Story 1.7 tokens when those land.
-- The structure helpers in `src/report/pdf/`: `addHeading`, `addParagraphs`, `addList`, `addReceiptTable`, `addRunId`, `drawMetisMark`, `drawRule`, `drawPageLabel`, `withWordSeparator`.
-- The font pipeline: `loadPdfFonts` (Vite `?url` assets, fetched lazily) and `pdfFontName`, plus the decomposed `.woff` files and the outline guard test.
+- `src/report/layout/documentLayout.ts`: page size (A4 in points), margins, type sizes, the derived geometry (`contentRightPt`, `contentWidthPt`, `footerTopPt`) and colours. Move the colours to the Story 1.7 tokens when those land.
+- The structure helpers in `src/report/pdf/`, one module each: `addHeading`, `addParagraphs`, `addList`, `addReceiptTable`, `addRunId`, `drawMetisMark`, `drawRule`, `drawPageLabel`, `withWordSeparator`.
+- The font pipeline: `loadPdfFonts` (Vite `?url` assets, fetched lazily) and `pdfFontName`, plus the decomposed `.woff` files and the outline guard test. `renderSamplePdf` fetches the fonts first and imports the PDFKit chunk after; Story 6.5 can start both at once to shorten the cold path.
 - `tools/checkInitialBundle.ts` and the `verapdf` job. Point the job at the real document once it exists.
 - **Remove with 6.5:**
   - `spike/pdf.html` and its `input` entry in `vite.config.ts`;

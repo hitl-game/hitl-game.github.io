@@ -11,7 +11,7 @@ Human in the Loop is a browser game built with Preact, TypeScript and Vite, depl
 
 ## Layers
 
-`ui → app → core → shared` · `app → platform → shared` · `report → core + shared` · `i18n → shared` · `debug → app`. `ui` never imports `core` or `platform`. Import through `index.ts` only. Features never import features.
+`ui → app → core → shared` · `app → platform → shared` · `report → core + shared` · `i18n → shared` · `debug → app` · `spike → report` (Story 8.1 PDF spike page only; Story 6.5 removes it). `ui` never imports `core` or `platform`. Import through `index.ts` only. Features never import features.
 
 ## Working rules
 

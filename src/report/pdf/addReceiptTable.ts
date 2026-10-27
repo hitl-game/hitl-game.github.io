@@ -1,10 +1,10 @@
 import type { PDFDocument, PDFStructureElement, TableCell } from 'pdfkit';
 
 import { documentLayout } from '../layout';
-import { withWordSeparator } from './addStructureBlocks';
-import { drawRule } from './drawArtifacts';
+import { drawRule } from './drawRule';
 import { pdfFontName } from './pdfFonts';
 import type { SamplePostMortem } from './samplePostMortem';
+import { withWordSeparator } from './withWordSeparator';
 
 const toHeaderCell = (text: string): TableCell => ({
   text: withWordSeparator(text),

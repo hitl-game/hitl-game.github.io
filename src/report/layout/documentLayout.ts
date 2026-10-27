@@ -1,9 +1,18 @@
+const a4WidthPt = 595.28;
+const a4HeightPt = 841.89;
+const marginPt = 56;
+const metaSizePt = 9;
+
 export const documentLayout = {
-  pageSize: 'A4',
-  marginPt: 56,
+  pageWidthPt: a4WidthPt,
+  pageHeightPt: a4HeightPt,
+  marginPt,
+  contentRightPt: a4WidthPt - marginPt,
+  contentWidthPt: a4WidthPt - 2 * marginPt,
+  footerTopPt: a4HeightPt - marginPt - 2 * metaSizePt,
   docTitleSizePt: 16.5,
   bodySizePt: 10.5,
-  metaSizePt: 9,
+  metaSizePt,
   lineGapPt: 3,
   paragraphGapPt: 8,
   blockGapPt: 14,

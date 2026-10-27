@@ -83,6 +83,18 @@ Code review run 1 (2026-10-27; Blind Hunter, Edge Case Hunter, Acceptance Audito
 
 Dismissed after verification: top-level `input` in `vite.config.ts` is a valid Vite 8 option (`SharedEnvironmentOptions.input`, `dist/spike/pdf.html` is built); the `verapdf` job builds through Playwright's `webServer` (`npm run build && npm run preview`); `if: github.event_name == 'push'` is `main`-only because `on.push.branches` is `[main]`; `tools/checkInitialBundle.ts` with a non-root `base` is out of scope (`base` is `/` by NFR19, and `size-limit` fails first without `dist/`); task 1.5's `SharedArrayBuffer` clause is proven by generation succeeding with `crossOriginIsolated === false` (no chunk contains the identifier); `struct(type, fn)` matches PDFKit's runtime, which accepts a child as the second argument.
 
+Code review run 2 (2026-10-27; Blind Hunter, Edge Case Hunter, Acceptance Auditor; 13 raw findings, 12 after merging, 7 patched, 0 deferred, 5 dismissed as verified non-issues). Run 1's two decisions above stay open for Tiziano.
+
+- [x] [Review][Patch] The Inter bytes passed as the constructor's default `font` made PDFKit parse the regular font again on every `doc.font('inter-400')` call: a probe against the installed 0.20.2 counted 7 fontkit opens for 2 fonts, because `font()` returns on the name match before caching the registered name [src/report/pdf/buildSamplePdf.ts:31] — the document is now created with `font: null` (PDFKit then skips Helvetica, which the browser build cannot load) and the fonts are registered right after; 2 opens. The table's per-cell font rollback still re-parses (PDFKit passes the bytes back); recorded in the ADR for Story 6.5.
+- [x] [Review][Patch] `AGENTS.md` did not list the `spike → report` layer added to `eslint.config.js` [AGENTS.md:14] — added, with the 6.5 removal note.
+- [x] [Review][Patch] `addStructureBlocks.ts` and `drawArtifacts.ts` were not named after a main export, and the page geometry lived under "artifacts" while the word separator lived under "structure blocks" [src/report/pdf/addStructureBlocks.ts, src/report/pdf/drawArtifacts.ts] — one module per helper (`addHeading`, `addParagraphs`, `addList`, `addRunId`, `drawMetisMark`, `drawRule`, `drawPageLabel`, `withWordSeparator`); the geometry (`pageWidthPt`, `pageHeightPt`, `contentRightPt`, `contentWidthPt`, `footerTopPt`) is a plain constant in `documentLayout` (task 3.1), so the helpers no longer read `doc.page` and the `PDFPage` typing is gone. The document is created with `size: [pageWidthPt, pageHeightPt]` (PDFKit's A4) instead of the `'A4'` name, so the two cannot drift.
+- [x] [Review][Patch] `lazyOnlyMarkers` was a one-item `{ name, marker }` list with both fields equal (Charter 8, speculative generality) [tools/checkInitialBundle.ts:7] — a single `pdfkitMarker` constant.
+- [x] [Review][Patch] On a non-compliant PDF the `verapdf` job log showed only the summary line; the failing rule IDs were only in the uploaded artifact [.github/workflows/ci.yml:96] — the step now prints every `<rule … status="failed">` element before failing.
+- [x] [Review][Patch] The static-import scanner followed `./` specifiers only, so a chunk layout with sub-directories (`import"../vendor/x.js"`) would be skipped silently, reopening the false negative the gate exists to close [tools/findInitialChunks.ts:5] — it now captures `./` and `../` specifiers and resolves them with `path.posix.join`; test added.
+- [x] [Review][Patch] ADR gotchas missed two PDFKit table behaviours seen in the generated file: `TH` cells list themselves in their own `/Headers` array, and the per-cell font rollback re-parses a bytes-registered font [docs/adr/0003-tagged-pdf-pdfkit-spike.md:129] — both recorded (veraPDF accepts the first; 6.5 keeps per-cell fonts to the header row), plus the serial font-then-chunk loading that 6.5 can parallelise.
+
+Dismissed after verification: top-level `input` in `vite.config.ts` and a "missing" `OFL.txt` were raised again on the diff alone (both verified in run 1; `OFL.txt` is in the branch); table `scope: 'column'` is lower-cased and mapped to `/Scope /Column` by PDFKit (`pdfkit.browser.mjs:6518`); the cold timing includes the chunk and font loads on purpose (PRF-06 measures cold and warm; on Pages the CDN latency is covered by a 20× margin and Playwright's retries); `readGlyfBytesPerGlyph` could return `Infinity` only for a non-empty `glyf` with zero `maxp` glyphs, which fontkit never writes.
+
 ## Dev Notes
 
 ### Current repository state (read before touching anything)
@@ -291,11 +303,17 @@ Claude Opus 5.5 (claude-opus-5-5[1m]), Claude Code, gds-dev-story workflow, run 
 - `src/report/index.ts` (modified)
 - `src/report/layout/documentLayout.ts` (new)
 - `src/report/layout/index.ts` (new)
+- `src/report/pdf/addHeading.ts` (new; review run 2 split)
+- `src/report/pdf/addList.ts` (new; review run 2 split)
+- `src/report/pdf/addParagraphs.ts` (new; review run 2 split)
 - `src/report/pdf/addReceiptTable.ts` (new)
-- `src/report/pdf/addStructureBlocks.ts` (new)
+- `src/report/pdf/addRunId.ts` (new; review run 2 split)
 - `src/report/pdf/buildSamplePdf.ts` (new)
 - `src/report/pdf/buildSamplePdf.test.ts` (new)
-- `src/report/pdf/drawArtifacts.ts` (new)
+- `src/report/pdf/drawMetisMark.ts` (new; review run 2 split)
+- `src/report/pdf/drawPageLabel.ts` (new; review run 2 split)
+- `src/report/pdf/drawRule.ts` (new; review run 2 split)
+- `src/report/pdf/withWordSeparator.ts` (new; review run 2 split)
 - `src/report/pdf/index.ts` (new)
 - `src/report/pdf/pdfFonts.ts` (new)
 - `src/report/pdf/pdfkit.d.ts` (new)
@@ -327,3 +345,4 @@ Claude Opus 5.5 (claude-opus-5-5[1m]), Claude Code, gds-dev-story workflow, run 
 | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 2026-10-27 | Story 8.1 implemented: PDFKit tagged-PDF spike. **Outcome: GO.** It adds the PDF/UA sample renderer, the PDF fonts (decomposed Inter WOFF), the spike page, the initial-bundle laziness gate, the e2e spec, the `verapdf` CI job and ADR 0003. Status set to review. |
 | 2026-10-27 | Code review run 1: 11 findings patched (re-export detection in the laziness gate, spike page error reporting, PDFKit typings and the unused `error` listener, `verapdf` artifact upload, ADR accuracy, docs), 2 deferred to Tiziano (Firefox run, Docker Hub pull), 6 dismissed. See Review Findings. Status stays review. |
+| 2026-10-27 | Code review run 2: 7 findings patched (default-font double parse, one module per helper with geometry constants in `documentLayout`, `spike` layer in AGENTS.md, laziness gate simplified and following `../` imports, `verapdf` failed-rule log, ADR table gotchas), 0 deferred, 5 dismissed. See Review Findings. Status stays review. |

@@ -19,10 +19,11 @@ const assets: Readonly<Record<string, string>> = {
   'assets/index-a1.js':
     'import"./shared-b2.js";import{a as b}from"./vendor-d4.js";const c=()=>import("./pdfkit-e5.js");',
   'assets/shared-b2.js': 'export{f as g}from"./facade-f6.js";export*from"./facade-g7.js";',
-  'assets/vendor-d4.js': 'export const a=2;',
+  'assets/vendor-d4.js': 'import"../vendor/deep-h8.js";export const a=2;',
   'assets/pdfkit-e5.js': 'Producer:"PDFKit"',
   'assets/facade-f6.js': 'export const f=3;',
   'assets/facade-g7.js': 'export const h=4;',
+  'vendor/deep-h8.js': 'export const i=5;',
 };
 
 const readAsset = (assetPath: string): Promise<string> => {
@@ -43,15 +44,21 @@ describe('findHtmlAssets', () => {
 describe('findStaticImports', () => {
   it('follows static imports and ignores dynamic ones', () => {
     expect(findStaticImports(assets['assets/index-a1.js'] ?? '')).toEqual([
-      'shared-b2.js',
-      'vendor-d4.js',
+      './shared-b2.js',
+      './vendor-d4.js',
     ]);
   });
 
   it('follows re-exports, which the browser loads up front like imports', () => {
     expect(findStaticImports(assets['assets/shared-b2.js'] ?? '')).toEqual([
-      'facade-f6.js',
-      'facade-g7.js',
+      './facade-f6.js',
+      './facade-g7.js',
+    ]);
+  });
+
+  it('follows imports from a parent directory', () => {
+    expect(findStaticImports(assets['assets/vendor-d4.js'] ?? '')).toEqual([
+      '../vendor/deep-h8.js',
     ]);
   });
 });
@@ -65,6 +72,7 @@ describe('findInitialChunks', () => {
       'assets/index-c3.css',
       'assets/shared-b2.js',
       'assets/vendor-d4.js',
+      'vendor/deep-h8.js',
     ]);
   });
 });

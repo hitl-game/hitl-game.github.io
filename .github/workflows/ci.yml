@@ -94,6 +94,7 @@ jobs:
           status=$?
           set -e
           grep -o '<validationReports [^>]*>' test-results/pdf-spike/verapdf-report.xml || true
+          grep -o '<rule [^>]*status="failed"[^>]*>' test-results/pdf-spike/verapdf-report.xml || true
           # veraPDF exits 0 only when every file is compliant; the summary also guards against a run that validated nothing.
           test "$status" -eq 0
           grep -q 'compliant="1" nonCompliant="0" failedJobs="0"' test-results/pdf-spike/verapdf-report.xml

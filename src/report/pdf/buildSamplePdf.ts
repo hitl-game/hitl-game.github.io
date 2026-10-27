@@ -1,9 +1,13 @@
 import type { PDFDocument } from 'pdfkit';
 
 import { documentLayout } from '../layout';
+import { addHeading } from './addHeading';
+import { addList } from './addList';
+import { addParagraphs } from './addParagraphs';
 import { addReceiptTable } from './addReceiptTable';
-import { addHeading, addList, addParagraphs, addRunId } from './addStructureBlocks';
-import { drawMetisMark, drawPageLabel } from './drawArtifacts';
+import { addRunId } from './addRunId';
+import { drawMetisMark } from './drawMetisMark';
+import { drawPageLabel } from './drawPageLabel';
 import { pdfFontName, type PdfFonts } from './pdfFonts';
 import { samplePostMortem } from './samplePostMortem';
 
@@ -26,9 +30,11 @@ const createTaggedDocument = async (fonts: PdfFonts): Promise<PDFDocument> => {
   const { PDFDocument } = await import('pdfkit');
   const marginPt = documentLayout.marginPt;
   const doc = new PDFDocument({
-    size: documentLayout.pageSize,
+    size: [documentLayout.pageWidthPt, documentLayout.pageHeightPt],
     margins: { top: marginPt, bottom: marginPt, left: marginPt, right: marginPt },
-    font: fonts.regular,
+    // null skips the default Helvetica, which the browser build cannot load and PDF/UA forbids.
+    // The Inter bytes here would be parsed again on every doc.font() call: PDFKit caches by name only.
+    font: null,
     tagged: true,
     subset: 'PDF/UA',
     pdfVersion: '1.7',
