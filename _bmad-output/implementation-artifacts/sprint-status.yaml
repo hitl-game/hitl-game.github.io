@@ -52,8 +52,8 @@
 # - E7 (content) stories sit just before the stories that consume them.
 # - ⛔ GATE: a playtest gate. 🖋 FINAL CUT: Tiziano only (status: final, CODEOWNERS @basteez).
 #   No gate passes with `status: placeholder` items in its scope (D-E3, `npm run content:audit`).
-# - Prerequisite still open (Tiziano): branch protection on `main` after the first push of 1.1
-#   (required CI checks + code-owner review). Optional: start docs/kernel-bank.md.
+# - Prerequisite done 2026-10-27: branch protection on `main` has required checks gates, unit, e2e
+#   plus code-owner review. Optional: start docs/kernel-bank.md.
 
 generated: 2026-10-27
 last_updated: 2026-10-27
@@ -65,7 +65,7 @@ story_location: _bmad-output/implementation-artifacts
 development_status:
   # ── Epic 1: Foundations ────────────────────────────────────────────────
   epic-1: in-progress
-  1-1-project-scaffold-quality-gates-ci-and-pages-deploy: in-progress # first; may split into 1.1a (scaffold+gates) / 1.1b (CI, deploy, agent files). Then: branch protection (Tiziano)
+  1-1-project-scaffold-quality-gates-ci-and-pages-deploy: review # first; may split into 1.1a (scaffold+gates) / 1.1b (CI, deploy, agent files). Required status checks set on main 2026-10-27
 
   # ── Epic 8 opens early: PDFKit spike, parallel right after 1.1 (de-risks D8 before 6.5) ──
   epic-8: backlog
