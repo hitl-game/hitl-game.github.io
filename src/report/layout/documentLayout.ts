@@ -1,0 +1,17 @@
+export const documentLayout = {
+  pageSize: 'A4',
+  marginPt: 56,
+  docTitleSizePt: 16.5,
+  bodySizePt: 10.5,
+  metaSizePt: 9,
+  lineGapPt: 3,
+  paragraphGapPt: 8,
+  blockGapPt: 14,
+  ruleWidthPt: 0.75,
+  markSizePt: 18,
+  tableCellPaddingPt: 4,
+  inkColor: '#1A2433',
+  inkMutedColor: '#5E6B7E',
+  ruleColor: '#E3E8EE',
+  markGradientColors: ['#7C3AED', '#C026D3', '#DB2777'],
+} as const;

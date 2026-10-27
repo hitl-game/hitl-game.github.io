@@ -1,0 +1,1 @@
+export { renderSamplePdf } from './renderSamplePdf';
