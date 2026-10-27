@@ -64,8 +64,8 @@ story_location: _bmad-output/implementation-artifacts
 
 development_status:
   # ── Epic 1: Foundations ────────────────────────────────────────────────
-  epic-1: backlog
-  1-1-project-scaffold-quality-gates-ci-and-pages-deploy: backlog # first; may split into 1.1a (scaffold+gates) / 1.1b (CI, deploy, agent files). Then: branch protection (Tiziano)
+  epic-1: in-progress
+  1-1-project-scaffold-quality-gates-ci-and-pages-deploy: in-progress # first; may split into 1.1a (scaffold+gates) / 1.1b (CI, deploy, agent files). Then: branch protection (Tiziano)
 
   # ── Epic 8 opens early: PDFKit spike, parallel right after 1.1 (de-risks D8 before 6.5) ──
   epic-8: backlog

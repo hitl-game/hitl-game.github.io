@@ -29,4 +29,4 @@ workflow_status:
   test-design: _bmad-output/game-test-design.md
 
   # Phase 4 - Production
-  sprint-planning: required
+  sprint-planning: _bmad-output/implementation-artifacts/sprint-status.yaml
