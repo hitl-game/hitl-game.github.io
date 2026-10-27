@@ -1,15 +1,13 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
-  "entry": ["index.html", "tools/**/*.ts", "src/*/index.ts"],
+  "entry": ["index.html", "src/spike/pdfSpikePage.ts", "tools/**/*.ts", "src/*/index.ts"],
   "project": ["src/**/*.{ts,tsx}", "tools/**/*.ts", "tests/**/*.ts"],
   "ignore": ["tests/lint-fixtures/**"],
   "ignoreDependencies": [
     "pure-rand",
     "idb",
-    "fflate",
     "zod",
     "intl-messageformat",
-    "pdfkit",
     "@preact/signals",
     "vite-plugin-pwa"
   ]
