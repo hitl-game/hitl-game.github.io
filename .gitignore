@@ -1,0 +1,15 @@
+.DS_Store
+node_modules/
+dist/
+coverage/
+*.log
+.env*
+
+# BMAD install (npx bmad-method), local only
+_bmad/
+.claude/skills/bmad-*/
+.claude/skills/gds-*/
+.agents/skills/bmad-*/
+.agents/skills/gds-*/
+.github/agents/bmad-*.agent.md
+.github/agents/gds-*.agent.md

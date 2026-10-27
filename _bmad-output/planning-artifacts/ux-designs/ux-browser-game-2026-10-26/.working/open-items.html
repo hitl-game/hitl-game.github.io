@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Open items</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F6F8FA;--surface:#FFFFFF;--line:#E3E8EE;--ink:#1A2433;--muted:#5E6B7E;--accent:#1A64D6;--accent-t:#E8F0FC;--ok:#16733F;--ok-t:#E6F4EC;--watch:#9A6700;--watch-t:#FFF6DB;--crit:#C9372C;--crit-t:#FCEBE9;--bar:#0E0F12;--bar-ink:#E6E7EB;--bar-mute:#8B8E98;--metis:linear-gradient(135deg,#7C3AED,#C026D3,#DB2777)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0D1117;--surface:#151B23;--line:#2A323D;--ink:#E6EAF0;--muted:#9AA6B6;--accent:#4C8DFF;--accent-t:#14233C;--ok-t:#10261A;--watch-t:#2A2110;--crit-t:#2D1513}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 Inter,system-ui,sans-serif;padding:24px 16px 64px}
+main{max-width:1180px;margin:0 auto}
+h1{font-size:22px;margin:0 0 4px}
+.lede{color:var(--muted);margin:0 0 28px;max-width:760px}
+section{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px;margin-bottom:24px}
+section h2{font-size:17px;margin:0 0 4px;display:flex;gap:10px;align-items:center}
+.tag{font:500 11px/1 Inter;padding:4px 8px;border-radius:999px;background:var(--accent-t);color:var(--accent)}
+.tag.e8{background:var(--watch-t);color:var(--watch)}
+.why{color:var(--muted);margin:0 0 16px;max-width:820px}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+.opt{border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.opt.rec{border:2px solid var(--accent)}
+.opt h3{margin:0;font-size:14px}
+.opt h3 b{font-family:'JetBrains Mono',monospace;color:var(--accent);margin-right:6px}
+.opt p{margin:0;color:var(--muted);font-size:13px}
+.rec-badge{align-self:flex-start;font:600 11px Inter;color:var(--accent)}
+.pro,.con{font-size:12.5px;margin:0;padding-left:18px}
+.pro li::marker{content:"+ ";color:var(--ok)}
+.con li::marker{content:"− ";color:var(--crit)}
+.mock{border:1px solid var(--line);border-radius:8px;background:var(--bg);padding:10px;font-size:12px}
+.mono{font-family:'JetBrains Mono',monospace}
+.clock{display:flex;justify-content:space-between;align-items:center;background:var(--bar);color:var(--bar-ink);border-radius:6px;padding:6px 10px;font-size:11.5px;margin-bottom:8px}
+.clock .st{color:var(--bar-mute)}
+.clock .run{color:#7EE2A8}.clock .pause{color:#FFC861}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:8px}
+.row{display:flex;justify-content:space-between;gap:8px;padding:3px 0}
+.btn{display:inline-block;border-radius:6px;padding:5px 10px;font-size:12px;font-weight:600;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+.btn.p{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.m{background:var(--metis);border:0;color:#fff}
+.avatar{width:22px;height:22px;border-radius:6px;background:var(--metis);display:inline-grid;place-items:center;color:#fff;font-size:12px;flex:none}
+.msg{display:flex;gap:8px;align-items:flex-start}
+.delta{font-size:11px;padding:2px 6px;border-radius:4px}
+.delta.d{background:var(--crit-t);color:var(--crit)}
+.delta.n{background:var(--ok-t);color:var(--ok)}
+.doc{background:#fff;color:#1A2433;border:1px solid #E3E8EE;border-radius:6px;padding:10px;font-size:11.5px}
+.doc .h{font-weight:700;font-size:13px}
+.doc .s{color:#5E6B7E}
+.check{display:flex;gap:6px;align-items:center;font-size:12px;margin-top:6px}
+.box{width:14px;height:14px;border:1.5px solid #7D8798;border-radius:3px;display:inline-grid;place-items:center;font-size:10px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden;font-size:11.5px}
+.seg span{padding:4px 8px;border-right:1px solid var(--line)}.seg span:last-child{border:0}
+.seg .on{background:var(--accent);color:#fff}
+.tab{display:inline-flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--line);border-bottom:0;border-radius:8px 8px 0 0;padding:6px 12px;font-size:12px;max-width:100%}
+.sr{font-size:11.5px;color:var(--muted);border-left:3px solid var(--line);padding-left:8px;margin-top:6px}
+.done{background:var(--ok-t);border-color:transparent}
+.done p{margin:0}
+</style>
+</head>
+<body><main>
+<h1>Open items · Human in the Loop</h1>
+<p class="lede">Quattro punti cambiano il GDD, uno decide il ripiego per una verifica E8. In ogni sezione il bordo blu indica la mia raccomandazione. Rispondi con le lettere, per esempio “1A 2C 3B 4B 5A”.</p>
+
+<!-- 1 -->
+<section>
+<h2>1 · Settings e overlay <span class="mono">?</span> fermano l'orologio? <span class="tag">GDD M1</span></h2>
+<p class="why">La tabella Clock States in M1 non dice cosa fa l'orologio quando il giocatore apre Settings o la guida alle scorciatoie. A 1 minuto per giorno, 30 secondi passati a leggere le opzioni di accessibilità costano mezza giornata di burn.</p>
+<div class="opts">
+ <div class="opt rec"><span class="rec-badge">Raccomandata</span><h3><b>A</b>Tutti e due mettono in pausa</h3>
+  <div class="mock"><div class="clock"><span>Settings</span><span class="pause mono">⏸ Day 14 · paused</span></div><div class="clock"><span>? Shortcuts</span><span class="pause mono">⏸ Day 14 · paused</span></div></div>
+  <ul class="pro"><li>Chi configura l'accessibilità non viene punito</li><li>Coerente con gli overlay pesanti, che già mettono in pausa</li></ul>
+  <ul class="con"><li>Si può aprire Settings per fermare il tempo (exploit innocuo: è single player)</li></ul></div>
+ <div class="opt"><h3><b>B</b>Solo Settings mette in pausa</h3>
+  <div class="mock"><div class="clock"><span>Settings</span><span class="pause mono">⏸ Day 14 · paused</span></div><div class="clock"><span>? Shortcuts</span><span class="run mono">▶ Day 14 · running</span></div></div>
+  <ul class="pro"><li>L'overlay <span class="mono">?</span> è una consultazione veloce: il ritmo resta</li></ul>
+  <ul class="con"><li>Chi impara le scorciatoie con uno screen reader ci mette di più e paga</li></ul></div>
+ <div class="opt"><h3><b>C</b>Nessuno dei due mette in pausa</h3>
+  <div class="mock"><div class="clock"><span>Settings</span><span class="run mono">▶ Day 14 · running</span></div><div class="clock"><span>? Shortcuts</span><span class="run mono">▶ Day 14 · running</span></div></div>
+  <ul class="pro"><li>Nessuna pausa “gratuita”</li></ul>
+  <ul class="con"><li>Va contro WCAG 2.2.1 nello spirito: regolare il timing costa tempo</li><li>Sul primo schermo (founding) l'orologio non corre ancora, ma più avanti sì</li></ul></div>
+</div>
+</section>
+
+<!-- 2 -->
+<section>
+<h2>2 · Comprare GPU tramite l'offerta di Metis fa calare l'Alignment? <span class="tag">GDD M4 · M7</span></h2>
+<p class="why">Al 100% di GPU Metis scrive “I'm at capacity. Want me to provision more GPUs?”. Il GDD non dice se accettare conta come decisione delegata. Lo spine oggi la tratta come un acquisto del giocatore.</p>
+<div class="opts">
+ <div class="opt rec"><span class="rec-badge">Raccomandata</span><h3><b>A</b>È un acquisto: nessun drift</h3>
+  <div class="mock"><div class="msg"><span class="avatar">✨</span><div><b>Metis</b><br>I'm at capacity. Want me to provision more GPUs?<div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap"><span class="btn m">✨ Provision 2 units · +$100/day</span><span class="btn">Not now</span></div></div></div><div style="margin-top:8px"><span class="delta n">Alignment ±0</span></div></div>
+  <ul class="pro"><li>Il drift resta legato a una sola leva: delegare decisioni</li><li>Il clue replay rimane leggibile e giusto</li></ul>
+  <ul class="con"><li>Il ✨ sul bottone promette un'ambiguità che poi non c'è</li></ul></div>
+ <div class="opt"><h3><b>B</b>Conta come delegata: drift piccolo</h3>
+  <div class="mock"><div class="msg"><span class="avatar">✨</span><div><b>Metis</b><br>I'm at capacity. Want me to provision more GPUs?<div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap"><span class="btn m">✨ Provision 2 units · +$100/day</span><span class="btn">Not now</span></div></div></div><div style="margin-top:8px"><span class="delta d">Alignment −0.5 (hidden)</span></div></div>
+  <ul class="pro"><li>Satira più cattiva: lasci decidere all'AI quanta AI ti serve</li></ul>
+  <ul class="con"><li>Al clue replay può sembrare una punizione nascosta (“unfair”, contro H2)</li></ul></div>
+ <div class="opt"><h3><b>C</b>Due strade: Metis con drift, Vanity senza</h3>
+  <div class="mock"><div class="panel"><div class="row"><b>Compute</b><span class="mono">100%</span></div><div class="row"><span class="s">Rent-a-Brain</span><span class="btn">Buy units…</span></div></div><div style="margin-top:6px" class="msg"><span class="avatar">✨</span><span class="btn m">✨ Provision 2 units</span><span class="delta d">−0.5</span></div></div>
+  <ul class="pro"><li>Scelta vera: comodità contro controllo, come in tutto il gioco</li></ul>
+  <ul class="con"><li>Una superficie in più da costruire (la tile Compute diventa acquistabile)</li><li>Il costo resta invisibile fino al replay</li></ul></div>
+</div>
+</section>
+
+<!-- 3 -->
+<section>
+<h2>3 · L'etichetta del timing nel documento condiviso <span class="tag">GDD Accessibility · End-of-run</span></h2>
+<p class="why">Il GDD mette <span class="mono">213 days · untimed</span> nel PNG e nel PDF. Chi condivide il documento su LinkedIn rivela così di aver usato un'impostazione di accessibilità.</p>
+<div class="opts">
+ <div class="opt"><h3><b>A</b>Sempre visibile (GDD attuale)</h3>
+  <div class="mock"><div class="doc"><div class="s">Loop #3 · Post-mortem</div><div class="h">213 days · untimed</div><div class="s">Peak valuation $48M</div></div></div>
+  <ul class="pro"><li>Confronto onesto tra punteggi</li></ul>
+  <ul class="con"><li>Rivela un'impostazione di accessibilità a chiunque veda il post</li></ul></div>
+ <div class="opt rec"><span class="rec-badge">Raccomandata</span><h3><b>B</b>Opzione nell'export, spenta di default</h3>
+  <div class="mock"><div class="doc"><div class="s">Loop #3 · Post-mortem</div><div class="h">213 days</div><div class="s">Peak valuation $48M</div></div><div class="check"><span class="box"></span>Show timing setting on the document</div></div>
+  <ul class="pro"><li>Decide chi condivide</li><li>Il personal best in gioco mostra comunque l'etichetta</li></ul>
+  <ul class="con"><li>Un controllo in più nella schermata di export</li></ul></div>
+ <div class="opt"><h3><b>C</b>Mai nel documento, solo in gioco</h3>
+  <div class="mock"><div class="doc"><div class="s">Loop #3 · Post-mortem</div><div class="h">213 days</div><div class="s">Peak valuation $48M</div></div><div class="sr">In gioco: Personal best · 213 days · untimed</div></div>
+  <ul class="pro"><li>Più semplice; nessuna esposizione</li></ul>
+  <ul class="con"><li>Senza leaderboard il confronto onesto conta poco, ma si perde del tutto</li></ul></div>
+</div>
+</section>
+
+<!-- 4 -->
+<section>
+<h2>4 · Opzione “velocità di gioco” <span class="tag">GDD M1 · Accessibility</span></h2>
+<p class="why">Untimed toglie la scadenza ai messaggi, ma l'orologio corre ancora a 1 minuto per giorno: chi legge lentamente brucia cassa mentre legge. WCAG 2.2.1 riguarda i limiti di tempo; qui il tempo è la meccanica stessa.</p>
+<div class="opts">
+ <div class="opt"><h3><b>A</b>Nessuna opzione</h3>
+  <div class="mock"><div class="row"><span>Timing</span><span class="seg"><span>Standard</span><span>Extended</span><span>Relaxed</span><span class="on">Untimed</span></span></div><div class="sr">1 min = 1 day, sempre</div></div>
+  <ul class="pro"><li>Un solo ritmo di bilanciamento</li></ul>
+  <ul class="con"><li>Kenji (Flow 6) è comunque sotto pressione mentre NVDA legge</li></ul></div>
+ <div class="opt rec"><span class="rec-badge">Raccomandata</span><h3><b>B</b>“Game speed” separato: 1× · ½× · ¼×</h3>
+  <div class="mock"><div class="row"><span>Timing</span><span class="seg"><span>Standard</span><span>Extended</span><span>Relaxed</span><span class="on">Untimed</span></span></div><div class="row"><span>Game speed</span><span class="seg"><span>1×</span><span class="on">½×</span><span>¼×</span></span></div><div class="sr">½× = 2 min per day · label: 213 days · untimed · ½×</div></div>
+  <ul class="pro"><li>Chiude il buco senza toccare il bilanciamento: si scala solo il tempo reale</li><li>Determinismo salvo: entra nel seed come il timing</li></ul>
+  <ul class="con"><li>Un'impostazione in più, e un'altra etichetta (vedi punto 3)</li></ul></div>
+ <div class="opt"><h3><b>C</b>Speed legata ai preset di Timing</h3>
+  <div class="mock"><div class="row"><span>Timing</span><span class="seg"><span>Standard</span><span>Extended</span><span>Relaxed</span><span class="on">Untimed</span></span></div><div class="sr">Relaxed → ½×, Untimed → ¼× automaticamente</div></div>
+  <ul class="pro"><li>Nessun controllo nuovo</li></ul>
+  <ul class="con"><li>Chi vuole solo più tempo per rispondere rallenta anche l'economia</li></ul></div>
+</div>
+</section>
+
+<!-- 5 -->
+<section>
+<h2>5 · Barratura nel titolo della tab <span class="tag e8">E8 verify</span></h2>
+<p class="why">Le tab non supportano lo stile: la barratura si fa con il carattere U+0336 dopo ogni lettera. Va provata con VoiceOver, NVDA e JAWS in E8. Qui decidi solo cosa fare se suona come rumore.</p>
+<div class="opts">
+ <div class="opt rec"><span class="rec-badge">Raccomandata</span><h3><b>A</b>Barratura visiva, nome accessibile pulito</h3>
+  <div class="mock"><span class="tab mono">(4) Human i̶n̶ the Loop</span><div class="sr">Ripiego se E8 fallisce: tab “(4) Human the Loop” — la parola sparisce invece di essere barrata</div></div>
+  <ul class="pro"><li>Mantiene l'effetto visivo; il ripiego resta inquietante</li></ul>
+  <ul class="con"><li>Il ripiego perde il segno della barratura</li></ul></div>
+ <div class="opt"><h3><b>B</b>Mai barratura nella tab</h3>
+  <div class="mock"><span class="tab mono">(4) Human the Loop</span><div class="sr">La barratura vera resta solo nella game bar</div></div>
+  <ul class="pro"><li>Niente test, niente rischio</li></ul>
+  <ul class="con"><li>La tab, che è la cosa che vedi da fuori, perde metà della satira</li></ul></div>
+ <div class="opt"><h3><b>C</b>Barratura sempre, si accetta il rumore</h3>
+  <div class="mock"><span class="tab mono">(4) Human i̶n̶ the Loop</span><div class="sr">NVDA potrebbe leggere “i combining long stroke overlay n…”</div></div>
+  <ul class="pro"><li>Nessun ripiego da mantenere</li></ul>
+  <ul class="con"><li>Rischio di rumore per chi usa screen reader</li></ul></div>
+</div>
+</section>
+
+<section class="done">
+<h2>6 · Remapping dei tasti <span class="tag">già deciso</span></h2>
+<p>Nessun remapping nell'MVP. WCAG 2.1.4 è coperto: le scorciatoie a un tasto si possono spegnere e il set con <span class="mono">Alt</span> resta. Non serve una decisione, a meno che tu voglia il remapping.</p>
+</section>
+</main></body>
+</html>

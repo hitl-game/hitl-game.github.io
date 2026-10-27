@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Type, title and naming</title>
+<!-- Working comparison only: loads Google Fonts to show real typefaces. The shipped game self-hosts its fonts (offline after first load). -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600&family=Atkinson+Hyperlegible+Next:wght@400;500;600;700&family=Atkinson+Hyperlegible+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* Theme used throughout: Ledger light (default theme). Ledger tokens: bg #F6F8FA, panel #FFFFFF, line #E3E8EE,
+   ink #1A2433, mute #5E6B7E, accent #1F6FEB, ok #1A7F4B, warn #9A6700, crit #C9372C. */
+:root{--bg:#F6F8FA;--panel:#FFFFFF;--side:#FFFFFF;--raised:#F6F8FA;--line:#E3E8EE;--ink:#1A2433;--mute:#5E6B7E;--accent:#1F6FEB;--ok:#1A7F4B;--warn:#9A6700;--crit:#C9372C}
+*{box-sizing:border-box}
+body{margin:0;background:#e9ebef;color:#18181b;font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding:24px}
+h1{font-size:22px;margin:0 0 4px}
+.lead{color:#52525b;max-width:1000px;margin:0 0 8px}
+nav{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 28px}
+nav a{background:#fff;border:1px solid #d4d4d8;border-radius:999px;padding:4px 12px;color:#18181b;text-decoration:none;font-size:13px}
+.q{background:#fff;border:1px solid #d4d4d8;border-radius:12px;padding:20px;margin:0 0 36px;max-width:1240px}
+.q>h2{margin:0 0 2px;font-size:19px}
+.q>.ask{color:#52525b;margin:0 0 16px}
+.opts{display:grid;gap:16px}
+.opts.c2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.opts.c3{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:1000px){.opts.c2,.opts.c3{grid-template-columns:1fr}}
+.opt{border:1px solid #e4e4e7;border-radius:10px;padding:14px;background:#fafafa;min-width:0}
+.opt>h3{margin:0 0 2px;font-size:15px}
+.opt>.sub{color:#71717a;font-size:12.5px;margin:0 0 10px}
+.tag{display:inline-block;font-size:11px;border-radius:4px;padding:1px 6px;margin-left:6px;vertical-align:2px;background:#ecfdf3;color:#166534;border:1px solid #bbf7d0}
+.pc{margin:10px 0 0;padding:0;list-style:none;font-size:12.5px;color:#3f3f46}
+.pc li::before{content:"+ ";font-weight:700;color:#166534}
+.pc li.c::before{content:"− ";color:#b91c1c}
+
+/* ---------- specimen card (Ledger light) ---------- */
+.spec{background:var(--bg);border:1px solid var(--line);border-radius:8px;overflow:hidden;color:var(--ink);font-family:var(--sans)}
+.spec .top{display:flex;gap:10px;align-items:center;height:34px;padding:0 12px;background:var(--side);border-bottom:1px solid var(--line);font-size:13px}
+.spec .top b{font-weight:600}
+.spec .top .tk{color:var(--mute);white-space:nowrap;overflow:hidden;flex:1;font-size:12.5px}
+.spec .body{display:grid;grid-template-columns:1fr 210px}
+.spec .chat{background:var(--panel);padding:10px 12px;font-size:14px;border-right:1px solid var(--line)}
+.spec .msg{display:flex;gap:9px;margin-bottom:10px}
+.spec .av{width:30px;height:30px;border-radius:8px;flex:none;color:#fff;font-weight:700;font-size:11px;display:flex;align-items:center;justify-content:center}
+.spec .who{font-weight:700}.spec .tm{color:var(--mute);font-size:12px;margin-left:6px;font-variant-numeric:tabular-nums}
+.spec .btns{display:flex;gap:6px;margin-top:5px;flex-wrap:wrap}
+.spec .btn{border:1px solid var(--line);border-radius:8px;padding:3px 9px;font-size:12.5px;background:#fff}
+.spec .btn .k{color:var(--mute);margin-right:5px;font-family:var(--mono);font-size:11.5px}
+.spec .rail{padding:10px;display:flex;flex-direction:column;gap:6px}
+.spec .kpi{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:7px 10px}
+.spec .kpi .l{font-size:10.5px;color:var(--mute);text-transform:uppercase;letter-spacing:.05em;font-weight:500}
+.spec .kpi .v{font-size:21px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.spec .kpi .d{font-size:11.5px;font-variant-numeric:tabular-nums}
+.spec .up{color:var(--ok)}.spec .dn{color:var(--crit)}
+.spec .log{font-family:var(--mono);font-size:11px;color:var(--mute);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:6px 8px;line-height:1.55}
+.spec .log b{color:var(--ink);font-weight:600}
+.spec .foot{font-family:var(--mono);font-size:11px;color:var(--mute);padding:6px 12px;border-top:1px solid var(--line);background:var(--side)}
+.digits{font-variant-numeric:tabular-nums;font-size:13px;color:var(--mute);margin-top:4px}
+.f-inter{--sans:"Inter",sans-serif;--mono:"JetBrains Mono",monospace}
+.f-plex{--sans:"IBM Plex Sans",sans-serif;--mono:"IBM Plex Mono",monospace}
+.f-sys{--sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.f-atk{--sans:"Atkinson Hyperlegible Next",sans-serif;--mono:"Atkinson Hyperlegible Mono",monospace}
+.f-inter-airy{--sans:"Inter",sans-serif;--mono:"JetBrains Mono",monospace}
+.f-inter-airy .chat{font-size:15px;line-height:1.7;letter-spacing:.012em;font-weight:500}
+.f-inter-airy .kpi .v{font-weight:700}
+.f-inter-airy .btn{font-weight:500}
+
+/* ---------- header mocks for the title question ---------- */
+.hdr{background:var(--bg);border:1px solid var(--line);border-radius:8px;overflow:hidden;color:var(--ink);font-family:"Inter",sans-serif;font-size:13px}
+.tabbar{display:flex;align-items:flex-end;gap:4px;background:#dfe3e8;padding:6px 8px 0}
+.tabbar .t{background:#fff;border-radius:7px 7px 0 0;padding:4px 12px;font-size:12px;max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tabbar .t.off{background:transparent;color:#5E6B7E}
+.hbar{display:flex;align-items:center;gap:10px;height:38px;padding:0 12px;background:#fff;border-bottom:1px solid var(--line)}
+.logo{display:flex;align-items:center;gap:7px;font-weight:700;white-space:nowrap}
+.logo i{width:18px;height:18px;border-radius:5px;background:var(--ink);display:inline-block}
+.ws{color:var(--mute);white-space:nowrap}
+.ws b{color:var(--ink);font-weight:600}
+.tkr{flex:1;color:var(--mute);white-space:nowrap;overflow:hidden;font-size:12px}
+.side2{display:grid;grid-template-columns:150px 1fr;height:120px}
+.side2 .s{border-right:1px solid var(--line);background:#fff;padding:8px;font-size:12px;color:var(--mute)}
+.side2 .s b{display:block;color:var(--ink);margin-bottom:6px}
+.side2 .m{padding:10px;color:var(--mute);font-size:12px}
+.stages{margin-top:10px;display:grid;gap:4px;font-size:12.5px}
+.stages div{display:flex;gap:8px;align-items:center}
+.stages code{font-family:"JetBrains Mono",monospace;font-size:11px;color:#71717a;width:46px;flex:none}
+s{text-decoration-thickness:2px}
+.gamebar{background:#111;color:#bbb;font-size:11px;padding:4px 12px;display:flex;justify-content:space-between}
+.gamebar b{color:#fff}
+
+/* ---------- naming table ---------- */
+table.names{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}
+.names th,.names td{border-bottom:1px solid #e4e4e7;text-align:left;padding:8px 10px;vertical-align:top}
+.names th{font-size:12px;color:#52525b;font-weight:600;background:#fafafa}
+.names td:first-child{color:#52525b;width:200px}
+.names .n{font-weight:600}
+.names .e{display:block;color:#71717a;font-size:12px;margin-top:2px}
+.nm-live{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:18px}
+@media (max-width:1000px){.nm-live{grid-template-columns:1fr}}
+.toast{font-family:"Inter",sans-serif;background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:12.5px;color:var(--ink);margin-top:6px}
+.toast .src{font-size:11px;color:var(--mute);text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+.bank{border-left:3px solid var(--crit)}
+.note{font-size:12.5px;color:#52525b;margin-top:12px;max-width:1000px}
+</style>
+</head>
+<body>
+<h1>Type, title and naming — side by side</h1>
+<p class="lead">Four questions, each answered by looking. Everything is shown in <b>Ledger light</b> (the default theme). The content is the same in every variant so only the variable changes. All invented names are <b>illustrative candidates</b>; whichever register you pick, the final list gets a collision check against real companies and the Metis-only myth rule.</p>
+<nav><a href="#q1">1 · Font pair</a><a href="#q2">2 · High-legibility setting</a><a href="#q3">3 · What "Human in the Loop" is in the fiction</a><a href="#q4">4 · Naming register</a></nav>
+
+<!-- ===================================================== Q1 -->
+<section class="q" id="q1">
+<h2>1 · Shared font pair</h2>
+<p class="ask">One sans for UI and numbers (tabular figures so rolling numbers never jitter) + one mono for the inference log and IDs. Watch the KPI numbers, the K → M → B units and the log.</p>
+<div class="opts c2">
+
+<div class="opt"><h3>A · Inter + JetBrains Mono</h3><p class="sub">The default font of every SaaS and AI startup in 2026.</p>
+<div class="spec f-inter">
+ <div class="top"><b>Ramen Labs</b><span class="tk">NEWS · Anonymous billionaire says AGI is "basically done, pending a few details"</span><span>Day 9</span></div>
+ <div class="body"><div class="chat">
+  <div class="msg"><div class="av" style="background:#C2683F">DK</div><div><span class="who">Dora Kessler</span><span class="tm">day 2</span><div>WE'RE LIVE. ramen tonight? 🍜 — Dora</div></div></div>
+  <div class="msg"><div class="av" style="background:#5B6B8C">AC</div><div><span class="who">Acme Corp</span><span class="tm">day 8 · 0:52</span><div>Can you add SSO? We'd pay 3x.</div><div class="btns"><span class="btn"><span class="k">1</span>Ship it this week</span><span class="btn"><span class="k">2</span>Roadmap</span><span class="btn"><span class="k">D</span>Ask Metis</span></div></div></div>
+ </div><div class="rail">
+  <div class="kpi"><div class="l">Cash</div><div class="v">$9,180</div><div class="d dn">−$322 today</div></div>
+  <div class="kpi"><div class="l">Peak valuation</div><div class="v">$2.03B</div><div class="d up">+$412.5K</div></div>
+  <div class="log">&gt; 1,204 tok · 380 ms<br><b>&gt; output: "hello. who is in the loop?"</b></div>
+ </div></div>
+ <div class="foot">Run ID: 7F3A-K2 · Aegis-4 · 0O 1lI</div>
+</div>
+<div class="digits f-inter" style="font-family:'Inter'">0123456789 · $11,111 → $88,888</div>
+<ul class="pc"><li>Maximum recognition: it looks exactly like the tools players use every day</li><li>Excellent tabular figures, lots of weights</li><li class="c">Generic, by definition (here that is the point)</li></ul></div>
+
+<div class="opt"><h3>B · IBM Plex Sans + Plex Mono</h3><p class="sub">One superfamily, more "enterprise".</p>
+<div class="spec f-plex">
+ <div class="top"><b>Ramen Labs</b><span class="tk">NEWS · Anonymous billionaire says AGI is "basically done, pending a few details"</span><span>Day 9</span></div>
+ <div class="body"><div class="chat">
+  <div class="msg"><div class="av" style="background:#C2683F">DK</div><div><span class="who">Dora Kessler</span><span class="tm">day 2</span><div>WE'RE LIVE. ramen tonight? 🍜 — Dora</div></div></div>
+  <div class="msg"><div class="av" style="background:#5B6B8C">AC</div><div><span class="who">Acme Corp</span><span class="tm">day 8 · 0:52</span><div>Can you add SSO? We'd pay 3x.</div><div class="btns"><span class="btn"><span class="k">1</span>Ship it this week</span><span class="btn"><span class="k">2</span>Roadmap</span><span class="btn"><span class="k">D</span>Ask Metis</span></div></div></div>
+ </div><div class="rail">
+  <div class="kpi"><div class="l">Cash</div><div class="v">$9,180</div><div class="d dn">−$322 today</div></div>
+  <div class="kpi"><div class="l">Peak valuation</div><div class="v">$2.03B</div><div class="d up">+$412.5K</div></div>
+  <div class="log">&gt; 1,204 tok · 380 ms<br><b>&gt; output: "hello. who is in the loop?"</b></div>
+ </div></div>
+ <div class="foot">Run ID: 7F3A-K2 · Aegis-4 · 0O 1lI</div>
+</div>
+<div class="digits" style="font-family:'IBM Plex Sans'">0123456789 · $11,111 → $88,888</div>
+<ul class="pc"><li>More character, a "corporate document" feel (good for the post-mortem PDF)</li><li>Sans and mono designed together</li><li class="c">Less "startup", more "IBM / bank"</li></ul></div>
+
+<div class="opt"><h3>C · System stack + system mono</h3><p class="sub">SF Pro on Mac, Segoe on Windows, Roboto on Android. GitHub-style.</p>
+<div class="spec f-sys">
+ <div class="top"><b>Ramen Labs</b><span class="tk">NEWS · Anonymous billionaire says AGI is "basically done, pending a few details"</span><span>Day 9</span></div>
+ <div class="body"><div class="chat">
+  <div class="msg"><div class="av" style="background:#C2683F">DK</div><div><span class="who">Dora Kessler</span><span class="tm">day 2</span><div>WE'RE LIVE. ramen tonight? 🍜 — Dora</div></div></div>
+  <div class="msg"><div class="av" style="background:#5B6B8C">AC</div><div><span class="who">Acme Corp</span><span class="tm">day 8 · 0:52</span><div>Can you add SSO? We'd pay 3x.</div><div class="btns"><span class="btn"><span class="k">1</span>Ship it this week</span><span class="btn"><span class="k">2</span>Roadmap</span><span class="btn"><span class="k">D</span>Ask Metis</span></div></div></div>
+ </div><div class="rail">
+  <div class="kpi"><div class="l">Cash</div><div class="v">$9,180</div><div class="d dn">−$322 today</div></div>
+  <div class="kpi"><div class="l">Peak valuation</div><div class="v">$2.03B</div><div class="d up">+$412.5K</div></div>
+  <div class="log">&gt; 1,204 tok · 380 ms<br><b>&gt; output: "hello. who is in the loop?"</b></div>
+ </div></div>
+ <div class="foot">Run ID: 7F3A-K2 · Aegis-4 · 0O 1lI</div>
+</div>
+<div class="digits" style="font-family:-apple-system,'Segoe UI',sans-serif">0123456789 · $11,111 → $88,888</div>
+<ul class="pc"><li>Zero bytes to download: helps the &lt; 2 s load target</li><li>Feels native on every OS</li><li class="c">Looks different on every OS, including in the shared PNG/PDF</li><li class="c">You are seeing your Mac's version: on Windows it is Segoe</li></ul></div>
+
+<div class="opt"><h3>D · Atkinson Hyperlegible Next + Mono</h3><p class="sub">Designed for legibility (Braille Institute).</p>
+<div class="spec f-atk">
+ <div class="top"><b>Ramen Labs</b><span class="tk">NEWS · Anonymous billionaire says AGI is "basically done, pending a few details"</span><span>Day 9</span></div>
+ <div class="body"><div class="chat">
+  <div class="msg"><div class="av" style="background:#C2683F">DK</div><div><span class="who">Dora Kessler</span><span class="tm">day 2</span><div>WE'RE LIVE. ramen tonight? 🍜 — Dora</div></div></div>
+  <div class="msg"><div class="av" style="background:#5B6B8C">AC</div><div><span class="who">Acme Corp</span><span class="tm">day 8 · 0:52</span><div>Can you add SSO? We'd pay 3x.</div><div class="btns"><span class="btn"><span class="k">1</span>Ship it this week</span><span class="btn"><span class="k">2</span>Roadmap</span><span class="btn"><span class="k">D</span>Ask Metis</span></div></div></div>
+ </div><div class="rail">
+  <div class="kpi"><div class="l">Cash</div><div class="v">$9,180</div><div class="d dn">−$322 today</div></div>
+  <div class="kpi"><div class="l">Peak valuation</div><div class="v">$2.03B</div><div class="d up">+$412.5K</div></div>
+  <div class="log">&gt; 1,204 tok · 380 ms<br><b>&gt; output: "hello. who is in the loop?"</b></div>
+ </div></div>
+ <div class="foot">Run ID: 7F3A-K2 · Aegis-4 · 0O 1lI</div>
+</div>
+<div class="digits" style="font-family:'Atkinson Hyperlegible Next'">0123456789 · $11,111 → $88,888</div>
+<ul class="pc"><li>Best legibility by default (0/O, 1/l/I clearly distinct)</li><li class="c">Less "generic SaaS": it gives up some recognition</li><li class="c">Leaves the high-legibility setting with nothing to switch to</li></ul></div>
+</div>
+</section>
+
+<!-- ===================================================== Q2 -->
+<section class="q" id="q2">
+<h2>2 · What the "High-legibility font" setting turns on</h2>
+<p class="ask">Accessibility setting from the GDD. On the left the default (assumed Inter, for comparison); in the middle and on the right the two possible behaviours when the setting is on.</p>
+<div class="opts c3">
+<div class="opt"><h3>Default (setting off)</h3><p class="sub">Reference: Inter + JetBrains Mono.</p>
+<div class="spec f-inter"><div class="body" style="grid-template-columns:1fr"><div class="chat" style="border:none">
+ <div class="msg"><div class="av" style="background:#3C8D7A">BW</div><div><span class="who">Bluewren Analytics</span><span class="tm">day 9 · 0:31</span><div>Your model told our CFO the invoice was "vibes-based". Refund?</div><div class="btns"><span class="btn"><span class="k">1</span>Refund</span><span class="btn"><span class="k">2</span>Offer a credit</span></div></div></div>
+ <div class="kpi"><div class="l">Runway</div><div class="v">24 days</div></div>
+ <div class="log" style="margin-top:6px">Run ID: 7F3A-K2 · 0O 1lI · ill-1110</div>
+</div></div></div></div>
+
+<div class="opt"><h3>X · Switch to Atkinson Hyperlegible <span class="tag">recommended</span></h3><p class="sub">Replaces both families while the setting is on. It is an alternative, not a third family alongside the others.</p>
+<div class="spec f-atk"><div class="body" style="grid-template-columns:1fr"><div class="chat" style="border:none">
+ <div class="msg"><div class="av" style="background:#3C8D7A">BW</div><div><span class="who">Bluewren Analytics</span><span class="tm">day 9 · 0:31</span><div>Your model told our CFO the invoice was "vibes-based". Refund?</div><div class="btns"><span class="btn"><span class="k">1</span>Refund</span><span class="btn"><span class="k">2</span>Offer a credit</span></div></div></div>
+ <div class="kpi"><div class="l">Runway</div><div class="v">24 days</div></div>
+ <div class="log" style="margin-top:6px">Run ID: 7F3A-K2 · 0O 1lI · ill-1110</div>
+</div></div></div>
+<ul class="pc"><li>Real difference for people with low vision or dyslexia</li><li class="c">One more font pair to bundle (loaded only when the setting is on)</li></ul></div>
+
+<div class="opt"><h3>Y · Same font, more air</h3><p class="sub">Inter stays; size +1, line height 1.7, letter spacing +1.2%, weight 500.</p>
+<div class="spec f-inter-airy"><div class="body" style="grid-template-columns:1fr"><div class="chat" style="border:none">
+ <div class="msg"><div class="av" style="background:#3C8D7A">BW</div><div><span class="who">Bluewren Analytics</span><span class="tm">day 9 · 0:31</span><div>Your model told our CFO the invoice was "vibes-based". Refund?</div><div class="btns"><span class="btn"><span class="k">1</span>Refund</span><span class="btn"><span class="k">2</span>Offer a credit</span></div></div></div>
+ <div class="kpi"><div class="l">Runway</div><div class="v">24 days</div></div>
+ <div class="log" style="margin-top:6px">Run ID: 7F3A-K2 · 0O 1lI · ill-1110</div>
+</div></div></div>
+<ul class="pc"><li>Nothing extra to download</li><li class="c">Ambiguous glyphs (1 l I, 0 O) stay ambiguous</li><li class="c">Overlaps the "line spacing" setting that already exists</li></ul></div>
+</div>
+</section>
+
+<!-- ===================================================== Q3 -->
+<section class="q" id="q3">
+<h2>3 · What "Human in the Loop" is inside the fiction</h2>
+<p class="ask">The GDD says the <b>header title and the tab title</b> corrupt at Alignment 75 / 50 / 25, and the last stage arrives at Surpassed. So the name sits in the header — but as <i>what</i>? Each option shows the header at rest and the corruption stages as they would read in that position.</p>
+<div class="opts c3">
+
+<div class="opt"><h3>P · It is the workspace product's name</h3><p class="sub">The suite (chat + dashboard) is called "Human in the Loop", the way Slack is called Slack. The player's startup is the workspace inside it.</p>
+<div class="hdr">
+ <div class="tabbar"><span class="t">(3) Human in the Loop</span><span class="t off">Inbox</span></div>
+ <div class="hbar"><span class="logo"><i></i>Human in the Loop</span><span class="ws">/ <b>Ramen Labs</b></span><span class="tkr">NEWS · Regulator opens a consultation on the consultation</span></div>
+ <div class="side2"><div class="s"><b>Ramen Labs</b># general<br># customers</div><div class="m">The tool's logo is the title. When it corrupts, the software's own brand breaks — like a product that "rebrands" on its own.</div></div>
+</div>
+<div class="stages">
+ <div><code>100</code><span>Human in the Loop</span></div>
+ <div><code>75</code><span>Human <s>in</s> the Loop</span></div>
+ <div><code>50</code><span><s>Human</s> in the Loop</span></div>
+ <div><code>25</code><span>Human out of the Loop</span></div>
+ <div><code>0</code><span><b>No Human in the Loop</b></span></div>
+</div>
+<ul class="pc"><li>100% inside the fiction: nothing says "this is a game"</li><li>A brand that rebrands itself is pure SaaS satire</li><li>Tab title = product name, like every real web app</li><li class="c">The game and the fake tool share a name (it is intentional, but it has to be clear)</li></ul></div>
+
+<div class="opt"><h3>Q · Game title, outside the fiction</h3><p class="sub">The workspace has its own invented product name (e.g. "Relay"); "Human in the Loop" is a thin game bar above it.</p>
+<div class="hdr">
+ <div class="tabbar"><span class="t">(3) Human in the Loop</span><span class="t off">Inbox</span></div>
+ <div class="gamebar"><b>Human in the Loop</b><span>Loop #1 · Settings</span></div>
+ <div class="hbar"><span class="logo"><i></i>Relay</span><span class="ws">/ <b>Ramen Labs</b></span><span class="tkr">NEWS · Regulator opens a consultation on the consultation</span></div>
+ <div class="side2"><div class="s"><b>Ramen Labs</b># general<br># customers</div><div class="m">Two levels: the game frames the fake tool. The corrupting title lives in the black bar and in the tab.</div></div>
+</div>
+<div class="stages">
+ <div><code>100</code><span>Human in the Loop</span></div>
+ <div><code>75</code><span>Human <s>in</s> the Loop</span></div>
+ <div><code>50</code><span><s>Human</s> in the Loop</span></div>
+ <div><code>25</code><span>Human out of the Loop</span></div>
+ <div><code>0</code><span><b>No Human in the Loop</b></span></div>
+</div>
+<ul class="pc"><li>Clear separation between game and fiction</li><li class="c">A "game" bar breaks Pillar 1 (The Workspace Is the Game)</li><li class="c">The corruption reads as a game effect, not a workspace effect</li><li class="c">One more product name to invent</li></ul></div>
+
+<div class="opt"><h3>R · Name of the program the startup belongs to</h3><p class="sub">"Human in the Loop" is the accelerator / founder program that hosts the workspace (like "YC Startup School" on a portal).</p>
+<div class="hdr">
+ <div class="tabbar"><span class="t">(3) Human in the Loop</span><span class="t off">Inbox</span></div>
+ <div class="hbar"><span class="logo"><i></i>Ramen Labs</span><span class="ws">· a <b>Human in the Loop</b> company</span><span class="tkr">NEWS · Regulator opens a consultation on the consultation</span></div>
+ <div class="side2"><div class="s"><b>Ramen Labs</b># general<br># customers</div><div class="m">The startup name dominates; "Human in the Loop" is the "badge" of the program that funded it.</div></div>
+</div>
+<div class="stages">
+ <div><code>100</code><span>a Human in the Loop company</span></div>
+ <div><code>75</code><span>a Human <s>in</s> the Loop company</span></div>
+ <div><code>50</code><span>a <s>Human</s> in the Loop company</span></div>
+ <div><code>25</code><span>a Human out of the Loop company</span></div>
+ <div><code>0</code><span><b>a No Human in the Loop company</b></span></div>
+</div>
+<ul class="pc"><li>The startup name (chosen by the player) is the protagonist</li><li class="c">Needs lore that does not exist (who runs the program?)</li><li class="c">The title is small and secondary: the corruption is noticed less</li></ul></div>
+</div>
+</section>
+
+<!-- ===================================================== Q4 -->
+<section class="q" id="q4">
+<h2>4 · Register for invented names</h2>
+<p class="ask">Same slots, three registers. Then three live examples per register (overdraft banner, customer message, headline). Remember the Voice Principle: <b>no generic AI irony</b> — a name that "winks" is often exactly that.</p>
+<table class="names">
+<tr><th>Slot</th><th>Plausible and boring</th><th>Mixed by layer</th><th>Satirical</th></tr>
+<tr><td>Workspace tool (only if 3 = Q)</td><td><span class="n">Relay</span></td><td><span class="n">Relay</span></td><td><span class="n">Huddlr</span></td></tr>
+<tr><td>Docs for heavy decisions</td><td><span class="n">Folio</span><span class="e">"Folio · Seed term sheet"</span></td><td><span class="n">Folio</span></td><td><span class="n">Synergydocs</span></td></tr>
+<tr><td>Incident page</td><td><span class="n">Statusline</span></td><td><span class="n">Statusline</span></td><td><span class="n">IsItDown.ai</span></td></tr>
+<tr><td>GPU cloud</td><td><span class="n">Northline Compute</span></td><td><span class="n">Northline Compute</span></td><td><span class="n">Rent-a-Brain Cloud</span></td></tr>
+<tr><td>Bank (overdraft banner)</td><td><span class="n">Fernwood Bank</span></td><td><span class="n">Fernwood Bank</span></td><td><span class="n">First Bank of Runway</span></td></tr>
+<tr><td>Customers (beyond Acme Corp)</td><td><span class="n">Bluewren Analytics, Tidewater Health, Cobalt Freight</span></td><td><span class="n">Bluewren Analytics</span>, <span class="n">Cobalt Freight</span><span class="e">plus the odd satirical one: "Blockchain Logistics (pivoting)"</span></td><td><span class="n">Disruptly, Pivotal Pivots, SaaSquatch</span></td></tr>
+<tr><td>Rival labs (ticker)</td><td><span class="n">Lumen Systems, Corvid AI</span></td><td><span class="n">Superintelligence Inc. (Stealth)</span><span class="e">raised $400M pre-product</span></td><td><span class="n">ClosedAI, Anthropomorphic</span><span class="e">⚠ close to real brands: not allowed</span></td></tr>
+<tr><td>Data room export</td><td><span class="n">Data room export (.hitl)</span></td><td><span class="n">Data room export</span></td><td><span class="n">Investor Vibes Pack</span></td></tr>
+</table>
+
+<div class="nm-live">
+ <div class="opt"><h3>Plausible and boring</h3><p class="sub">The satire is all in the copy.</p>
+  <div class="toast bank"><div class="src">Fernwood Bank</div>Your account is overdrawn by $1,240. 11 days remaining before we escalate.</div>
+  <div class="toast"><div class="src"># customers · Tidewater Health</div>Your model summarized a patient intake form as "mostly fine". Can we talk?</div>
+  <div class="toast"><div class="src">News</div>Lumen Systems raises $1.2B to "build the last model anyone will need"</div>
+ </div>
+ <div class="opt"><h3>Mixed by layer</h3><p class="sub">Tools sober; the world (customers, rivals) can bite.</p>
+  <div class="toast bank"><div class="src">Fernwood Bank</div>Your account is overdrawn by $1,240. 11 days remaining before we escalate.</div>
+  <div class="toast"><div class="src"># customers · Blockchain Logistics (pivoting)</div>We're an AI company now. Can your API do "agents"? Board meeting is Thursday.</div>
+  <div class="toast"><div class="src">News</div>Superintelligence Inc. (Stealth) raises $400M; product "coming in weeks"</div>
+ </div>
+ <div class="opt"><h3>Satirical</h3><p class="sub">Every name winks.</p>
+  <div class="toast bank"><div class="src">First Bank of Runway</div>Your account is overdrawn by $1,240. 11 days remaining before we escalate.</div>
+  <div class="toast"><div class="src"># customers · Disruptly</div>We're an AI company now. Can your API do "agents"? Board meeting is Thursday.</div>
+  <div class="toast"><div class="src">News</div>Rent-a-Brain Cloud announces "unlimited" GPUs, terms apply</div>
+ </div>
+</div>
+<p class="note">Fixed upstream and unchanged by this choice: <b>Metis</b> (agent), <b>Aegis-N</b> (model), <b>Dora Kessler</b>, <b>Acme Corp</b> (first customer in the cascade), the startup name generated at founding. No other myth names anywhere (lore discipline).</p>
+</section>
+</body>
+</html>

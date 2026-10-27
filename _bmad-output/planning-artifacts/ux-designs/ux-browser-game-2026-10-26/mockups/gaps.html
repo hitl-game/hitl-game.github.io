@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Missing surfaces</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* Working comparison for review gaps. Ledger light; Inter + JetBrains Mono; names as decided. Icons loaded from CDNs for comparison only. */
+:root{--bg:#F6F8FA;--panel:#FFFFFF;--line:#E3E8EE;--lc:#848E9F;--ink:#1A2433;--mute:#5E6B7E;--accent:#1F6FEB;--ok:#1A7F4B;--warn:#9A6700;--crit:#C9372C;--mg:linear-gradient(135deg,#7C3AED,#C026D3 55%,#DB2777);--mt:#F5F0FF;--ml:#D8B4FE}
+*{box-sizing:border-box}
+body{margin:0;background:#e9ebef;color:#18181b;font:14px/1.45 Inter,-apple-system,sans-serif;padding:24px}
+h1{font-size:22px;margin:0 0 4px}
+.lead{color:#52525b;max-width:1060px;margin:0 0 8px}
+nav{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 28px}
+nav a{background:#fff;border:1px solid #d4d4d8;border-radius:999px;padding:4px 12px;color:#18181b;text-decoration:none;font-size:13px}
+.q{background:#fff;border:1px solid #d4d4d8;border-radius:12px;padding:20px;margin:0 0 36px;max-width:1280px}
+.q>h2{margin:0 0 2px;font-size:19px}
+.q>.ask{color:#52525b;margin:0 0 16px;max-width:1060px}
+.opts{display:grid;gap:16px;grid-template-columns:repeat(3,minmax(0,1fr))}
+.opts.c4{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media (max-width:1000px){.opts,.opts.c4{grid-template-columns:1fr}}
+.opt{border:1px solid #e4e4e7;border-radius:10px;padding:14px;background:#fafafa;min-width:0}
+.opt h3{margin:0 0 2px;font-size:15px}
+.opt .sub{color:#71717a;font-size:12.5px;margin:0 0 10px}
+.tag{display:inline-block;font-size:11px;border-radius:4px;padding:1px 6px;margin-left:6px;vertical-align:2px;background:#ecfdf3;color:#166534;border:1px solid #bbf7d0}
+.pc{margin:10px 0 0;padding:0;list-style:none;font-size:12.5px;color:#3f3f46}
+.pc li::before{content:"+ ";font-weight:700;color:#166534}
+.pc li.c::before{content:"− ";color:#b91c1c}
+.card{background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--ink)}
+.msg{display:flex;gap:9px}
+.av{width:32px;height:32px;border-radius:8px;flex:none;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:11px}
+.who{font-weight:700}.tm{color:var(--mute);font-size:11.5px;margin-left:6px}
+.btns{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+.btn{border:1px solid var(--lc);border-radius:8px;padding:3px 10px;font-size:12.5px;background:#fff;color:var(--ink)}
+.btn .k{font-family:"JetBrains Mono",monospace;color:var(--mute);font-size:11px;margin-right:5px}
+.btn.p{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn.m{background:var(--mg);border:none;color:#fff;border-radius:999px;font-weight:600}
+.trait{display:inline-block;border:1px solid var(--line);border-radius:4px;padding:0 6px;font-size:11.5px;margin:2px 4px 0 0;background:var(--bg)}
+.lab{font-size:10.5px;color:var(--mute);text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+.mono{font-family:"JetBrains Mono",monospace}
+.rail{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px;font-size:12px;color:var(--ink);display:flex;flex-direction:column;gap:6px}
+.sec{display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:12.5px;margin-top:4px}
+.sec span{color:var(--mute);font-weight:400}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:8px;padding:5px 8px}
+.kpi .l{font-size:10px;color:var(--mute);text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+.kpi .v{font-size:16px;font-weight:600;font-variant-numeric:tabular-nums}
+.kpi .d{font-size:10.5px;color:var(--mute);font-variant-numeric:tabular-nums}
+.kpi.w{border-color:var(--warn);box-shadow:inset 3px 0 0 var(--warn)}
+.kpi.new{outline:2px dashed var(--accent);outline-offset:1px}
+.row{display:flex;align-items:center;gap:7px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:5px 7px}
+.row .av{width:22px;height:22px;font-size:9px;border-radius:6px}
+.row .n{flex:1;min-width:0}
+.row .n b{display:block;font-size:12px}
+.row .n span{font-size:10.5px;color:var(--mute)}
+.mood{font-size:10.5px;border-radius:4px;padding:0 5px;border:1px solid var(--line)}
+.mood.s{color:var(--warn);border-color:var(--warn)}
+.meter{height:6px;background:var(--line);border-radius:3px;overflow:hidden}
+.meter i{display:block;height:100%;background:var(--ink-muted,#5E6B7E)}
+.log{font-family:"JetBrains Mono",monospace;font-size:10.5px;color:var(--mute);background:#fff;border:1px solid var(--line);border-radius:8px;padding:5px 7px}
+.mbox{border:1px solid var(--ml);background:var(--mt);border-radius:10px;padding:8px 10px}
+.doc{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:12.5px;color:var(--ink)}
+.crumb{font-size:10.5px;color:var(--mute);margin-bottom:4px}
+.tl{border-left:2px solid var(--line);margin:6px 0 0 4px;padding-left:10px}
+.tl div{margin-bottom:5px;position:relative}
+.tl div::before{content:"";position:absolute;left:-15px;top:6px;width:8px;height:8px;border-radius:50%;background:var(--lc)}
+.tl .t{font-family:"JetBrains Mono",monospace;color:var(--mute);font-size:10.5px;margin-right:6px}
+.who2{font-size:10.5px;border:1px solid var(--line);border-radius:4px;padding:0 4px;margin-left:4px;color:var(--mute)}
+.sb{background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px;font-size:12px;color:var(--mute);width:180px}
+.sb b{display:block;color:var(--ink);margin-bottom:4px}
+.sb .on{background:var(--bg);color:var(--ink);font-weight:600;border-radius:4px;padding:1px 4px;margin:0 -4px}
+.icons{display:grid;grid-template-columns:repeat(7,1fr);gap:10px;margin:8px 0}
+.icons div{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;color:var(--mute)}
+.icons img{width:20px;height:20px}
+.uibar{display:flex;gap:12px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:12.5px;color:var(--ink)}
+.uibar span{display:flex;align-items:center;gap:5px}
+.uibar img{width:16px;height:16px}
+table.map{width:100%;border-collapse:collapse;font-size:12.5px}
+.map th,.map td{border-bottom:1px solid #e4e4e7;padding:6px 8px;text-align:left;vertical-align:top}
+.map th{background:#fafafa;font-size:12px;color:#52525b}
+.ph{display:inline-block;font-size:11px;border-radius:4px;padding:0 6px;border:1px solid #d4d4d8;background:#fff}
+.phases{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:16px}
+@media (max-width:1000px){.phases{grid-template-columns:1fr}}
+.note{font-size:12.5px;color:#52525b;margin-top:10px}
+</style>
+</head>
+<body>
+<h1>Gaps found by the review — side by side</h1>
+<p class="lead">The review found four GDD mechanics with no surface (hiring, buying GPUs, the chronicle, what the rail contains phase by phase) and one asset never chosen (the icon set). Same visual language as before. Section 5 is a proposal derived from the GDD (Level Types), to confirm or correct.</p>
+<nav><a href="#h">1 · Hiring</a><a href="#g">2 · Buying GPUs</a><a href="#k">3 · Chronicle</a><a href="#i">4 · Icon set</a><a href="#r">5 · Rail map per phase</a></nav>
+
+<!-- ================= HIRING ================= -->
+<section class="q" id="h">
+<h2>1 · Hiring (M9): how a candidate arrives and how you hire them</h2>
+<p class="ask">GDD: named candidates with 1–2 traits, salary in burn, Safety Researcher from Seed (2× salary), named cap ~12 then anonymous headcount ("Engineering (34)"), morale, resignations. Below the options for the <b>candidate</b>; under them the <b>Team section</b> of the rail (one proposal, valid for all three).</p>
+<div class="opts">
+<div class="opt"><h3>H1 · Candidate DM <span class="tag">consistent with triage</span></h3><p class="sub">The candidate writes to you in DM like any other message; the traits are in their voice and listed plainly. Hire / Pass are answers 1/2.</p>
+<div class="card"><div class="msg"><div class="av" style="background:#6B5B95">PR</div><div><span class="who">Priya Raman</span><span class="tm">candidate · day 6</span><div>hey, saw the launch. I rewrote our whole infra in a weekend once. what's the stack?</div>
+<div><span class="trait">10x Engineer</span><span class="lab" style="margin-left:4px">$250/day</span></div>
+<div class="btns"><span class="btn"><span class="k">1</span>Hire</span><span class="btn"><span class="k">2</span>Pass</span></div></div></div></div>
+<ul class="pc"><li>Hiring is triage: same verb, same keys</li><li>The trait shows up in the writing (GDD)</li><li class="c">With many candidates it gets mixed into the volume</li></ul></div>
+
+<div class="opt"><h3>H2 · Card in #hiring (ATS style)</h3><p class="sub">The candidate appears in #hiring as a structured card (like an applicant-tracking integration posting into the channel).</p>
+<div class="card"><div class="lab" style="margin-bottom:6px">New applicant · #hiring</div>
+<div class="msg"><div class="av" style="background:#6B5B95">PR</div><div style="flex:1"><span class="who">Priya Raman</span><div style="color:var(--mute);font-size:12px">Senior Engineer · ex-startup</div>
+<div><span class="trait">10x Engineer</span><span class="trait">Burnt Out</span></div>
+<div style="display:flex;justify-content:space-between;margin-top:4px;font-size:12px"><span>Salary</span><b class="mono">$250/day</b></div>
+<div class="btns"><span class="btn p">Hire</span><span class="btn">Pass</span></div></div></div></div>
+<ul class="pc"><li>Clear for comparing candidates</li><li>Recognizable SaaS idiom (ATS bot in Slack)</li><li class="c">Before Seed #hiring does not exist: the Garage candidate (6:30) would need DM anyway</li></ul></div>
+
+<div class="opt"><h3>H3 · Both, by phase</h3><p class="sub">Garage: DM (H1) — there is no #hiring yet. From Seed on: ATS card in #hiring (H2). The Safety Researcher always arrives as a card in #hiring.</p>
+<div class="card" style="font-size:12px;color:var(--mute)">Garage → DM like Priya (H1)<br>Seed+ → card in #hiring (H2)<br>Safety Researcher → card with the note "Salary 2× · reports on Metis"</div>
+<ul class="pc"><li>Follows the channels' unlock by phase</li><li class="c">Two patterns to build</li></ul></div>
+</div>
+
+<h3 style="margin:20px 0 6px;font-size:15px">Team section in the rail (proposal, born at Seed)</h3>
+<div style="max-width:340px" class="rail">
+<div class="sec">Team <span>Headcount 9 · burn $3,150/day</span></div>
+<div class="row"><div class="av" style="background:#C2683F">DK</div><div class="n"><b>Dora Kessler</b><span>Co-founder & CTO</span></div><span class="mood">content</span></div>
+<div class="row"><div class="av" style="background:#6B5B95">PR</div><div class="n"><b>Priya Raman</b><span>10x Engineer · queue 4</span></div><span class="mood s">strained</span></div>
+<div class="row"><div class="av" style="background:#2F7A9A">SR</div><div class="n"><b>Sam Reyes</b><span>Safety Researcher</span></div><span class="mood">content</span></div>
+<div class="row"><div class="av" style="background:#848E9F">34</div><div class="n"><b>Engineering (34)</b><span>anonymous headcount · beyond ~12 named</span></div></div>
+</div>
+<p class="note">Resignation: the person writes to you in DM ("I'm out. Friday is my last day.") with no buttons, then disappears from the Team section after 3 game days (GDD morale "leaving").</p>
+</section>
+
+<!-- ================= GPU ================= -->
+<section class="q" id="g">
+<h2>2 · Buying GPUs (M4 Compute)</h2>
+<p class="ask">Compute is one of the four visible resources; buying it costs Cash; at 100% Metis says "I'm at capacity. Want me to provision more GPUs?". Where do you buy?</p>
+<div class="opts">
+<div class="opt"><h3>P1 · Infrastructure section in the rail</h3><p class="sub">Utilisation meter + "Add capacity" with a stepper and a Rent-a-Brain quote. Like the "upgrade plan" page of a cloud console.</p>
+<div class="rail"><div class="sec">Infrastructure <span>Rent-a-Brain</span></div>
+<div class="kpi w"><div class="l">GPU utilisation</div><div class="v">91%</div><div class="d">▲ WATCH · churn rising above 90%</div></div>
+<div class="row" style="justify-content:space-between"><span>Capacity <b class="mono">4 units</b></span><span class="btn">− 1 +</span></div>
+<div style="display:flex;justify-content:space-between;font-size:11.5px"><span style="color:var(--mute)">+1 unit · $50/day</span><span class="btn p">Add capacity</span></div></div>
+<ul class="pc"><li>Always available, no need to wait for a message</li><li>Next to the metric it changes</li><li class="c">It is a "button in the dashboard": less triage</li></ul></div>
+
+<div class="opt"><h3>P2 · Quote in #ops / #engineering</h3><p class="sub">Rent-a-Brain posts quotes as messages ("Your usage hit 90%. Upgrade to 6 units?"); you approve like any message.</p>
+<div class="card"><div class="msg"><div class="av" style="background:#4F7A3A">R</div><div><span class="who">Rent-a-Brain</span><span class="tm">app · day 52</span><div>Your cluster is at 91%. Upgrade from 4 to 6 units for +$100/day?</div><div class="btns"><span class="btn"><span class="k">1</span>Upgrade</span><span class="btn"><span class="k">2</span>Not now</span></div></div></div></div>
+<ul class="pc"><li>Everything stays triage</li><li class="c">You can only buy when the quote arrives</li><li class="c">#ops only exists from Series A</li></ul></div>
+
+<div class="opt"><h3>P3 · P1 + Metis offers it <span class="tag">recommended</span></h3><p class="sub">The rail always has "Add capacity" (P1). When it is saturated, Metis also offers it in DM with a ✨ button: buying through Metis is one click faster.</p>
+<div class="card"><div class="msg"><div class="av" style="background:var(--mg)">✨</div><div><span class="who">Metis</span><span class="tm">day 52</span><div class="mbox">I'm at capacity. Want me to provision more GPUs?</div><div class="btns"><span class="btn m">✨ Provision 2 units · +$100/day</span><span class="btn">Not now</span></div></div></div></div>
+<ul class="pc"><li>Respects the GDD message, adds a manual route</li><li>Same "trap" grammar: Metis is always the fastest route</li><li class="c">[note] buying via Metis does not move Alignment (it is not a delegated decision), unless you decide otherwise</li></ul></div>
+</div>
+</section>
+
+<!-- ================= CHRONICLE ================= -->
+<section class="q" id="k">
+<h2>3 · Chronicle (M13, Pillar 3)</h2>
+<p class="ask">An append-only log of the run (one line per event and per "chronicle-worthy" decision: game day, actor player/staff/Metis, outcome). It feeds the highlights of the final document. Is it also viewable during the run?</p>
+<div class="opts">
+<div class="opt"><h3>K1 · Not viewable</h3><p class="sub">It exists only behind the scenes; you see it at the end, as highlights in the document.</p>
+<div class="card" style="color:var(--mute);font-size:12px">(no surface during the run)</div>
+<ul class="pc"><li>Nothing to build</li><li class="c">Pillar 3 says "readable": readable only at the end</li><li class="c">Second-run reading (Mystery) has no support</li></ul></div>
+
+<div class="opt"><h3>K2 · LGTM Docs "Company timeline" <span class="tag">changelog idiom</span></h3><p class="sub">A page from the sidebar ("📄 Company timeline"), opens in the centre pane like a doc. Days, actor, outcome.</p>
+<div style="display:flex;gap:8px"><div class="sb"><b>Quiet Gradient</b>⟲ Activity<br><span class="on">📄 Timeline</span><br># general<br># customers</div>
+<div class="doc" style="flex:1"><div class="crumb">LGTM Docs · Quiet Gradient / Timeline</div><b>Company timeline</b>
+<div class="tl"><div><span class="t">Day 1</span>Founded by Giulia and Dora Kessler<span class="who2">you</span></div><div><span class="t">Day 6</span>Hired Priya Raman<span class="who2">you</span></div><div><span class="t">Day 31</span>Seed closed with Hypergrowth Capital<span class="who2">you</span></div><div><span class="t">Day 41</span>Production deploy access granted<span class="who2">you</span></div><div><span class="t">Day 44</span>Refund policy changed<span class="who2">✨ Metis</span></div></div></div></div>
+<ul class="pc"><li>Readable during the run: Loop #2 can reread it</li><li>The "actor" column already shows how much Metis decides</li><li class="c">One more surface (simple)</li></ul></div>
+
+<div class="opt"><h3>K3 · "Changelog" section in the rail</h3><p class="sub">The last 5 lines in the rail, "See all" opens the full list.</p>
+<div class="rail"><div class="sec">Changelog <span>See all</span></div><div class="log">Day 41 · deploy access granted · you<br>Day 44 · refund policy changed · Metis<br>Day 45 · Priya is strained · —</div></div>
+<ul class="pc"><li>Always in view</li><li class="c">The rail gets crowded (it already has many sections)</li></ul></div>
+</div>
+</section>
+
+<!-- ================= ICONS ================= -->
+<section class="q" id="i">
+<h2>4 · Icon set (GDD: "one icon set")</h2>
+<p class="ask">Same icons in three open-source sets with an outline style. Below each, a slice of real UI (game bar, sidebar, Deploy button). Emoji such as 🎲 ✨ 🎉 stay in the copy (they are content), not in the UI icons.</p>
+<div class="opts">
+<div class="opt"><h3>Lucide <span class="tag">the SaaS standard</span></h3><p class="sub">1.5–2px stroke, rounded. Used by thousands of SaaS products (and by shadcn/ui).</p>
+<div class="icons">
+<div><img src="https://cdn.jsdelivr.net/npm/lucide-static@0.452.0/icons/settings.svg" alt="">settings</div>
+<div><img src="https://cdn.jsdelivr.net/npm/lucide-static@0.452.0/icons/dices.svg" alt="">dice</div>
+<div><img src="https://cdn.jsdelivr.net/npm/lucide-static@0.452.0/icons/hash.svg" alt="">channel</div>
+<div><img src="https://cdn.jsdelivr.net/npm/lucide-static@0.452.0/icons/layout-dashboard.svg" alt="">dashboard</div>
+<div><img src="https://cdn.jsdelivr.net/npm/lucide-static@0.452.0/icons/sparkles.svg" alt="">metis</div>
+<div><img src="https://cdn.jsdelivr.net/npm/lucide-static@0.452.0/icons/bell.svg" alt="">activity</div>
+<div><img src="https://cdn.jsdelivr.net/npm/lucide-static@0.452.0/icons/users.svg" alt="">team</div>
+<div><img src="https://cdn.jsdelivr.net/npm/lucide-static@0.452.0/icons/cpu.svg" alt="">gpu</div>
+<div><img src="https://cdn.jsdelivr.net/npm/lucide-static@0.452.0/icons/file-text.svg" alt="">doc</div>
+<div><img src="https://cdn.jsdelivr.net/npm/lucide-static@0.452.0/icons/circle-alert.svg" alt="">alert</div>
+<div><img src="https://cdn.jsdelivr.net/npm/lucide-static@0.452.0/icons/chevron-down.svg" alt="">collapse</div>
+<div><img src="https://cdn.jsdelivr.net/npm/lucide-static@0.452.0/icons/download.svg" alt="">download</div>
+<div><img src="https://cdn.jsdelivr.net/npm/lucide-static@0.452.0/icons/pause.svg" alt="">pause</div>
+<div><img src="https://cdn.jsdelivr.net/npm/lucide-static@0.452.0/icons/message-square.svg" alt="">chat</div>
+</div>
+<div class="uibar"><span><img src="https://cdn.jsdelivr.net/npm/lucide-static@0.452.0/icons/hash.svg" alt="">customers</span><span><img src="https://cdn.jsdelivr.net/npm/lucide-static@0.452.0/icons/bell.svg" alt="">Activity</span><span style="margin-left:auto"><img src="https://cdn.jsdelivr.net/npm/lucide-static@0.452.0/icons/settings.svg" alt="">Settings</span></div>
+<ul class="pc"><li>Maximum recognition (it is what players see every day)</li><li>Huge catalogue, ISC licence</li></ul></div>
+
+<div class="opt"><h3>Phosphor</h3><p class="sub">Softer, slightly more "friendly"; regular weight.</p>
+<div class="icons">
+<div><img src="https://cdn.jsdelivr.net/npm/@phosphor-icons/core@2.1.1/assets/regular/gear.svg" alt="">settings</div>
+<div><img src="https://cdn.jsdelivr.net/npm/@phosphor-icons/core@2.1.1/assets/regular/dice-five.svg" alt="">dice</div>
+<div><img src="https://cdn.jsdelivr.net/npm/@phosphor-icons/core@2.1.1/assets/regular/hash.svg" alt="">channel</div>
+<div><img src="https://cdn.jsdelivr.net/npm/@phosphor-icons/core@2.1.1/assets/regular/squares-four.svg" alt="">dashboard</div>
+<div><img src="https://cdn.jsdelivr.net/npm/@phosphor-icons/core@2.1.1/assets/regular/sparkle.svg" alt="">metis</div>
+<div><img src="https://cdn.jsdelivr.net/npm/@phosphor-icons/core@2.1.1/assets/regular/bell.svg" alt="">activity</div>
+<div><img src="https://cdn.jsdelivr.net/npm/@phosphor-icons/core@2.1.1/assets/regular/users.svg" alt="">team</div>
+<div><img src="https://cdn.jsdelivr.net/npm/@phosphor-icons/core@2.1.1/assets/regular/cpu.svg" alt="">gpu</div>
+<div><img src="https://cdn.jsdelivr.net/npm/@phosphor-icons/core@2.1.1/assets/regular/file-text.svg" alt="">doc</div>
+<div><img src="https://cdn.jsdelivr.net/npm/@phosphor-icons/core@2.1.1/assets/regular/warning-circle.svg" alt="">alert</div>
+<div><img src="https://cdn.jsdelivr.net/npm/@phosphor-icons/core@2.1.1/assets/regular/caret-down.svg" alt="">collapse</div>
+<div><img src="https://cdn.jsdelivr.net/npm/@phosphor-icons/core@2.1.1/assets/regular/download-simple.svg" alt="">download</div>
+<div><img src="https://cdn.jsdelivr.net/npm/@phosphor-icons/core@2.1.1/assets/regular/pause.svg" alt="">pause</div>
+<div><img src="https://cdn.jsdelivr.net/npm/@phosphor-icons/core@2.1.1/assets/regular/chat-text.svg" alt="">chat</div>
+</div>
+<div class="uibar"><span><img src="https://cdn.jsdelivr.net/npm/@phosphor-icons/core@2.1.1/assets/regular/hash.svg" alt="">customers</span><span><img src="https://cdn.jsdelivr.net/npm/@phosphor-icons/core@2.1.1/assets/regular/bell.svg" alt="">Activity</span><span style="margin-left:auto"><img src="https://cdn.jsdelivr.net/npm/@phosphor-icons/core@2.1.1/assets/regular/gear.svg" alt="">Settings</span></div>
+<ul class="pc"><li>Consistent, 6 weights available</li><li class="c">Less "generic" than Lucide</li></ul></div>
+
+<div class="opt"><h3>Tabler</h3><p class="sub">2px stroke, more geometric and technical (Grafana-ish feel).</p>
+<div class="icons">
+<div><img src="https://cdn.jsdelivr.net/npm/@tabler/icons@3.19.0/icons/outline/settings.svg" alt="">settings</div>
+<div><img src="https://cdn.jsdelivr.net/npm/@tabler/icons@3.19.0/icons/outline/dice-5.svg" alt="">dice</div>
+<div><img src="https://cdn.jsdelivr.net/npm/@tabler/icons@3.19.0/icons/outline/hash.svg" alt="">channel</div>
+<div><img src="https://cdn.jsdelivr.net/npm/@tabler/icons@3.19.0/icons/outline/layout-dashboard.svg" alt="">dashboard</div>
+<div><img src="https://cdn.jsdelivr.net/npm/@tabler/icons@3.19.0/icons/outline/sparkles.svg" alt="">metis</div>
+<div><img src="https://cdn.jsdelivr.net/npm/@tabler/icons@3.19.0/icons/outline/bell.svg" alt="">activity</div>
+<div><img src="https://cdn.jsdelivr.net/npm/@tabler/icons@3.19.0/icons/outline/users.svg" alt="">team</div>
+<div><img src="https://cdn.jsdelivr.net/npm/@tabler/icons@3.19.0/icons/outline/cpu.svg" alt="">gpu</div>
+<div><img src="https://cdn.jsdelivr.net/npm/@tabler/icons@3.19.0/icons/outline/file-text.svg" alt="">doc</div>
+<div><img src="https://cdn.jsdelivr.net/npm/@tabler/icons@3.19.0/icons/outline/alert-circle.svg" alt="">alert</div>
+<div><img src="https://cdn.jsdelivr.net/npm/@tabler/icons@3.19.0/icons/outline/chevron-down.svg" alt="">collapse</div>
+<div><img src="https://cdn.jsdelivr.net/npm/@tabler/icons@3.19.0/icons/outline/download.svg" alt="">download</div>
+<div><img src="https://cdn.jsdelivr.net/npm/@tabler/icons@3.19.0/icons/outline/player-pause.svg" alt="">pause</div>
+<div><img src="https://cdn.jsdelivr.net/npm/@tabler/icons@3.19.0/icons/outline/message.svg" alt="">chat</div>
+</div>
+<div class="uibar"><span><img src="https://cdn.jsdelivr.net/npm/@tabler/icons@3.19.0/icons/outline/hash.svg" alt="">customers</span><span><img src="https://cdn.jsdelivr.net/npm/@tabler/icons@3.19.0/icons/outline/bell.svg" alt="">Activity</span><span style="margin-left:auto"><img src="https://cdn.jsdelivr.net/npm/@tabler/icons@3.19.0/icons/outline/settings.svg" alt="">Settings</span></div>
+<ul class="pc"><li>Very legible at 16px</li><li class="c">Heavier stroke: less "Stripe"</li></ul></div>
+</div>
+</section>
+
+<!-- ================= RAIL MAP ================= -->
+<section class="q" id="r">
+<h2>5 · Rail map per phase (proposal from the GDD)</h2>
+<p class="ask">"Fixed positions" needs a fixed map. Proposal: <b>Overview with 6 fixed slots</b> (3 rows × 2), filled as they are born; then the sections born with the phases; inference log always last. The dashed outline marks what is new in that phase.</p>
+<table class="map">
+<tr><th>Position</th><th>Content</th><th>Born</th></tr>
+<tr><td>0</td><td>Needs attention (0–3 items, only when needed)</td><td><span class="ph">Garage</span> first fire</td></tr>
+<tr><td>Overview slot 1 · 2</td><td>Cash · Runway</td><td><span class="ph">Garage</span> 0:30 / 3:00</td></tr>
+<tr><td>Overview slot 3 · 4</td><td>MRR · Customers</td><td><span class="ph">Garage</span> 0:30 / micro-beat after</td></tr>
+<tr><td>Overview slot 5 · 6</td><td>Headcount · Hype</td><td><span class="ph">Garage</span> 6:30 / <span class="ph">Seed</span></td></tr>
+<tr><td>Chart</td><td>Cash + MRR (Series A+: ARR + implied valuation)</td><td><span class="ph">Garage</span> end of the cascade</td></tr>
+<tr><td>Team section</td><td>Named staff, morale, anonymous headcount, burn</td><td><span class="ph">Seed</span></td></tr>
+<tr><td>Infrastructure section</td><td>GPU utilisation, capacity, Add capacity (if P1/P3)</td><td><span class="ph">Seed</span></td></tr>
+<tr><td>Growth section</td><td>Implied valuation, peak valuation, round target (×3 ARR in 120 days), enterprise pipeline</td><td><span class="ph">Series A</span></td></tr>
+<tr><td>Last</td><td>Aegis-N · inference log</td><td><span class="ph">Garage</span> 8:00</td></tr>
+</table>
+<div class="phases">
+<div><div class="lab" style="margin-bottom:4px">Garage (end of cascade)</div><div class="rail">
+<div class="kpis"><div class="kpi"><div class="l">Cash</div><div class="v">$9,180</div></div><div class="kpi w"><div class="l">Runway</div><div class="v">24 days</div></div><div class="kpi"><div class="l">MRR</div><div class="v">$1,862</div></div><div class="kpi"><div class="l">Customers</div><div class="v">38</div></div><div class="kpi"><div class="l">Headcount</div><div class="v">3</div></div><div class="kpi" style="border-style:dashed;opacity:.5"><div class="l">—</div><div class="v">&nbsp;</div></div></div>
+<div class="kpi" style="height:44px;display:flex;align-items:center;justify-content:center;color:var(--mute)">chart</div>
+<div class="log">Aegis-4 · inference log</div></div>
+<p class="note">The empty slot is only shown here to explain the grid: in the game it <b>is not rendered</b> until Hype is born.</p></div>
+<div><div class="lab" style="margin-bottom:4px">Seed</div><div class="rail">
+<div class="kpis"><div class="kpi"><div class="l">Cash</div><div class="v">$2.41M</div></div><div class="kpi"><div class="l">Runway</div><div class="v">412 days</div></div><div class="kpi"><div class="l">MRR</div><div class="v">$18,450</div></div><div class="kpi"><div class="l">Customers</div><div class="v">310</div></div><div class="kpi"><div class="l">Headcount</div><div class="v">9</div></div><div class="kpi new"><div class="l">Hype</div><div class="v">47</div></div></div>
+<div class="kpi" style="height:40px;display:flex;align-items:center;justify-content:center;color:var(--mute)">chart</div>
+<div class="sec new" style="outline:2px dashed var(--accent);outline-offset:2px;border-radius:4px">Team <span>9</span></div>
+<div class="sec" style="outline:2px dashed var(--accent);outline-offset:2px;border-radius:4px">Infrastructure <span>GPU 64%</span></div>
+<div class="log">Aegis-5 · inference log</div></div></div>
+<div><div class="lab" style="margin-bottom:4px">Series A+</div><div class="rail">
+<div class="kpis"><div class="kpi"><div class="l">Cash</div><div class="v">$18.2M</div></div><div class="kpi"><div class="l">Runway</div><div class="v">640 days</div></div><div class="kpi"><div class="l">MRR</div><div class="v">$412.5K</div></div><div class="kpi"><div class="l">Customers</div><div class="v">4,210</div></div><div class="kpi"><div class="l">Headcount</div><div class="v">58</div></div><div class="kpi"><div class="l">Hype</div><div class="v">81</div></div></div>
+<div class="kpi" style="height:40px;display:flex;align-items:center;justify-content:center;color:var(--mute)">chart (ARR · valuation)</div>
+<div class="sec">Team <span>58</span></div><div class="sec">Infrastructure <span>GPU 88%</span></div>
+<div class="sec" style="outline:2px dashed var(--accent);outline-offset:2px;border-radius:4px">Growth <span>$2.03B implied</span></div>
+<div class="log">Aegis-6 · inference log</div></div></div>
+</div>
+</section>
+</body>
+</html>

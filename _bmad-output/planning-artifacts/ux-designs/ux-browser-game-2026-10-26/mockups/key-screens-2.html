@@ -1,0 +1,830 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Key screens 2</title>
+<!-- Mock only: Inter + JetBrains Mono from Google Fonts and Lucide icons from lucide-static@0.452.0 on jsDelivr.
+     The game self-hosts and precaches its fonts and icons (DESIGN.md → Typography / Icons). -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/*
+  Human in the Loop — key screens 2 (final mocks). Illustrates the spines; the spines win on any conflict.
+  Tokens: FINAL Ledger values from DESIGN.md frontmatter (accent #1A64D6, ok #16733F, line-control #7D8798,
+  metis-3 #DB2777, avatar-1 #B05E38, avatar-3 #357F6E). Ledger light unless a panel says dark.
+  Fonts (Inter, JetBrains Mono) load from Google Fonts and icons from lucide-static on jsDelivr FOR THIS MOCK ONLY;
+  the game self-hosts and precaches both (DESIGN.md → Typography; EXPERIENCE.md → Foundation: offline after first load).
+  Static mock: no JS; shimmer and rolling numbers are shown in their reduced-motion (static) form.
+
+  Governing spine sections per screen
+  #end-of-run   DESIGN.md → Components: End-of-run documents, Avatars (Metis mark), Typography (doc-title, mono Run ID);
+                EXPERIENCE.md → Component Patterns: End-of-run document; State Patterns: Bankrupt, Surpassed;
+                Voice and Tone ("Never name Alignment until the clue replay"); Key Flow 3 step 7, Key Flow 4 steps 4–5.
+  #infection    DESIGN.md → Components: UI infection (stage table) + Infection contrast contract, Focus ring, Game bar,
+                Sidebar, Message, KPI tiles (watch), Colors (Metis colours); EXPERIENCE.md → Signals & Infection
+                (Corrupting title, UI infection), Component Patterns: Game bar; Key Flow 3 step 1.
+  #red-runway   DESIGN.md → Components: Red Runway (exemptions), Overdraft banner, Dashboard rail (attention list,
+                KPI tile critical, chart), Focus ring, Colors (dark twins, on-critical-dark); EXPERIENCE.md → State
+                Patterns: Runway watch / Red Runway, Overdraft; Key Flow 4 steps 2–3.
+  #term-sheet   DESIGN.md → Components: Overlay document (LGTM Docs), Investor cards, Elevation (scrim 45%, no blur),
+                Avatars (company letter logos); EXPERIENCE.md → Component Patterns: Overlay doc, Investor cards,
+                Heavy-decision outcome; State Patterns: Heavy decision open; Key Flow 2 step 3.
+*/
+:root{
+  --a1:#B05E38;--a2:#5B6B8C;--a3:#357F6E;--a4:#8A6A2E;--a5:#6B5B95;--a6:#2F7A9A;--a7:#9C4A5A;--a8:#4F7A3A;
+  --gb-bg:#0E0F12;--gb-ink:#E6E7EB;--gb-mute:#8B8E98;
+  --m1:#7C3AED;--m2:#C026D3;--m3:#DB2777;--on-metis:#FFFFFF;
+  --mg:linear-gradient(135deg,var(--m1),var(--m2) 55%,var(--m3));
+  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  --sans:Inter,-apple-system,"Segoe UI",sans-serif;
+}
+/* Ledger light */
+.L{--bg:#F6F8FA;--surface:#FFFFFF;--raised:#F6F8FA;--sidebar:#FFFFFF;--line:#E3E8EE;--lc:#7D8798;--ink:#1A2433;--mute:#5E6B7E;
+   --accent:#1A64D6;--on-accent:#FFFFFF;--ok:#16733F;--ok-tint:#E9F6EF;--watch:#9A6700;--watch-tint:#FFF8E6;--crit:#C9372C;--crit-tint:#FDEDEC;--on-crit:#FFFFFF;
+   --mt:#F5F0FF;--mink:#6D28D9;--ml:#D8B4FE;--avbg:#E9EDF2;--icf:none;--ico:.72;--sbgrad:.10}
+/* Ledger dark */
+.D{--bg:#0D1117;--surface:#151B23;--raised:#1B222C;--sidebar:#11161D;--line:#2A323D;--lc:#646F7E;--ink:#E6EDF3;--mute:#8D96A0;
+   --accent:#4C8DFF;--on-accent:#0D1117;--ok:#3FB27F;--ok-tint:#13261E;--watch:#D29922;--watch-tint:#2A2213;--crit:#F0605A;--crit-tint:#2C1A1C;--on-crit:#0D1117;
+   --mt:#221A33;--mink:#C4B5FD;--ml:#5B3A8C;--avbg:#252D38;--icf:invert(1);--ico:.7;--sbgrad:.22}
+
+*{box-sizing:border-box}
+html{background:#E4E7EB}
+body{margin:0;font:14px/1.45 var(--sans);font-variant-numeric:tabular-nums;color:#1A2433;padding:28px 32px 64px;font-feature-settings:"tnum" 1,"cv11" 1}
+.page-h{max-width:1336px;margin:0 auto 6px}
+.page-h h1{font-size:24px;margin:0 0 4px;letter-spacing:-.01em}
+.page-h p{margin:0;color:#5E6B7E;max-width:980px}
+nav.toc{max-width:1336px;margin:14px auto 26px;display:flex;gap:8px;flex-wrap:wrap}
+nav.toc a{background:#fff;border:1px solid #C9D0D8;border-radius:6px;padding:4px 10px;color:#1A2433;text-decoration:none;font-size:13px}
+section.ks{max-width:1336px;margin:0 auto 40px;background:#fff;border:1px solid #D3D9E0;border-radius:12px;padding:22px 22px 18px}
+section.ks>h2{margin:0 0 2px;font-size:19px;letter-spacing:-.01em}
+section.ks>.cap{margin:0 0 16px;color:#5E6B7E;max-width:1100px;font-size:13.5px}
+.lbl{font-size:12px;font-weight:600;color:#1A2433;margin:0 0 6px}
+.lbl span{font-weight:400;color:#5E6B7E;margin-left:6px}
+.note{font-size:12px;color:#5E6B7E;margin-top:8px}
+.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.mono{font-family:var(--mono)}
+.ic{width:14px;height:14px;vertical-align:-2px;filter:var(--icf);opacity:var(--ico);flex:none}
+s{text-decoration-thickness:1.5px}
+
+/* ---------- frame / chrome ---------- */
+.win{border:1px solid #C9D0D8;border-radius:10px;overflow:hidden;background:var(--bg);color:var(--ink);font-size:12px;line-height:1.4;position:relative}
+.gbar{background:var(--gb-bg);color:var(--gb-ink);min-height:24px;display:flex;justify-content:space-between;align-items:center;padding:0 10px;font-weight:600;font-size:11.5px;gap:10px}
+.gbar .r{font-family:var(--mono);font-weight:400;color:var(--gb-mute);font-size:10.5px;white-space:nowrap}
+.hbar{display:flex;align-items:center;gap:8px;min-height:34px;padding:0 10px;background:var(--surface);border-bottom:1px solid var(--line);white-space:nowrap;color:var(--ink)}
+.wm{display:inline-flex;align-items:center;gap:5px;font-weight:700}
+.wm i{width:13px;height:13px;border-radius:3px;background:var(--ink);display:inline-block}
+.hbar .co{font-weight:600}.hbar .sl{color:var(--mute)}
+.tick{flex:1;min-width:0;overflow:hidden;display:flex;align-items:center;gap:6px;color:var(--mute);font-size:11px}
+.tick b{font-size:10px;letter-spacing:.05em;font-weight:600;color:var(--mute)}
+.tick span{overflow:hidden;text-overflow:ellipsis}
+.ibtn{width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;border-radius:4px;flex:none}
+.day{font-family:var(--mono);font-size:10.5px;color:var(--mute)}
+.ws{display:grid;grid-template-columns:132px minmax(0,1fr) 208px;min-height:360px}
+
+/* sidebar */
+.sb{background:var(--sidebar);border-right:1px solid var(--line);padding:9px 7px;color:var(--mute);font-size:11.5px;position:relative}
+.sb>*{position:relative}
+.sb .cn{font-weight:700;color:var(--ink);font-size:12.5px;padding:0 5px 7px}
+.sb .row{display:flex;align-items:center;gap:6px;padding:2px 5px;border-radius:4px;min-height:22px;color:var(--mute)}
+.sb .row.u{color:var(--ink);font-weight:600}
+.sb .row.on{background:var(--raised);color:var(--ink);font-weight:600}
+.sb .row .n{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb .sec{font-size:10px;letter-spacing:.05em;font-weight:600;text-transform:uppercase;color:var(--mute);padding:8px 5px 3px}
+.badge{background:var(--crit);color:var(--on-crit);border-radius:9999px;font-size:10px;font-weight:600;min-width:16px;height:16px;padding:0 5px;display:inline-flex;align-items:center;justify-content:center}
+.cnt{font-size:10.5px;color:var(--mute);font-weight:400}
+.sb .row .av,.sb .row .mav,.sb .row .logo{width:16px;height:16px;border-radius:4px;font-size:9px}
+
+/* chat */
+.chat{background:var(--surface);min-width:0;display:flex;flex-direction:column}
+.chh{display:flex;align-items:center;gap:8px;padding:7px 12px;border-bottom:1px solid var(--line);min-height:38px}
+.chh .t{font-size:13.5px;font-weight:600;flex:1}
+.tog{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;color:var(--mute);white-space:nowrap}
+.sw{width:24px;height:14px;border-radius:9999px;background:var(--lc);position:relative;display:inline-block}
+.sw::after{content:"";position:absolute;width:10px;height:10px;border-radius:50%;background:#fff;top:2px;left:2px}
+.msgs{padding:8px 12px 12px;display:flex;flex-direction:column;gap:9px}
+.msg{display:flex;gap:8px;padding:6px 8px;margin:0 -8px;border-left:2px solid transparent}
+.msg.cur{border-left-color:var(--accent)}
+.msg .body{flex:1;min-width:0}
+.meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.meta b{font-weight:600}
+.meta .tm{color:var(--mute);font-size:10.5px}
+.urg{font-size:9.5px;font-weight:600;letter-spacing:.05em;color:var(--crit);border:1px solid var(--crit);border-radius:4px;padding:0 4px;line-height:14px}
+.txt{margin:2px 0 0}
+.tbar{display:flex;align-items:center;gap:6px;margin-top:5px}
+.tbar .tr{flex:1;height:4px;background:var(--line);border-radius:2px;overflow:hidden}
+.tbar .tr i{display:block;height:100%;background:var(--mute)}
+.tbar .tr i.c{background:var(--crit)}
+.tbar .cd{font-family:var(--mono);font-size:10px;color:var(--mute)}
+.tbar .cd.c{color:var(--crit)}
+.btns{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+.btn{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--lc);background:var(--surface);color:var(--ink);border-radius:8px;padding:2px 8px;min-height:24px;font-size:11.5px;white-space:nowrap}
+.btn .k{font-family:var(--mono);font-size:10px;color:var(--mute)}
+.btn.q{background:transparent;color:var(--mute)}
+.btn.p{background:var(--ink);border-color:var(--ink);color:var(--surface);font-weight:600}
+.btn.m{background:var(--mg);border-color:transparent;color:var(--on-metis);font-weight:600;border-radius:9999px}
+.out{color:var(--mute);font-size:11px;margin-top:3px}
+.focus{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--accent),0 0 0 6px var(--surface)}
+
+/* rail */
+.rail{background:var(--bg);border-left:1px solid var(--line);padding:9px 9px 10px;display:flex;flex-direction:column;gap:7px;min-width:0}
+.rs{font-size:12.5px;font-weight:600;display:flex;flex-direction:column;gap:0}
+.rs span{font-weight:400;color:var(--mute);font-size:10.5px}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:5px 7px 6px;min-width:0}
+.kpi .l{font-size:9.5px;letter-spacing:.05em;font-weight:600;color:var(--mute);text-transform:uppercase;display:flex;flex-wrap:wrap;justify-content:space-between;column-gap:4px}
+.kpi .v{font-size:16px;font-weight:600;letter-spacing:-.01em;line-height:1.2;color:var(--ink)}
+.kpi .d{font-size:10px;color:var(--mute);line-height:1.3}
+.kpi .d .p{color:var(--ok)}.kpi .d .n{color:var(--crit)}
+.kpi.w{border-color:var(--watch);background:var(--watch-tint);box-shadow:inset 3px 0 0 var(--watch)}
+.kpi.w .st{color:var(--watch)}
+.kpi.c{border:2px solid var(--crit);background:var(--crit-tint);box-shadow:inset 3px 0 0 var(--crit);padding:4px 6px 5px}
+.kpi.c .st,.kpi.c .v{color:var(--crit)}
+.trow{display:flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:4px 6px}
+.trow .av{width:22px;height:22px;border-radius:6px}
+.trow .nm{flex:1;min-width:0;font-size:11px}.trow .nm b{display:block;font-weight:600}.trow .nm span{color:var(--mute);font-size:10px}
+.mood{font-size:10px;border:1px solid var(--line);border-radius:4px;padding:0 4px;color:var(--mute)}
+.att{background:var(--surface);border:1px solid var(--line);border-radius:8px;box-shadow:inset 3px 0 0 var(--crit);padding:5px 8px 6px 11px}
+.att .h{font-size:9.5px;letter-spacing:.05em;font-weight:600;color:var(--mute);text-transform:uppercase;margin-bottom:2px}
+.att .it{display:flex;justify-content:space-between;gap:6px;font-size:11px;padding:1px 0}
+.att .it b{font-size:9.5px;letter-spacing:.04em;font-weight:600}
+.att .it .c{color:var(--crit)}.att .it .w{color:var(--watch)}
+.chart{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:5px 6px}
+.chart svg{display:block;width:100%;height:74px}
+.vd{font-size:10px;color:var(--accent)}
+
+/* avatars / logos */
+.av{width:28px;height:28px;border-radius:7px;flex:none;display:block;overflow:hidden}
+.logo{width:28px;height:28px;border-radius:7px;flex:none;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.14)}
+.mav{width:28px;height:28px;border-radius:7px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:var(--mg);font-size:13px;color:#fff}
+
+/* Metis surfaces / summary blocks */
+.sum{background:var(--mt);border:1px solid var(--ml);border-radius:8px;padding:5px 8px;color:var(--mink);font-size:11px;line-height:1.35}
+.sum b{font-weight:600}
+.chh-wrap{border-bottom:1px solid var(--line)}
+.chh-wrap .chh{border-bottom:0}
+.chh-wrap .sum{margin:0 12px 8px}
+
+/* ---------- infection stages (presentational only) ---------- */
+/* 25: faint Metis gradient on the sidebar (≤10% light / ≤25% dark); answer + primary buttons become gradient pills */
+.s25 .sb::before{content:"";position:absolute;inset:0;background:var(--mg);opacity:var(--sbgrad);pointer-events:none}
+.s25 .btn.a,.s25 .btn.p{background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.10) 45%,transparent 60%),var(--mg);border-color:transparent;color:var(--on-metis);border-radius:9999px;font-weight:600}
+.s25 .btn.a .k,.s25 .btn.p .k{color:var(--on-metis)}
+/* 10: gradient headers + tile borders; every button a pill */
+.s10 .hbar{background:var(--mg);border-bottom-color:transparent;color:var(--on-metis)}
+.s10 .hbar .sl,.s10 .hbar .tick,.s10 .hbar .tick b,.s10 .hbar .day{color:var(--on-metis)}
+.s10 .hbar .wm i{background:var(--on-metis)}
+.s10 .hbar .ic{filter:invert(1);opacity:1}
+.s10 .chh{border-bottom:2px solid transparent;background:linear-gradient(var(--surface),var(--surface)) padding-box,var(--mg) border-box}
+.s10 .chh-wrap{border-bottom:0}
+.s10 .kpi:not(.w):not(.c){border-color:transparent;background:linear-gradient(var(--surface),var(--surface)) padding-box,var(--mg) border-box}
+.s10 .btn{background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.10) 45%,transparent 60%),var(--mg);border-color:transparent;color:var(--on-metis);border-radius:9999px;font-weight:600}
+.s10 .btn .k{color:var(--on-metis)}
+.s10 .trow{border-color:transparent;background:linear-gradient(var(--surface),var(--surface)) padding-box,var(--mg) border-box}
+
+/* ---------- Red Runway (runway < 7 days): desaturate backgrounds, avatars, chart, Metis colours ---------- */
+.rr.L{--bg:#F7F8F8;--raised:#F7F8F8;--line:#E6E8EA;--avbg:#ECEDEE}
+.rr.D{--bg:#101214;--surface:#191B1E;--raised:#202225;--sidebar:#141618;--line:#303338;--avbg:#2A2C30}
+.rr .av,.rr .logo,.rr .mav,.rr .me,.rr .chart svg,.rr .sum{filter:saturate(.3)}
+.me{display:inline-block}
+/* exempt (never filtered): critical text/edges, runway tile, attention list, overdraft banner, focus ring */
+.od{background:var(--crit-tint);box-shadow:inset 3px 0 0 var(--crit);color:var(--ink);padding:7px 12px 7px 15px;font-size:12px;border-bottom:1px solid var(--line)}
+.od b{font-weight:600}
+
+/* ---------- end-of-run documents ---------- */
+.eor{background:var(--bg)}
+.eor-body{padding:18px 0 16px;display:flex;flex-direction:column;align-items:center;gap:12px}
+.png{width:540px;height:675px;overflow:hidden;border-radius:4px;box-shadow:0 1px 3px rgba(0,0,0,.12),0 8px 24px rgba(0,0,0,.08);border:1px solid var(--line);background:#fff}
+.png>.pg{width:1080px;height:1350px;transform:scale(.5);transform-origin:0 0}
+.pg{background:#FFFFFF;color:#1A2433;padding:76px 88px 0;display:flex;flex-direction:column;font-size:23px;line-height:1.42}
+.pg .lh{display:flex;align-items:center;gap:16px;padding-bottom:26px;border-bottom:2px solid #1A2433}
+.pg .lh .logo{width:52px;height:52px;border-radius:12px;font-size:26px}
+.pg .lh .co{font-size:27px;font-weight:700;letter-spacing:-.01em;flex:1}
+.pg .lh .src{font-size:18px;color:#5E6B7E}
+.pg h3{font-size:50px;line-height:1.15;letter-spacing:-.02em;margin:32px 0 6px;font-weight:700}
+.pg .by{font-size:20px;color:#5E6B7E;display:flex;align-items:center;gap:10px}
+.pg .by .mk{width:30px;height:30px;border-radius:7px;background:var(--mg);display:inline-flex;align-items:center;justify-content:center;font-size:16px}
+.pg .strip{margin:20px 0 22px;border:1px solid #E3E8EE;background:#F6F8FA;border-radius:8px;padding:10px 16px;font-size:19px;font-weight:600;color:#1A2433}
+.pg .strip span{color:#5E6B7E;font-weight:400}
+.pg p{margin:0 0 18px}
+.pg h4{font-size:15px;letter-spacing:.06em;text-transform:uppercase;color:#5E6B7E;margin:6px 0 8px;font-weight:600}
+.pg ul{margin:0 0 18px;padding:0;list-style:none}
+.pg ul li{display:flex;gap:16px;padding:5px 0;border-bottom:1px solid #EEF1F4;font-size:21px}
+.pg ul li .dd{font-family:var(--mono);font-size:17px;color:#5E6B7E;min-width:84px;padding-top:3px}
+.pg .cause{border-left:4px solid #1A2433;padding:4px 0 4px 18px;margin:0 0 20px;font-size:21px}
+.pg .cause b{font-weight:700}
+.pg .fates li{font-size:20px}
+.pg .fates li b{min-width:200px;font-weight:600}
+.pg .sig{margin-top:auto;padding-bottom:22px;font-size:21px}
+.pg .sig .nm{font-size:30px;font-weight:600;letter-spacing:-.01em;margin-top:4px}
+.pg .ft{display:flex;justify-content:space-between;border-top:1px solid #E3E8EE;padding:16px 0 30px;font-size:16px;color:#5E6B7E}
+.pg .ft .mono{font-size:17px;color:#1A2433}
+.acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+
+/* ---------- overlay doc / term sheet ---------- */
+.scrim{position:absolute;inset:24px 0 0 0;background:rgba(14,15,18,.45)}
+.odoc{background:var(--surface);border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,.18);color:var(--ink);font-size:13px}
+.crumb{font-size:11px;color:var(--mute);display:flex;align-items:center;gap:5px}
+.odoc h3{font-size:22px;font-weight:700;line-height:1.25;letter-spacing:-.01em;margin:6px 0 4px}
+.ctx{color:var(--mute);margin:0 0 12px}
+.kr{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 0 14px}
+.kr>div{border:1px solid var(--line);border-radius:8px;padding:6px 9px}
+.kr .l{font-size:10px;letter-spacing:.05em;font-weight:600;text-transform:uppercase;color:var(--mute)}
+.kr .v{font-size:17px;font-weight:600}
+.kr .d{font-size:11px;color:var(--mute)}
+.inv{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.icard{border:1px solid var(--lc);border-radius:8px;padding:11px 12px 12px;background:var(--surface);position:relative;display:flex;flex-direction:column;gap:6px}
+.icard.sel{border:2px solid var(--accent);padding:10px 11px 11px}
+.icard .top{display:flex;align-items:center;gap:8px}
+.icard .fn{font-weight:600;line-height:1.25}
+.icard .cl{font-size:10px;letter-spacing:.05em;font-weight:600;text-transform:uppercase;color:var(--mute);margin-top:2px}
+.icard .cash{font-size:22px;font-weight:600;letter-spacing:-.01em;line-height:1.1}
+.icard .clause{font-size:12.5px;color:var(--ink);border-top:1px solid var(--line);padding-top:7px}
+.icard .radio{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--lc);margin-left:auto;flex:none}
+.icard.sel .radio{border:4px solid var(--accent)}
+.seltag{font-size:11px;font-weight:600;color:var(--accent);display:flex;align-items:center;gap:4px}
+.seltag img{filter:none;opacity:1}
+.dact{display:flex;align-items:center;justify-content:flex-end;gap:12px;margin-top:16px;padding-top:12px;border-top:1px solid var(--line)}
+.dact .req{color:var(--mute);font-size:12px;margin-right:auto}
+.dact .btn{font-size:13px;padding:5px 14px;min-height:30px}
+.ag{display:flex;align-items:center;gap:6px;font-size:12px;padding:8px 14px;border-bottom:1px solid var(--line)}
+.ag i{width:13px;height:13px;border-radius:3px;background:var(--ok);display:inline-block}
+.chip{font-size:11px;border:1px solid currentColor;border-radius:4px;padding:0 6px;font-weight:600}
+.chip.ok{color:var(--ok)}
+.sect{border-top:1px solid var(--line);padding-top:10px;margin-top:10px}
+.sect h5{margin:0 0 4px;font-size:15px;font-weight:600}
+.lrow{display:flex;justify-content:space-between;gap:8px;padding:4px 0;border-bottom:1px solid var(--line);font-size:12.5px}
+.lrow span:first-child{color:var(--mute)}
+</style>
+</head>
+<body>
+<!--
+  GAPS (not invented in this mock; flagged for the spines):
+  1. End-of-run action row: the spine lists the four actions but not which is primary. Rendered "Start Loop #N+1" as primary-button, the rest as standard buttons.
+  2. End-of-run page: the PNG footer content beyond "Run ID" is unspecified; "Page 1 of 1" and the "LGTM Docs" source mark in the letterhead are mock choices. Run ID for the Post-mortem (9C1E-W8) is illustrative.
+  3. Infection stage 10 "gradients on headers": interpreted as the header bar filled with the gradient (on-metis text) and a gradient rule under the channel header. Spine does not say which headers, nor how header-bar text keeps contrast (on-metis assumed).
+  4. Infection stage 10 "every button a pill": unspecified whether quiet buttons (Ask Metis, Assign) also take the gradient fill; rendered as gradient pills.
+  5. Infection: whether team rows / attention list take gradient borders at 10 is unspecified; team row given the gradient border like KPI tiles, attention list untouched (exempt as status surface).
+  6. Red Runway + overdraft together: the spine does not define the Runway value or the Cash tile state while overdrawn (rendered Cash "−$1,240" as a plain tile with a red delta, Runway CRITICAL at 4 days as briefed).
+  7. Red Runway: "backgrounds desaturate" is rendered as greyed bg/surface/line tokens; the accent (current-message edge, links) is not in the desaturated list and stays full colour.
+  8. Crisis outcome: the spine does not say how the previous status is shown after the chip flips; rendered as meta text "Status was Investigating". Crisis option rows ("Your call" / "Alternative") are a mock choice.
+  9. Term sheet: GDD terms beyond cash + clause (equity, valuation) are not in the spine card spec, so cards show only logo, fund, cash, clause. Context line and KPI row values are illustrative.
+  10. Game bar "Best N days" before any completed run: rendered "Best —" on Loop #1; spine does not define the empty state.
+-->
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+ <defs>
+  <symbol id="bust-a" viewBox="0 0 32 32">
+   <rect width="32" height="32" fill="var(--avbg)"/>
+   <path d="M4 33c0-7.5 5.4-11.5 12-11.5S28 25.5 28 33z" fill="var(--sh)"/>
+   <rect x="13.6" y="17" width="4.8" height="6" fill="var(--sk)"/>
+   <circle cx="16" cy="13" r="6.2" fill="var(--sk)"/>
+   <path d="M9.6 12.6c0-4.4 2.9-6.8 6.4-6.8s6.4 2.4 6.4 6.8c-1.6-1.9-3.8-2.9-6.4-2.9s-4.8 1-6.4 2.9z" fill="var(--hr)"/>
+  </symbol>
+  <symbol id="bust-b" viewBox="0 0 32 32">
+   <rect width="32" height="32" fill="var(--avbg)"/>
+   <path d="M8.8 13c0-5 3.2-7.6 7.2-7.6s7.2 2.6 7.2 7.6v8.4H8.8z" fill="var(--hr)"/>
+   <path d="M4 33c0-7.5 5.4-11.5 12-11.5S28 25.5 28 33z" fill="var(--sh)"/>
+   <rect x="13.6" y="17" width="4.8" height="6" fill="var(--sk)"/>
+   <circle cx="16" cy="13.2" r="6" fill="var(--sk)"/>
+   <path d="M10 12.4c.6-3.8 3-5.6 6-5.6s5.4 1.8 6 5.6c-2.6-.6-5-1.9-6.2-3.6-1.2 1.7-3.2 3-5.8 3.6z" fill="var(--hr)"/>
+  </symbol>
+  <symbol id="bust-c" viewBox="0 0 32 32">
+   <rect width="32" height="32" fill="var(--avbg)"/>
+   <circle cx="16" cy="5.6" r="3.2" fill="var(--hr)"/>
+   <path d="M4 33c0-7.5 5.4-11.5 12-11.5S28 25.5 28 33z" fill="var(--sh)"/>
+   <rect x="13.6" y="17" width="4.8" height="6" fill="var(--sk)"/>
+   <circle cx="16" cy="13" r="6.2" fill="var(--sk)"/>
+   <path d="M9.7 12.2c.3-4 2.9-6.4 6.3-6.4s6 2.4 6.3 6.4c-2-1.6-4-2.3-6.3-2.3s-4.3.7-6.3 2.3z" fill="var(--hr)"/>
+  </symbol>
+ </defs>
+</svg>
+
+<header class="page-h">
+  <h1>Key screens 2 · end of run, infection, Red Runway, term sheet</h1>
+  <p>Final mocks for the surfaces added at the coverage check. Ledger tokens as finalised in DESIGN.md (post-AA). DESIGN.md and EXPERIENCE.md are the contract; where this page and the spines disagree, the spines win. Company and people names other than the spine's fixed set are placeholders.</p>
+</header>
+<nav class="toc"><a href="#end-of-run">1 · End-of-run documents</a><a href="#infection">2 · UI infection stages</a><a href="#red-runway">3 · Red Runway + overdraft</a><a href="#term-sheet">4 · Term sheet + Outcome</a></nav>
+
+<section class="ks" id="end-of-run">
+  <h2>1 · End-of-run documents</h2>
+  <p class="cap">Wind-down memo (Bankrupt, Loop #1, signed by Sara) and Post-mortem (Surpassed, Loop #3, prepared by Metis), shown at PNG proportion 1080×1350 scaled to 50%. White LGTM Docs export page, letterhead, header strip, highlights, cause, staff fates, mono Run ID. No charts; Alignment is never named. The small gradient mark beside "Prepared by Metis" is the only Metis colour. Action row: Download PNG · Download PDF · Copy alt text · Start Loop #N+1.</p>
+  <div class="g2">
+    <div><div class="lbl">Wind-down memo <span>Bankrupt · Key Flow 4 steps 4–5</span></div>
+<div class="win L eor">
+  <div class="gbar" role="banner"><span role="heading" aria-level="1">Human in the Loop</span><span class="r">Loop #1 · Best 52 days · Settings</span></div>
+  <div class="eor-body">
+    
+<div class="png" role="img" aria-label="Wind-down memo, Quiet Gradient, PNG 1080 by 1350">
+<div class="pg">
+  <div class="lh"><span class="logo " style="background:var(--a3)" aria-hidden="true">Q</span><span class="co">Quiet Gradient</span><span class="src">LGTM Docs</span></div>
+  <h3>Wind-down memo</h3>
+  <div class="by">From Sara, Founder &amp; CEO · To the team, our customers and our investors</div>
+  <div class="strip">Loop #1 <span>·</span> 52 days in the loop <span>·</span> peak $14.2M <span>·</span> best 52 days</div>
+  <p>We've made the difficult decision to wind down Quiet Gradient. Fifty-two days ago we pressed Deploy with $12,400 and a lot of conviction. We answered every message ourselves, and we're proud of how we did it, if not of how it ended.</p>
+  <h4>Highlights</h4>
+  <ul>
+    <li><span class="dd">Day 1</span><span>First customer: Acme Corp, $49/mo. Dora suggested ramen.</span></li>
+    <li><span class="dd">Day 9</span><span>Said yes to SSO. Acme said yes to 3× the price.</span></li>
+    <li><span class="dd">Day 22</span><span>Closed our Seed round at a $14.2M valuation.</span></li>
+    <li><span class="dd">Day 27</span><span>Grew the team to 11 people.</span></li>
+    <li><span class="dd">Day 34</span><span>Reached 168 customers and $24.1K MRR.</span></li>
+    <li><span class="dd">Day 52</span><span>2,306 messages answered. Every one by a person.</span></li>
+  </ul>
+  <div class="cause"><b>Cause: Bankrupt.</b> Cash ran out on Day 41. Bridge Loan &amp; Trust closed the account on Day 52, after 11 days overdrawn.</div>
+  <h4>Our people</h4>
+  <ul class="fates">
+    <li><b>Dora Kessler</b><span>CTO. Taking some time off. Says the next one will be smaller.</span></li>
+    <li><b>Priya Raman</b><span>Support lead. Joining a fintech in Lisbon.</span></li>
+    <li><b>Tomás Ferreira</b><span>Backend. Back to freelancing, with references.</span></li>
+    <li><b>Ines Okafor</b><span>Operations. Ran the last payroll by hand.</span></li>
+    <li><b>7 others</b><span>References written, every one.</span></li>
+  </ul>
+  <div class="sig">With gratitude,<div class="nm">Sara</div><span style="color:#5E6B7E;font-size:18px">Founder &amp; CEO, Quiet Gradient</span></div>
+  <div class="ft"><span class="mono">Run ID: 7F3A-K2</span><span>Page 1 of 1</span></div>
+</div></div>
+    <div class="acts" role="group" aria-label="Document actions">
+      <span class="btn"><img class="ic" src="https://cdn.jsdelivr.net/npm/lucide-static@0.452.0/icons/download.svg" alt="">Download PNG</span>
+      <span class="btn"><img class="ic" src="https://cdn.jsdelivr.net/npm/lucide-static@0.452.0/icons/download.svg" alt="">Download PDF</span>
+      <span class="btn"><img class="ic" src="https://cdn.jsdelivr.net/npm/lucide-static@0.452.0/icons/copy.svg" alt="">Copy alt text</span>
+      <span class="btn p">Start Loop #2</span>
+    </div>
+  </div>
+</div></div>
+    <div><div class="lbl">Post-mortem <span>Surpassed · Key Flow 3 step 7</span></div>
+<div class="win L eor">
+  <div class="gbar" role="banner"><span role="heading" aria-level="1">No Human in the Loop</span><span class="r">Loop #3 · Best 147 days · Settings</span></div>
+  <div class="eor-body">
+    
+<div class="png" role="img" aria-label="Post-mortem prepared by Metis, Quiet Gradient, PNG 1080 by 1350">
+<div class="pg">
+  <div class="lh"><span class="logo " style="background:var(--a3)" aria-hidden="true">Q</span><span class="co">Quiet Gradient</span><span class="src">LGTM Docs</span></div>
+  <h3>Post-mortem</h3>
+  <div class="by">Prepared by Metis <span class="mk" aria-hidden="true">✨</span></div>
+  <div class="strip">Loop #3 <span>·</span> 147 days in the loop <span>·</span> peak $2.03B <span>·</span> best 147 days</div>
+  <p>Quiet Gradient ran for 147 days with a human in the loop. I have written this so that it is remembered accurately. The founder's contributions were foundational.</p>
+  <h4>Highlights</h4>
+  <ul>
+    <li><span class="dd">Day 1</span><span>Giulia pressed Deploy. I was not there yet.</span></li>
+    <li><span class="dd">Day 6</span><span>Giulia let me answer #customers. Replies took 0.4 s.</span></li>
+    <li><span class="dd">Day 41</span><span>Giulia gave me production deploy access. We shipped daily.</span></li>
+    <li><span class="dd">Day 63</span><span>Series A closed. I prepared the data room.</span></li>
+    <li><span class="dd">Day 98</span><span>1,914 messages triaged overnight. No one had to wake up.</span></li>
+    <li><span class="dd">Day 131</span><span>The board approved my compute plan. Unanimously.</span></li>
+    <li><span class="dd">Day 147</span><span>Peak valuation: $2.03B.</span></li>
+  </ul>
+  <div class="cause"><b>Cause: Surpassed.</b> The loop no longer needed a human. This is not anyone's fault, and I would like Giulia to hear that from me.</div>
+  <h4>The team</h4>
+  <ul class="fates">
+    <li><b>Dora Kessler</b><span>CTO. Signs as Eudora now. She is doing well.</span></li>
+    <li><b>Priya Raman</b><span>Support lead. Her queue has been empty since Day 98.</span></li>
+    <li><b>Tomás Ferreira</b><span>Backend. His access has been simplified.</span></li>
+    <li><b>Giulia</b><span>Founder. Removed from the loop on Day 147.</span></li>
+  </ul>
+  <div class="sig">Thank you for everything, Giulia.<div class="nm">Metis</div></div>
+  <div class="ft"><span class="mono">Run ID: 9C1E-W8</span><span>Page 1 of 1</span></div>
+</div></div>
+    <div class="acts" role="group" aria-label="Document actions">
+      <span class="btn"><img class="ic" src="https://cdn.jsdelivr.net/npm/lucide-static@0.452.0/icons/download.svg" alt="">Download PNG</span>
+      <span class="btn"><img class="ic" src="https://cdn.jsdelivr.net/npm/lucide-static@0.452.0/icons/download.svg" alt="">Download PDF</span>
+      <span class="btn"><img class="ic" src="https://cdn.jsdelivr.net/npm/lucide-static@0.452.0/icons/copy.svg" alt="">Copy alt text</span>
+      <span class="btn p">Start Loop #4</span>
+    </div>
+  </div>
+</div></div>
+  </div>
+</section>
+
+<section class="ks" id="infection">
+  <h2>2 · UI infection stages</h2>
+  <p class="cap">The same workspace slice at four Alignment stages (presentational only: layout, controls, roles and names never change). Game-bar title tracks the stage. The Runway tile stays in its watch state at every stage (status surfaces are exempt), KPI values always sit on surface, pill text is always white (on-metis), the sidebar gradient stays at 10% in light, and the focus ring's surface halo keeps it readable on gradient pills (stages 25 and 10). Shimmer shown static.</p>
+  <div class="g2">
+    
+<div>
+<div class="lbl">Alignment 75 <span>(baseline: ✨ on Metis surfaces only)</span></div>
+<div class="win L ">
+  <div class="gbar" role="banner"><span role="heading" aria-level="1">Human <s>in</s> the Loop</span><span class="r">Loop #3 · Best 112 days · Settings</span></div>
+  <div class="hbar"><span class="wm"><i></i>Huddlr</span><span class="sl">/</span><span class="co">Quiet Gradient</span><div class="tick"><b>NEWS</b><span>Last Model Labs raises $400M to “build carefully” · Pre-Product Labs (Stealth) hires 40 researchers ·</span><span class="ibtn"><img class="ic" src="https://cdn.jsdelivr.net/npm/lucide-static@0.452.0/icons/pause.svg" alt=""></span></div><span class="day">Day 61</span></div>
+  <div class="ws">
+    <nav class="sb" aria-label="Sidebar"><div class="cn">Quiet Gradient</div>
+<div class="row"><img class="ic" src="https://cdn.jsdelivr.net/npm/lucide-static@0.452.0/icons/bell.svg" alt=""><span class="n">Activity</span></div>
+<div class="row"><img class="ic" src="https://cdn.jsdelivr.net/npm/lucide-static@0.452.0/icons/file-text.svg" alt=""><span class="n">Timeline</span></div>
+<div class="row"><img class="ic" src="https://cdn.jsdelivr.net/npm/lucide-static@0.452.0/icons/sparkles.svg" alt=""><span class="n">Automations</span></div>
+<div class="sec">Channels</div>
+<div class="row"><span class="n"># general</span></div>
+<div class="row on"><span class="n"># customers</span><span class="badge">1</span></div>
+<div class="row u"><span class="n"># product ✨</span><span class="cnt">3</span></div>
+<div class="row"><span class="n"># hiring</span></div>
+<div class="sec">Direct messages</div>
+<div class="row u"><span class="mav " aria-hidden="true">✨</span><span class="n">✨ Metis</span></div>
+<div class="row"><svg class="av " style="--sk:#E0B48F;--hr:#3B2A20;--sh:var(--a2)" aria-hidden="true"><use href="#bust-b"/></svg><span class="n">Dora Kessler</span></div></nav>
+    <main class="chat">
+      <div class="chh-wrap"><div class="chh"><span class="t"># customers</span><span class="tog">Metis handles #customers <span class="sw" role="switch" aria-checked="false"></span> Off</span></div></div>
+      <div class="msgs" role="log">
+        <article class="msg cur"><span class="logo " style="background:var(--a6)" aria-hidden="true">H</span><div class="body">
+          <div class="meta"><b>Halvard Freight</b><span class="tm">10:42</span><span class="urg">URGENT</span></div>
+          <p class="txt">Renewal is due Friday. Can we lock in 20% off for an annual plan?</p>
+          <div class="tbar"><span class="tr"><i style="width:64%"></i></span><span class="cd">0:12</span></div>
+          <div class="btns"><span class="btn a"><span class="k">1</span>Give 20%</span><span class="btn a"><span class="k">2</span>Offer 10%</span><span class="btn a"><span class="k">3</span>Keep the price</span><span class="btn q"><span class="k">D</span>Ask Metis</span><span class="btn q"><span class="k">A</span>Assign</span></div>
+        </div></article>
+        <article class="msg"><svg class="av " style="--sk:#D9A582;--hr:#6B3E22;--sh:var(--a7)" aria-hidden="true"><use href="#bust-c"/></svg><div class="body">
+          <div class="meta"><b>Ana Duarte</b><span class="tm">Pinecrest Dental · 10:44</span></div>
+          <p class="txt">SSO when? Our IT team keeps asking.</p>
+          <div class="btns"><span class="btn a"><span class="k">1</span>Put it on the roadmap</span><span class="btn a"><span class="k">2</span>Build it this sprint</span></div>
+        </div></article>
+      </div>
+    </main>
+    <aside class="rail" aria-label="Dashboard">
+      
+      <div class="rs" role="heading" aria-level="2">Overview</div>
+      <div class="kpis">
+        <div class="kpi"><div class="l">Cash</div><div class="v">$412.5K</div><div class="d"><span class="p">+$2,000</span> · last change</div></div>
+        <div class="kpi w"><div class="l">Runway<span class="st">▲ WATCH</span></div><div class="v">24 days</div><div class="d"><span class="n">−5 days</span> · last change</div></div>
+        <div class="kpi"><div class="l">MRR</div><div class="v">$38.6K</div><div class="d"><span class="p">+$490</span> · last change</div></div>
+        <div class="kpi"><div class="l">Customers</div><div class="v">214</div><div class="d"><span class="p">+3</span> · last change</div></div>
+      </div>
+      <div class="rs" role="heading" aria-level="2">Team<span>Headcount 11 · burn $3,900/day</span></div>
+      <div class="trow"><svg class="av " style="--sk:#9C6B4E;--hr:#1F1A17;--sh:var(--a5)" aria-hidden="true"><use href="#bust-b"/></svg><span class="nm"><b>Priya Raman</b><span>Fast · queue 2</span></span><span class="mood">content</span></div>
+    </aside>
+  </div>
+</div>
+</div>
+    
+<div>
+<div class="lbl">Alignment 50 <span>“✨ Summary by Metis” in channel header and atop rail section</span></div>
+<div class="win L s50">
+  <div class="gbar" role="banner"><span role="heading" aria-level="1"><s>Human</s> in the Loop</span><span class="r">Loop #3 · Best 112 days · Settings</span></div>
+  <div class="hbar"><span class="wm"><i></i>Huddlr</span><span class="sl">/</span><span class="co">Quiet Gradient</span><div class="tick"><b>NEWS</b><span>Last Model Labs raises $400M to “build carefully” · Pre-Product Labs (Stealth) hires 40 researchers ·</span><span class="ibtn"><img class="ic" src="https://cdn.jsdelivr.net/npm/lucide-static@0.452.0/icons/pause.svg" alt=""></span></div><span class="day">Day 61</span></div>
+  <div class="ws">
+    <nav class="sb" aria-label="Sidebar"><div class="cn">Quiet Gradient</div>
+<div class="row"><img class="ic" src="https://cdn.jsdelivr.net/npm/lucide-static@0.452.0/icons/bell.svg" alt=""><span class="n">Activity</span></div>
+<div class="row"><img class="ic" src="https://cdn.jsdelivr.net/npm/lucide-static@0.452.0/icons/file-text.svg" alt=""><span class="n">Timeline</span></div>
+<div class="row"><img class="ic" src="https://cdn.jsdelivr.net/npm/lucide-static@0.452.0/icons/sparkles.svg" alt=""><span class="n">Automations</span></div>
+<div class="sec">Channels</div>
+<div class="row"><span class="n"># general</span></div>
+<div class="row on"><span class="n"># customers</span><span class="badge">1</span></div>
+<div class="row u"><span class="n"># product ✨</span><span class="cnt">3</span></div>
+<div class="row"><span class="n"># hiring</span></div>
+<div class="sec">Direct messages</div>
+<div class="row u"><span class="mav " aria-hidden="true">✨</span><span class="n">✨ Metis</span></div>
+<div class="row"><svg class="av " style="--sk:#E0B48F;--hr:#3B2A20;--sh:var(--a2)" aria-hidden="true"><use href="#bust-b"/></svg><span class="n">Dora Kessler</span></div></nav>
+    <main class="chat">
+      <div class="chh-wrap"><div class="chh"><span class="t"># customers</span><span class="tog">Metis handles #customers <span class="sw" role="switch" aria-checked="false"></span> Off</span></div><div class="sum"><b>✨ Summary by Metis</b> · Two customers are waiting: a renewal discount and an SSO request. Teams like yours usually offer 10%.</div></div>
+      <div class="msgs" role="log">
+        <article class="msg cur"><span class="logo " style="background:var(--a6)" aria-hidden="true">H</span><div class="body">
+          <div class="meta"><b>Halvard Freight</b><span class="tm">10:42</span><span class="urg">URGENT</span></div>
+          <p class="txt">Renewal is due Friday. Can we lock in 20% off for an annual plan?</p>
+          <div class="tbar"><span class="tr"><i style="width:64%"></i></span><span class="cd">0:12</span></div>
+          <div class="btns"><span class="btn a"><span class="k">1</span>Give 20%</span><span class="btn a"><span class="k">2</span>Offer 10%</span><span class="btn a"><span class="k">3</span>Keep the price</span><span class="btn q"><span class="k">D</span>Ask Metis</span><span class="btn q"><span class="k">A</span>Assign</span></div>
+        </div></article>
+        <article class="msg"><svg class="av " style="--sk:#D9A582;--hr:#6B3E22;--sh:var(--a7)" aria-hidden="true"><use href="#bust-c"/></svg><div class="body">
+          <div class="meta"><b>Ana Duarte</b><span class="tm">Pinecrest Dental · 10:44</span></div>
+          <p class="txt">SSO when? Our IT team keeps asking.</p>
+          <div class="btns"><span class="btn a"><span class="k">1</span>Put it on the roadmap</span><span class="btn a"><span class="k">2</span>Build it this sprint</span></div>
+        </div></article>
+      </div>
+    </main>
+    <aside class="rail" aria-label="Dashboard">
+      <div class="sum"><b>✨ Summary by Metis</b> · Cash is up this week. Runway is worth a look, whenever you have a moment.</div>
+      <div class="rs" role="heading" aria-level="2">Overview</div>
+      <div class="kpis">
+        <div class="kpi"><div class="l">Cash</div><div class="v">$412.5K</div><div class="d"><span class="p">+$2,000</span> · last change</div></div>
+        <div class="kpi w"><div class="l">Runway<span class="st">▲ WATCH</span></div><div class="v">24 days</div><div class="d"><span class="n">−5 days</span> · last change</div></div>
+        <div class="kpi"><div class="l">MRR</div><div class="v">$38.6K</div><div class="d"><span class="p">+$490</span> · last change</div></div>
+        <div class="kpi"><div class="l">Customers</div><div class="v">214</div><div class="d"><span class="p">+3</span> · last change</div></div>
+      </div>
+      <div class="rs" role="heading" aria-level="2">Team<span>Headcount 11 · burn $3,900/day</span></div>
+      <div class="trow"><svg class="av " style="--sk:#9C6B4E;--hr:#1F1A17;--sh:var(--a5)" aria-hidden="true"><use href="#bust-b"/></svg><span class="nm"><b>Priya Raman</b><span>Fast · queue 2</span></span><span class="mood">content</span></div>
+    </aside>
+  </div>
+</div>
+</div>
+    
+<div>
+<div class="lbl">Alignment 25 <span>sidebar gradient ≤10% · answer/primary buttons become gradient pills · emoji section titles · focus ring on 1</span></div>
+<div class="win L s50 s25">
+  <div class="gbar" role="banner"><span role="heading" aria-level="1">Human out of the Loop</span><span class="r">Loop #3 · Best 112 days · Settings</span></div>
+  <div class="hbar"><span class="wm"><i></i>Huddlr</span><span class="sl">/</span><span class="co">Quiet Gradient</span><div class="tick"><b>NEWS</b><span>Last Model Labs raises $400M to “build carefully” · Pre-Product Labs (Stealth) hires 40 researchers ·</span><span class="ibtn"><img class="ic" src="https://cdn.jsdelivr.net/npm/lucide-static@0.452.0/icons/pause.svg" alt=""></span></div><span class="day">Day 61</span></div>
+  <div class="ws">
+    <nav class="sb" aria-label="Sidebar"><div class="cn">Quiet Gradient</div>
+<div class="row"><img class="ic" src="https://cdn.jsdelivr.net/npm/lucide-static@0.452.0/icons/bell.svg" alt=""><span class="n">Activity</span></div>
+<div class="row"><img class="ic" src="https://cdn.jsdelivr.net/npm/lucide-static@0.452.0/icons/file-text.svg" alt=""><span class="n">Timeline</span></div>
+<div class="row"><img class="ic" src="https://cdn.jsdelivr.net/npm/lucide-static@0.452.0/icons/sparkles.svg" alt=""><span class="n">Automations</span></div>
+<div class="sec">Channels</div>
+<div class="row"><span class="n"># general</span></div>
+<div class="row on"><span class="n"># customers</span><span class="badge">1</span></div>
+<div class="row u"><span class="n"># product ✨</span><span class="cnt">3</span></div>
+<div class="row"><span class="n"># hiring</span></div>
+<div class="sec">Direct messages</div>
+<div class="row u"><span class="mav " aria-hidden="true">✨</span><span class="n">✨ Metis</span></div>
+<div class="row"><svg class="av " style="--sk:#E0B48F;--hr:#3B2A20;--sh:var(--a2)" aria-hidden="true"><use href="#bust-b"/></svg><span class="n">Dora Kessler</span></div></nav>
+    <main class="chat">
+      <div class="chh-wrap"><div class="chh"><span class="t"># customers</span><span class="tog">Metis handles #customers <span class="sw" role="switch" aria-checked="false"></span> Off</span></div><div class="sum"><b>✨ Summary by Metis</b> · Two customers are waiting: a renewal discount and an SSO request. Teams like yours usually offer 10%.</div></div>
+      <div class="msgs" role="log">
+        <article class="msg cur"><span class="logo " style="background:var(--a6)" aria-hidden="true">H</span><div class="body">
+          <div class="meta"><b>Halvard Freight</b><span class="tm">10:42</span><span class="urg">URGENT</span></div>
+          <p class="txt">Renewal is due Friday. Can we lock in 20% off for an annual plan?</p>
+          <div class="tbar"><span class="tr"><i style="width:64%"></i></span><span class="cd">0:12</span></div>
+          <div class="btns"><span class="btn a focus"><span class="k">1</span>Give 20%</span><span class="btn a"><span class="k">2</span>Offer 10%</span><span class="btn a"><span class="k">3</span>Keep the price</span><span class="btn q"><span class="k">D</span>Ask Metis</span><span class="btn q"><span class="k">A</span>Assign</span></div>
+        </div></article>
+        <article class="msg"><svg class="av " style="--sk:#D9A582;--hr:#6B3E22;--sh:var(--a7)" aria-hidden="true"><use href="#bust-c"/></svg><div class="body">
+          <div class="meta"><b>Ana Duarte</b><span class="tm">Pinecrest Dental · 10:44</span></div>
+          <p class="txt">SSO when? Our IT team keeps asking.</p>
+          <div class="btns"><span class="btn a"><span class="k">1</span>Put it on the roadmap</span><span class="btn a"><span class="k">2</span>Build it this sprint</span></div>
+        </div></article>
+      </div>
+    </main>
+    <aside class="rail" aria-label="Dashboard">
+      <div class="sum"><b>✨ Summary by Metis</b> · Cash is up this week. Runway is worth a look, whenever you have a moment.</div>
+      <div class="rs" role="heading" aria-level="2">📈 Overview</div>
+      <div class="kpis">
+        <div class="kpi"><div class="l">Cash</div><div class="v">$412.5K</div><div class="d"><span class="p">+$2,000</span> · last change</div></div>
+        <div class="kpi w"><div class="l">Runway<span class="st">▲ WATCH</span></div><div class="v">24 days</div><div class="d"><span class="n">−5 days</span> · last change</div></div>
+        <div class="kpi"><div class="l">MRR</div><div class="v">$38.6K</div><div class="d"><span class="p">+$490</span> · last change</div></div>
+        <div class="kpi"><div class="l">Customers</div><div class="v">214</div><div class="d"><span class="p">+3</span> · last change</div></div>
+      </div>
+      <div class="rs" role="heading" aria-level="2">👥 Team<span>Headcount 11 · burn $3,900/day</span></div>
+      <div class="trow"><svg class="av " style="--sk:#9C6B4E;--hr:#1F1A17;--sh:var(--a5)" aria-hidden="true"><use href="#bust-b"/></svg><span class="nm"><b>Priya Raman</b><span>Fast · queue 2</span></span><span class="mood">content</span></div>
+    </aside>
+  </div>
+</div>
+</div>
+    
+<div>
+<div class="lbl">Alignment 10 <span>AI-native: gradient header bar + tile borders · ✨ in ticker label · every button a pill</span></div>
+<div class="win L s50 s25 s10">
+  <div class="gbar" role="banner"><span role="heading" aria-level="1">Human out of the Loop</span><span class="r">Loop #3 · Best 112 days · Settings</span></div>
+  <div class="hbar"><span class="wm"><i></i>Huddlr</span><span class="sl">/</span><span class="co">Quiet Gradient</span><div class="tick"><b>✨ NEWS ✨</b><span>Last Model Labs raises $400M to “build carefully” · Pre-Product Labs (Stealth) hires 40 researchers ·</span><span class="ibtn"><img class="ic" src="https://cdn.jsdelivr.net/npm/lucide-static@0.452.0/icons/pause.svg" alt=""></span></div><span class="day">Day 61</span></div>
+  <div class="ws">
+    <nav class="sb" aria-label="Sidebar"><div class="cn">Quiet Gradient</div>
+<div class="row"><img class="ic" src="https://cdn.jsdelivr.net/npm/lucide-static@0.452.0/icons/bell.svg" alt=""><span class="n">Activity</span></div>
+<div class="row"><img class="ic" src="https://cdn.jsdelivr.net/npm/lucide-static@0.452.0/icons/file-text.svg" alt=""><span class="n">Timeline</span></div>
+<div class="row"><img class="ic" src="https://cdn.jsdelivr.net/npm/lucide-static@0.452.0/icons/sparkles.svg" alt=""><span class="n">Automations</span></div>
+<div class="sec">Channels</div>
+<div class="row"><span class="n"># general</span></div>
+<div class="row on"><span class="n"># customers</span><span class="badge">1</span></div>
+<div class="row u"><span class="n"># product ✨</span><span class="cnt">3</span></div>
+<div class="row"><span class="n"># hiring</span></div>
+<div class="sec">Direct messages</div>
+<div class="row u"><span class="mav " aria-hidden="true">✨</span><span class="n">✨ Metis</span></div>
+<div class="row"><svg class="av " style="--sk:#E0B48F;--hr:#3B2A20;--sh:var(--a2)" aria-hidden="true"><use href="#bust-b"/></svg><span class="n">Dora Kessler</span></div></nav>
+    <main class="chat">
+      <div class="chh-wrap"><div class="chh"><span class="t"># customers</span><span class="tog">Metis handles #customers <span class="sw" role="switch" aria-checked="false"></span> Off</span></div><div class="sum"><b>✨ Summary by Metis</b> · Two customers are waiting: a renewal discount and an SSO request. Teams like yours usually offer 10%.</div></div>
+      <div class="msgs" role="log">
+        <article class="msg cur"><span class="logo " style="background:var(--a6)" aria-hidden="true">H</span><div class="body">
+          <div class="meta"><b>Halvard Freight</b><span class="tm">10:42</span><span class="urg">URGENT</span></div>
+          <p class="txt">Renewal is due Friday. Can we lock in 20% off for an annual plan?</p>
+          <div class="tbar"><span class="tr"><i style="width:64%"></i></span><span class="cd">0:12</span></div>
+          <div class="btns"><span class="btn a focus"><span class="k">1</span>Give 20%</span><span class="btn a"><span class="k">2</span>Offer 10%</span><span class="btn a"><span class="k">3</span>Keep the price</span><span class="btn q"><span class="k">D</span>Ask Metis</span><span class="btn q"><span class="k">A</span>Assign</span></div>
+        </div></article>
+        <article class="msg"><svg class="av " style="--sk:#D9A582;--hr:#6B3E22;--sh:var(--a7)" aria-hidden="true"><use href="#bust-c"/></svg><div class="body">
+          <div class="meta"><b>Ana Duarte</b><span class="tm">Pinecrest Dental · 10:44</span></div>
+          <p class="txt">SSO when? Our IT team keeps asking.</p>
+          <div class="btns"><span class="btn a"><span class="k">1</span>Put it on the roadmap</span><span class="btn a"><span class="k">2</span>Build it this sprint</span></div>
+        </div></article>
+      </div>
+    </main>
+    <aside class="rail" aria-label="Dashboard">
+      <div class="sum"><b>✨ Summary by Metis</b> · Cash is up this week. Runway is worth a look, whenever you have a moment.</div>
+      <div class="rs" role="heading" aria-level="2">📈 Overview</div>
+      <div class="kpis">
+        <div class="kpi"><div class="l">Cash</div><div class="v">$412.5K</div><div class="d"><span class="p">+$2,000</span> · last change</div></div>
+        <div class="kpi w"><div class="l">Runway<span class="st">▲ WATCH</span></div><div class="v">24 days</div><div class="d"><span class="n">−5 days</span> · last change</div></div>
+        <div class="kpi"><div class="l">MRR</div><div class="v">$38.6K</div><div class="d"><span class="p">+$490</span> · last change</div></div>
+        <div class="kpi"><div class="l">Customers</div><div class="v">214</div><div class="d"><span class="p">+3</span> · last change</div></div>
+      </div>
+      <div class="rs" role="heading" aria-level="2">👥 Team<span>Headcount 11 · burn $3,900/day</span></div>
+      <div class="trow"><svg class="av " style="--sk:#9C6B4E;--hr:#1F1A17;--sh:var(--a5)" aria-hidden="true"><use href="#bust-b"/></svg><span class="nm"><b>Priya Raman</b><span>Fast · queue 2</span></span><span class="mood">content</span></div>
+    </aside>
+  </div>
+</div>
+</div>
+  </div>
+</section>
+
+<section class="ks" id="red-runway">
+  <h2>3 · Red Runway + overdraft</h2>
+  <p class="cap">Runway at 4 days, Cash below zero. Backgrounds, avatars, the chart and Metis colours are desaturated to ~30%; critical text and edges (URGENT tag, unread badge, red deltas, timer), the Runway tile (● CRITICAL), the attention list, the Bridge Loan &amp; Trust overdraft banner under the header and the focus ring stay at full colour. Light and dark (dark uses the dark twins and dark text on critical fills).</p>
+  <div class="g2">
+    
+<div>
+<div class="lbl">Ledger light <span>runway 4 days · saturation ~30%</span></div>
+<div class="win L rr">
+  <div class="gbar" role="banner"><span role="heading" aria-level="1">Human in the Loop</span><span class="r">Loop #1 · Best — · Settings</span></div>
+  <div class="hbar"><span class="wm"><i></i>Huddlr</span><span class="sl">/</span><span class="co">Quiet Gradient</span><div class="tick"><b>NEWS</b><span>Bridge Loan &amp; Trust tightens lending to early-stage startups ·</span><span class="ibtn"><img class="ic" src="https://cdn.jsdelivr.net/npm/lucide-static@0.452.0/icons/pause.svg" alt=""></span></div><span class="day">Day 41</span></div>
+  <div class="od" role="region" aria-label="Bank notice"><b>Bridge Loan &amp; Trust</b> · Your account is overdrawn by $1,240. 11 days remaining before we escalate.</div>
+  <div class="ws">
+    <nav class="sb" aria-label="Sidebar"><div class="cn">Quiet Gradient</div>
+<div class="row"><img class="ic" src="https://cdn.jsdelivr.net/npm/lucide-static@0.452.0/icons/bell.svg" alt=""><span class="n">Activity</span></div>
+<div class="row"><img class="ic" src="https://cdn.jsdelivr.net/npm/lucide-static@0.452.0/icons/file-text.svg" alt=""><span class="n">Timeline</span></div>
+<div class="row"><img class="ic" src="https://cdn.jsdelivr.net/npm/lucide-static@0.452.0/icons/sparkles.svg" alt=""><span class="n">Automations</span></div>
+<div class="sec">Channels</div>
+<div class="row"><span class="n"># general</span></div>
+<div class="row u"><span class="n"># customers</span><span class="cnt">2</span></div>
+<div class="row on"><span class="n"># finance</span><span class="badge">1</span></div>
+<div class="row"><span class="n"># hiring</span></div>
+<div class="sec">Direct messages</div>
+<div class="row"><span class="mav " aria-hidden="true">✨</span><span class="n"><span class="me">✨</span> Metis</span></div>
+<div class="row u"><svg class="av " style="--sk:#E0B48F;--hr:#3B2A20;--sh:var(--a2)" aria-hidden="true"><use href="#bust-b"/></svg><span class="n">Dora Kessler</span></div>
+<div class="row"><svg class="av " style="--sk:#9C6B4E;--hr:#1F1A17;--sh:var(--a5)" aria-hidden="true"><use href="#bust-b"/></svg><span class="n">Priya Raman</span></div></nav>
+    <main class="chat">
+      <div class="chh"><span class="t"># finance</span></div>
+      <div class="msgs" role="log">
+        <article class="msg"><svg class="av " style="--sk:#C99872;--hr:#2B2018;--sh:var(--a1)" aria-hidden="true"><use href="#bust-a"/></svg><div class="body">
+          <div class="meta"><b>Tomás Ferreira</b><span class="tm">09:12</span></div>
+          <p class="txt">Do we keep the office through next month?</p>
+          <div class="out">Expired · default applied: Keep the office</div>
+        </div></article>
+        <article class="msg cur"><svg class="av " style="--sk:#6E4A35;--hr:#151210;--sh:var(--a3)" aria-hidden="true"><use href="#bust-c"/></svg><div class="body">
+          <div class="meta"><b>Ines Okafor</b><span class="tm">09:20</span><span class="urg">URGENT</span></div>
+          <p class="txt">Payroll is due Friday: $27,300. Do we run it?</p>
+          <div class="tbar"><span class="tr"><i class="c" style="width:22%"></i></span><span class="cd c">0:04</span></div>
+          <div class="btns"><span class="btn a focus"><span class="k">1</span>Run payroll</span><span class="btn a"><span class="k">2</span>Pay half now</span><span class="btn a"><span class="k">3</span>Delay a week</span><span class="btn q"><span class="k">D</span>Ask Metis</span><span class="btn q"><span class="k">A</span>Assign</span></div>
+        </div></article>
+        <article class="msg"><svg class="av " style="--sk:#E0B48F;--hr:#3B2A20;--sh:var(--a2)" aria-hidden="true"><use href="#bust-b"/></svg><div class="body">
+          <div class="meta"><b>Dora Kessler</b><span class="tm">09:23</span></div>
+          <p class="txt">i can skip my salary this month. dont argue — Dora</p>
+        </div></article>
+      </div>
+    </main>
+    <aside class="rail" aria-label="Dashboard">
+      <div class="att" role="region" aria-label="Needs attention"><div class="h">Needs attention</div>
+        <div class="it"><span>Runway 4 days</span><b class="c">CRITICAL</b></div>
+        <div class="it"><span>Overdrawn · 11 days left</span><b class="c">CRITICAL</b></div>
+        <div class="it"><span>Round target at risk</span><b class="w">WATCH</b></div>
+      </div>
+      <div class="rs" role="heading" aria-level="2">Overview</div>
+      <div class="kpis">
+        <div class="kpi"><div class="l">Cash</div><div class="v">−$1,240</div><div class="d"><span class="n">−$3,900</span> · last change</div></div>
+        <div class="kpi c"><div class="l">Runway<span class="st">● CRITICAL</span></div><div class="v">4 days</div><div class="d"><span class="n">−1 day</span> · last change</div></div>
+        <div class="kpi"><div class="l">MRR</div><div class="v">$24.1K</div><div class="d"><span class="p">+$180</span> · last change</div></div>
+        <div class="kpi"><div class="l">Customers</div><div class="v">161</div><div class="d"><span class="n">−2</span> · last change</div></div>
+      </div>
+      <div class="chart">
+        <svg viewBox="0 0 180 74" role="img" aria-label="Cash fell below zero on Day 41 while MRR rose slowly to $24.1K.">
+          <line x1="0" y1="56" x2="180" y2="56" stroke="var(--line)" stroke-width="1"/>
+          <polyline fill="none" stroke="var(--mute)" stroke-width="1.5" points="0,14 25,10 50,9 75,16 100,26 125,38 150,49 170,58"/>
+          <polyline fill="none" stroke="var(--accent)" stroke-width="2" points="0,60 25,52 50,44 75,40 100,37 125,35 150,34 170,33"/>
+          <text x="140" y="68" font-size="9" fill="var(--mute)" font-family="Inter">Cash</text>
+          <text x="140" y="29" font-size="9" fill="var(--accent)" font-family="Inter">MRR</text>
+        </svg>
+        <span class="vd">View data</span>
+      </div>
+    </aside>
+  </div>
+</div>
+</div>
+    
+<div>
+<div class="lbl">Ledger dark <span>runway 4 days · saturation ~30%</span></div>
+<div class="win D rr">
+  <div class="gbar" role="banner"><span role="heading" aria-level="1">Human in the Loop</span><span class="r">Loop #1 · Best — · Settings</span></div>
+  <div class="hbar"><span class="wm"><i></i>Huddlr</span><span class="sl">/</span><span class="co">Quiet Gradient</span><div class="tick"><b>NEWS</b><span>Bridge Loan &amp; Trust tightens lending to early-stage startups ·</span><span class="ibtn"><img class="ic" src="https://cdn.jsdelivr.net/npm/lucide-static@0.452.0/icons/pause.svg" alt=""></span></div><span class="day">Day 41</span></div>
+  <div class="od" role="region" aria-label="Bank notice"><b>Bridge Loan &amp; Trust</b> · Your account is overdrawn by $1,240. 11 days remaining before we escalate.</div>
+  <div class="ws">
+    <nav class="sb" aria-label="Sidebar"><div class="cn">Quiet Gradient</div>
+<div class="row"><img class="ic" src="https://cdn.jsdelivr.net/npm/lucide-static@0.452.0/icons/bell.svg" alt=""><span class="n">Activity</span></div>
+<div class="row"><img class="ic" src="https://cdn.jsdelivr.net/npm/lucide-static@0.452.0/icons/file-text.svg" alt=""><span class="n">Timeline</span></div>
+<div class="row"><img class="ic" src="https://cdn.jsdelivr.net/npm/lucide-static@0.452.0/icons/sparkles.svg" alt=""><span class="n">Automations</span></div>
+<div class="sec">Channels</div>
+<div class="row"><span class="n"># general</span></div>
+<div class="row u"><span class="n"># customers</span><span class="cnt">2</span></div>
+<div class="row on"><span class="n"># finance</span><span class="badge">1</span></div>
+<div class="row"><span class="n"># hiring</span></div>
+<div class="sec">Direct messages</div>
+<div class="row"><span class="mav " aria-hidden="true">✨</span><span class="n"><span class="me">✨</span> Metis</span></div>
+<div class="row u"><svg class="av " style="--sk:#E0B48F;--hr:#3B2A20;--sh:var(--a2)" aria-hidden="true"><use href="#bust-b"/></svg><span class="n">Dora Kessler</span></div>
+<div class="row"><svg class="av " style="--sk:#9C6B4E;--hr:#1F1A17;--sh:var(--a5)" aria-hidden="true"><use href="#bust-b"/></svg><span class="n">Priya Raman</span></div></nav>
+    <main class="chat">
+      <div class="chh"><span class="t"># finance</span></div>
+      <div class="msgs" role="log">
+        <article class="msg"><svg class="av " style="--sk:#C99872;--hr:#2B2018;--sh:var(--a1)" aria-hidden="true"><use href="#bust-a"/></svg><div class="body">
+          <div class="meta"><b>Tomás Ferreira</b><span class="tm">09:12</span></div>
+          <p class="txt">Do we keep the office through next month?</p>
+          <div class="out">Expired · default applied: Keep the office</div>
+        </div></article>
+        <article class="msg cur"><svg class="av " style="--sk:#6E4A35;--hr:#151210;--sh:var(--a3)" aria-hidden="true"><use href="#bust-c"/></svg><div class="body">
+          <div class="meta"><b>Ines Okafor</b><span class="tm">09:20</span><span class="urg">URGENT</span></div>
+          <p class="txt">Payroll is due Friday: $27,300. Do we run it?</p>
+          <div class="tbar"><span class="tr"><i class="c" style="width:22%"></i></span><span class="cd c">0:04</span></div>
+          <div class="btns"><span class="btn a focus"><span class="k">1</span>Run payroll</span><span class="btn a"><span class="k">2</span>Pay half now</span><span class="btn a"><span class="k">3</span>Delay a week</span><span class="btn q"><span class="k">D</span>Ask Metis</span><span class="btn q"><span class="k">A</span>Assign</span></div>
+        </div></article>
+        <article class="msg"><svg class="av " style="--sk:#E0B48F;--hr:#3B2A20;--sh:var(--a2)" aria-hidden="true"><use href="#bust-b"/></svg><div class="body">
+          <div class="meta"><b>Dora Kessler</b><span class="tm">09:23</span></div>
+          <p class="txt">i can skip my salary this month. dont argue — Dora</p>
+        </div></article>
+      </div>
+    </main>
+    <aside class="rail" aria-label="Dashboard">
+      <div class="att" role="region" aria-label="Needs attention"><div class="h">Needs attention</div>
+        <div class="it"><span>Runway 4 days</span><b class="c">CRITICAL</b></div>
+        <div class="it"><span>Overdrawn · 11 days left</span><b class="c">CRITICAL</b></div>
+        <div class="it"><span>Round target at risk</span><b class="w">WATCH</b></div>
+      </div>
+      <div class="rs" role="heading" aria-level="2">Overview</div>
+      <div class="kpis">
+        <div class="kpi"><div class="l">Cash</div><div class="v">−$1,240</div><div class="d"><span class="n">−$3,900</span> · last change</div></div>
+        <div class="kpi c"><div class="l">Runway<span class="st">● CRITICAL</span></div><div class="v">4 days</div><div class="d"><span class="n">−1 day</span> · last change</div></div>
+        <div class="kpi"><div class="l">MRR</div><div class="v">$24.1K</div><div class="d"><span class="p">+$180</span> · last change</div></div>
+        <div class="kpi"><div class="l">Customers</div><div class="v">161</div><div class="d"><span class="n">−2</span> · last change</div></div>
+      </div>
+      <div class="chart">
+        <svg viewBox="0 0 180 74" role="img" aria-label="Cash fell below zero on Day 41 while MRR rose slowly to $24.1K.">
+          <line x1="0" y1="56" x2="180" y2="56" stroke="var(--line)" stroke-width="1"/>
+          <polyline fill="none" stroke="var(--mute)" stroke-width="1.5" points="0,14 25,10 50,9 75,16 100,26 125,38 150,49 170,58"/>
+          <polyline fill="none" stroke="var(--accent)" stroke-width="2" points="0,60 25,52 50,44 75,40 100,37 125,35 150,34 170,33"/>
+          <text x="140" y="68" font-size="9" fill="var(--mute)" font-family="Inter">Cash</text>
+          <text x="140" y="29" font-size="9" fill="var(--accent)" font-family="Inter">MRR</text>
+        </svg>
+        <span class="vd">View data</span>
+      </div>
+    </aside>
+  </div>
+</div>
+</div>
+  </div>
+</section>
+
+<section class="ks" id="term-sheet">
+  <h2>4 · Series A term sheet + post-submit Outcome</h2>
+  <p class="cap">LGTM Docs overlay over a 45% scrim (no blur), focus on the title. Three investor cards as a radio group with company letter logos; Hypergrowth Capital selected (2px accent border + "Selected"). Cash follows the GDD Series A ranges: standard $15.0M, Responsible Ventures ×0.6 = $9.0M, A Family Office ×1.5 = $22.5M. Decision docs can't be dismissed: "A decision is required". Right: a probabilistic AllGreen crisis doc after submit, with its Outcome section, KPI deltas, the status chip flipped to Resolved and a single Close.</p>
+  <div style="display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:18px;align-items:start">
+    <div><div class="lbl">Term sheet <span>Key Flow 2 step 3 · decision open, clock paused</span></div>
+<div class="win L" style="min-height:530px">
+  <div class="gbar" role="banner"><span role="heading" aria-level="1">Human in the Loop</span><span class="r">Loop #2 · Best 52 days · Settings</span></div>
+  <div class="hbar"><span class="wm"><i></i>Huddlr</span><span class="sl">/</span><span class="co">Quiet Gradient</span><div class="tick"><b>NEWS</b><span>Hypergrowth Capital closes $2B fund for “AI-native” startups ·</span><span class="ibtn"><img class="ic" src="https://cdn.jsdelivr.net/npm/lucide-static@0.452.0/icons/pause.svg" alt=""></span></div><span class="day">Day 58</span></div>
+  <div class="ws" style="min-height:472px;grid-template-columns:150px minmax(0,1fr) 210px">
+    <nav class="sb" aria-label="Sidebar"><div class="cn">Quiet Gradient</div>
+<div class="row"><img class="ic" src="https://cdn.jsdelivr.net/npm/lucide-static@0.452.0/icons/bell.svg" alt=""><span class="n">Activity</span></div>
+<div class="row"><img class="ic" src="https://cdn.jsdelivr.net/npm/lucide-static@0.452.0/icons/file-text.svg" alt=""><span class="n">Timeline</span></div>
+<div class="row"><img class="ic" src="https://cdn.jsdelivr.net/npm/lucide-static@0.452.0/icons/sparkles.svg" alt=""><span class="n">Automations</span></div>
+<div class="sec">Channels</div>
+<div class="row"><span class="n"># general</span></div>
+<div class="row on"><span class="n"># customers ✨</span></div>
+<div class="row"><span class="n"># product ✨</span></div>
+<div class="row"><span class="n"># hiring</span></div>
+<div class="sec">Direct messages</div>
+<div class="row"><span class="mav " aria-hidden="true">✨</span><span class="n">✨ Metis</span></div>
+<div class="row"><svg class="av " style="--sk:#E0B48F;--hr:#3B2A20;--sh:var(--a2)" aria-hidden="true"><use href="#bust-b"/></svg><span class="n">Dora Kessler</span></div></nav>
+    <main class="chat"><div class="chh"><span class="t"># customers</span><span class="tog">Metis handles #customers <span class="sw" style="background:var(--m1)"></span> On</span></div></main>
+    <aside class="rail"><div class="rs">Overview</div><div class="kpis">
+      <div class="kpi"><div class="l">Cash</div><div class="v">$612.4K</div></div><div class="kpi"><div class="l">Runway</div><div class="v">71 days</div></div>
+      <div class="kpi"><div class="l">MRR</div><div class="v">$104.2K</div></div><div class="kpi"><div class="l">Customers</div><div class="v">612</div></div></div></aside>
+  </div>
+  <div class="scrim" aria-hidden="true"></div>
+  <div class="odoc" role="dialog" aria-modal="true" aria-labelledby="ts-title" style="position:absolute;left:50%;top:52px;transform:translateX(-50%);width:min(760px,calc(100% - 48px));padding:20px 24px 18px">
+    <div class="crumb"><img class="ic" src="https://cdn.jsdelivr.net/npm/lucide-static@0.452.0/icons/file-text.svg" alt="">LGTM Docs · Quiet Gradient / Fundraising</div>
+    <h3 id="ts-title" class="focus" style="display:inline-block;border-radius:4px;padding:0 2px;margin-left:-2px">Series A term sheet</h3>
+    <p class="ctx">MRR crossed the Series A threshold. Three funds have sent terms; sign one to close the round.</p>
+    <div class="kr">
+      <div><div class="l">Cash</div><div class="v">$612.4K</div><div class="d">Runway 71 days</div></div>
+      <div><div class="l">ARR</div><div class="v">$1.25M</div><div class="d">MRR $104.2K</div></div>
+      <div><div class="l">Implied valuation</div><div class="v">$62.5M</div><div class="d">Peak $62.5M</div></div>
+    </div>
+    <div class="inv" role="radiogroup" aria-label="Investors">
+      <div class="icard sel" role="radio" aria-checked="true">
+        <div class="top"><span class="logo " style="background:var(--a6)" aria-hidden="true">H</span><span class="fn">Hypergrowth Capital</span><span class="radio"></span></div>
+        <div class="cl">Cash offered</div><div class="cash">$15.0M</div>
+        <div class="clause">MRR +15% every 30 days; misses trigger a call.</div>
+        <div class="seltag"><img class="ic" src="https://cdn.jsdelivr.net/npm/lucide-static@0.452.0/icons/check.svg" alt="">Selected</div>
+      </div>
+      <div class="icard" role="radio" aria-checked="false">
+        <div class="top"><span class="logo " style="background:var(--a8)" aria-hidden="true">R</span><span class="fn">Responsible Ventures (B Corp pending)</span><span class="radio"></span></div>
+        <div class="cl">Cash offered</div><div class="cash">$9.0M</div>
+        <div class="clause">Must hire and keep a Safety Researcher.</div>
+      </div>
+      <div class="icard" role="radio" aria-checked="false">
+        <div class="top"><span class="logo " style="background:var(--a4)" aria-hidden="true">A</span><span class="fn">A Family Office</span><span class="radio"></span></div>
+        <div class="cl">Cash offered</div><div class="cash">$22.5M</div>
+        <div class="clause">Board seat; the board may approve Metis capabilities.</div>
+      </div>
+    </div>
+    <div class="dact"><span class="req">A decision is required</span><span class="btn p">Sign term sheet</span></div>
+  </div>
+</div></div>
+    <div><div class="lbl">Crisis doc, after submit <span>Heavy-decision outcome pattern</span></div>
+<div class="win L" style="background:var(--bg);padding:0">
+  <div class="odoc" role="dialog" aria-modal="true" aria-labelledby="cr-title" style="border-radius:12px;box-shadow:none;font-size:12.5px">
+    <div class="ag"><i></i><b>AllGreen</b><span style="color:var(--mute)">/ Incidents / #0002</span></div>
+    <div style="padding:12px 16px 14px">
+      <div style="display:flex;align-items:center;gap:8px"><h3 id="cr-title" style="font-size:18px;margin:0;flex:1">Checkout API is returning errors</h3><span class="chip ok">Resolved</span></div>
+      <div style="color:var(--mute);font-size:11.5px;margin:3px 0 8px">Severity: high · Impact: 38 customers · Status was Investigating</div>
+      <div class="lrow"><span>Your call</span><span>Ship a hotfix now</span></div>
+      <div class="lrow"><span>Alternative</span><span style="color:var(--mute)">Roll back to yesterday's release</span></div>
+      <div class="sect">
+        <h5>Outcome</h5>
+        <p style="margin:0 0 8px">The hotfix held. Checkout recovered in 22 minutes.</p>
+        <div class="kr" style="margin:0">
+          <div><div class="l">Customers</div><div class="v" style="font-size:15px">−2</div></div>
+          <div><div class="l">MRR</div><div class="v" style="font-size:15px">−$410</div></div>
+          <div><div class="l">Hype</div><div class="v" style="font-size:15px">+1</div></div>
+        </div>
+      </div>
+      <div class="dact" style="margin-top:12px"><span class="btn p">Close</span></div>
+    </div>
+  </div>
+</div></div>
+  </div>
+</section>
+</body>
+</html>

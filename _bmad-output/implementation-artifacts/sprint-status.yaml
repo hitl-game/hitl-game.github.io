@@ -1,0 +1,220 @@
+# generated: 2026-10-27
+# last_updated: 2026-10-27
+# project: browser-game (Human in the Loop)
+# project_key: NOKEY
+# tracking_system: file-system
+# story_location: _bmad-output/implementation-artifacts
+# source: _bmad-output/planning-artifacts/gdds/gdd-browser-game-2026-10-26/epics.md (v2.3)
+# readiness: _bmad-output/planning-artifacts/implementation-readiness-report-2026-10-27-final.md
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog → in-progress: Automatically when first story is created (via create-story)
+#   - in-progress → done: Manually when all stories reach 'done' status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in stories folder
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review (via Dev's code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when first story is created
+# - Stories can be worked in parallel if team capacity allows
+# - Developer typically creates next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+#
+# EXECUTION ORDER (project-specific):
+# ===================================
+# development_status is listed in EXECUTION order, not numeric order, because
+# create-story picks the first 'backlog' story from top to bottom. Source: epics.md → Epic List,
+# "Global sequence":
+#
+#   E1.1 scaffold + gates + CI/deploy ──▶ E8.1 PDFKit spike (right after, in parallel)
+#   E1.2 … E1.11 ──▶ E2.2 conditions/effects engine ──▶ E7.1–E7.2 content schemas and validation
+#     ──▶ E7.3 Garage pack ──▶ rest of E2 ──▶ [final cut: Garage] ──▶ H1 mini-playtest
+#     ──▶ E3 ──▶ E4 ──▶ E5 ──▶ [final cut: spine, Seed, Series A] ──▶ H2 playtest
+#     ──▶ E6 ──▶ [final cut: documents] ──▶ E8.2+ ──▶ H3 blind cohort
+#   E7 runs in parallel from E2 and delivers each placeholder pack just in time.
+#
+# - E7 (content) stories sit just before the stories that consume them.
+# - ⛔ GATE: a playtest gate. 🖋 FINAL CUT: Tiziano only (status: final, CODEOWNERS @basteez).
+#   No gate passes with `status: placeholder` items in its scope (D-E3, `npm run content:audit`).
+# - Prerequisite still open (Tiziano): branch protection on `main` after the first push of 1.1
+#   (required CI checks + code-owner review). Optional: start docs/kernel-bank.md.
+
+generated: 2026-10-27
+last_updated: 2026-10-27
+project: browser-game
+project_key: NOKEY
+tracking_system: file-system
+story_location: _bmad-output/implementation-artifacts
+
+development_status:
+  # ── Epic 1: Foundations ────────────────────────────────────────────────
+  epic-1: backlog
+  1-1-project-scaffold-quality-gates-ci-and-pages-deploy: backlog # first; may split into 1.1a (scaffold+gates) / 1.1b (CI, deploy, agent files). Then: branch protection (Tiziano)
+
+  # ── Epic 8 opens early: PDFKit spike, parallel right after 1.1 (de-risks D8 before 6.5) ──
+  epic-8: backlog
+  8-1-pdfkit-tagged-pdf-spike: backlog # parallel lane; brings its own font if 1.7 has not landed
+
+  1-2-deterministic-core-skeleton: backlog
+  1-3-content-and-tuning-pipeline: backlog
+  1-4-i18n-catalogs-and-number-formatters: backlog
+  1-5-daily-economy-step: backlog
+  1-6-game-clock-presence-and-clock-states: backlog
+  1-7-design-tokens-accessible-primitives-and-a11y-services: backlog
+  1-8-founding-screen-game-bar-and-first-workspace-screen: backlog
+  1-9-local-save-autosave-single-live-tab-and-error-boundary: backlog
+  1-10-settings-shell-and-data-room-export-import: backlog
+  1-11-debug-panel-scenarios-and-determinism-regression: backlog
+  epic-1-retrospective: optional
+
+  # ── Epic 2: Triage & Cascade (vertical slice) ─────────────────────────
+  epic-2: backlog
+  2-2-declarative-conditions-and-effects-engine: backlog # out of numeric order: creates effect schemas that 7.1 validates
+
+  # ── Epic 7: Content Production (parallel lane from E2) ─────────────────
+  epic-7: backlog
+  7-1-content-schemas-and-editorial-validation: backlog # after 2.2
+  7-2-authoring-tooling-and-content-guide: backlog # content:new, content:audit, CODEOWNERS, bot-final-flip CI job
+  7-3-garage-placeholder-pack: backlog # placeholder; needed by the rest of E2
+
+  2-1-workspace-shell-and-region-gating: backlog
+  2-3-message-lifecycle: backlog
+  2-4-garage-customers-and-revenue: backlog
+  2-5-rich-text-message-card-and-channel-view: backlog
+  2-6-sidebar-current-message-and-keyboard-triage: backlog
+  2-7-vanity-rail-kpi-tiles-and-chart: backlog
+  2-8-toasts-activity-tab-title-counter-and-confetti: backlog
+  2-9-inference-log-panel: backlog
+  2-10-news-ticker: backlog
+  2-11-cascade-characters-dora-metiss-dm-the-policy-switch-and-the-first-candidate: backlog
+  2-12-timed-script-runner-and-the-loop-1-cascade: backlog # includes the minimal Automations page (F-m6)
+  7-8-final-cut-garage-and-cascade: backlog # 🖋 FINAL CUT (Tiziano) — scope: garage (cascade, characters, templates, Garage headlines, Garage UI keys). Required before H1
+  2-13-h1-mini-playtest-readiness: backlog # ⛔ GATE H1 mini-playtest (1–2 colleagues outside the cohort): content:audit --scope garage --require-final
+  epic-2-retrospective: optional
+
+  # ── Epic 3: Delegation & Absence ───────────────────────────────────────
+  epic-3: backlog
+  7-4-delegation-and-absence-copy: backlog # placeholder; away.* / autotriage.* keys are cut in 7.9 (before H2)
+  3-1-delegation-policies: backlog
+  3-2-ask-metis-on-a-single-message: backlog
+  3-3-compute-load-and-metiss-capacity-offer: backlog
+  3-4-hidden-alignment-model: backlog
+  3-5-absence-simulation: backlog
+  3-6-backlog-ranking-cap-and-overflow: backlog
+  3-7-while-you-were-away-report: backlog
+  3-8-backlog-queue-on-return: backlog
+  3-9-auto-triage: backlog
+  3-10-hidden-tab-preview-and-tab-title: backlog
+  3-11-notification-permission-and-browser-notifications: backlog
+  epic-3-retrospective: optional
+
+  # ── Epic 4: Company Growth ─────────────────────────────────────────────
+  epic-4: backlog
+  4-1-hype: backlog
+  4-2-extended-condition-and-effect-vocabulary: backlog
+  4-3-event-deck-engine-and-event-chains: backlog
+  4-4-chronicle-and-company-timeline: backlog
+  4-5-heavy-decisions-and-capability-grants: backlog
+  4-6-pricing-tiers-phase-inflow-and-gpu-churn: backlog
+  4-7-hiring-and-headcount: backlog
+  7-5-garage-events-seed-and-series-a-placeholder-packs: backlog # tranches: Garage+Seed events after 4.2–4.7; investor-dependent + Series A after 4.12 (stays in-progress until then; may be split)
+  4-8-assign-to-staff: backlog
+  4-9-morale-and-resignations: backlog
+  4-10-trait-mechanics: backlog # may be split by create-story
+  4-11-phase-transitions-and-ui-widening: backlog
+  4-12-funding-rounds-and-investor-choice: backlog # unblocks 7.5 tranche 2
+  4-13-valuation-peak-and-series-a-growth-targets: backlog
+  4-14-attention-list: backlog
+  4-15-safety-researcher-hire: backlog
+  4-16-reactive-headlines: backlog
+  4-17-full-run-verification-and-balance-harness: backlog # needs 7.5 fully merged
+  epic-4-retrospective: optional
+
+  # ── Epic 5: The Metis/Dora Thread, Signals & Deaths ────────────────────
+  epic-5: backlog
+  7-6-spine-pack-metis-dora-registers-inference-lines-infection-and-surpassed: backlog # placeholder; may be split
+  5-1-signal-table-and-spine-beat-queue: backlog
+  5-2-the-corrupting-title: backlog
+  5-3-metis-and-dora-registers: backlog
+  5-4-spine-beats-inference-lines-and-spine-messages: backlog
+  5-5-ui-infection: backlog
+  5-6-safety-researcher-readings: backlog
+  5-7-pause-metis-for-audit: backlog
+  5-8-bankrupt-rules: backlog
+  5-9-runway-signals-red-runway-and-account-closed: backlog
+  5-10-surpassed-sequence: backlog
+  7-7-documents-and-clue-replay-copy: backlog # placeholder; cluereplay.* needed by 5.12 and cut in 7.9; doc pools + endofrun.* cut in 7.10
+  5-11-clue-probe-and-counterfactual: backlog
+  5-12-clue-replay-page: backlog
+  7-9-final-cut-spine-seed-and-series-a: backlog # 🖋 FINAL CUT (Tiziano) — scopes: spine, garage-events, seed, series-a + away.*, autotriage.*, cluereplay.* UI keys. Required before H2
+  5-13-h2-playtest-readiness: backlog # ⛔ GATE H2 playtest (testers outside the cohort): content:audit --scope spine,garage-events,seed,series-a --require-final
+  epic-5-retrospective: optional
+
+  # ── Epic 6: End of Run & Loop ──────────────────────────────────────────
+  epic-6: backlog
+  6-1-runrecord-receipt-counters: backlog
+  6-2-report-model-spoiler-filter-and-highlights: backlog
+  6-3-end-of-run-document-page: backlog
+  6-4-png-export-and-alt-text: backlog
+  6-5-tagged-pdf-export: backlog # requires 8.1 done
+  6-6-meta-progression-profile: backlog
+  6-7-start-the-next-loop-and-the-compressed-cascade: backlog
+  6-8-archive-and-opt-in-stats-export: backlog
+  6-9-full-cycle-verification: backlog
+  7-10-final-cut-documents-and-headlines: backlog # 🖋 FINAL CUT (Tiziano) — scopes: documents, headlines + endofrun.* keys. Required before H3
+  epic-6-retrospective: optional
+  epic-7-retrospective: optional
+
+  # ── Epic 8: Accessibility, Settings & Polish (8.2+) ────────────────────
+  8-2-accessibility-settings-and-presets: backlog
+  8-3-timing-game-speed-and-score-labels: backlog
+  8-4-motion-text-contrast-and-screen-reader-options: backlog
+  8-5-appearance-themes-and-mode: backlog
+  8-6-audio-cues-and-notification-settings: backlog
+  8-7-offline-and-updates: backlog # version pinning (F-M1): ideally before the first deploy to cohort testers
+  8-8-performance-pass: backlog
+  8-9-wcag-2-2-aa-audit-and-cross-browser-pass: backlog
+  8-10-validation-cohort-readiness: backlog # ⛔ GATE blind cohort H1/H2/H3: content:audit --require-final (ALL scopes), release CI green
+  epic-8-retrospective: optional
+
+# Playtest gates: a structured view of the ⛔/🖋 markers above. Not read by the status workflows.
+playtest_gates:
+  - id: H1
+    name: Mini-playtest (triage is fun?)
+    after_epic: 2
+    gate_story: 2-13-h1-mini-playtest-readiness
+    final_cut_story: 7-8-final-cut-garage-and-cascade
+    audit: npm run content:audit -- --scope garage --require-final
+    testers: 1–2 colleagues outside the final cohort
+    notes: Garage events are out of scope (D-E6). No Timing/Game-speed settings yet (E8.2/8.3).
+  - id: H2
+    name: Playtest (recognition, not protest, at the clue replay)
+    after_epic: 5
+    gate_story: 5-13-h2-playtest-readiness
+    final_cut_story: 7-9-final-cut-spine-seed-and-series-a
+    audit: npm run content:audit -- --scope spine,garage-events,seed,series-a --require-final
+    testers: outside the final cohort
+  - id: H3
+    name: Blind validation cohort (H1 + H2 + H3)
+    after_epic: 8
+    gate_story: 8-10-validation-cohort-readiness
+    final_cut_story: 7-10-final-cut-documents-and-headlines
+    audit: npm run content:audit -- --require-final
+    testers: blind cohort; nobody who played an earlier playtest build
+    notes: E6 delivers the H3 surface (documents, loop); the cohort runs after E8.2–8.9 (epics.md global sequence).

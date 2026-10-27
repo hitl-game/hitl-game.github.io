@@ -1,0 +1,378 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Visual directions</title>
+<style>
+/* Direction hex values are in the .d-<slug> and .d-<slug>-alt variable blocks below. */
+
+*{box-sizing:border-box}
+body{margin:0;background:#e9e9ec;font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#18181b;padding:24px}
+h1{font-size:20px;margin:0 0 4px}
+.lead{color:#52525b;max-width:980px;margin:0 0 20px}
+section{margin:0 0 48px}
+section>h2{font-size:17px;margin:0 0 2px}
+section>p{color:#52525b;margin:0 0 10px;max-width:980px}
+.row{display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap}
+.app{width:1060px;max-width:100%;border-radius:10px;overflow:hidden;border:1px solid #c9c9cf;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:var(--size)}
+.top{display:flex;align-items:center;gap:12px;height:36px;padding:0 12px;border-bottom:1px solid var(--line);background:var(--side)}
+.top .brand{font-weight:600}
+.ticker{flex:1;white-space:nowrap;overflow:hidden;color:var(--mute);font-size:.92em}
+.ticker .lbl{font-weight:600;color:var(--ink);margin-right:8px;font-size:.85em;letter-spacing:.06em}
+.day{color:var(--mute);font-family:var(--num);font-size:.92em}
+.grid{display:grid;grid-template-columns:200px 1fr 300px;height:470px}
+.side{background:var(--side);border-right:1px solid var(--line);padding:10px 8px}
+.side .co{font-weight:700;margin-bottom:12px;padding:0 6px}
+.side .h{color:var(--mute);font-size:.78em;letter-spacing:.06em;text-transform:uppercase;margin:12px 6px 4px}
+.ch{display:flex;justify-content:space-between;align-items:center;padding:3px 6px;border-radius:var(--radius);color:var(--mute)}
+.ch.on{background:var(--raised);color:var(--ink);font-weight:600}
+.ch.unread{color:var(--ink);font-weight:600}
+.badge{background:var(--crit);color:#fff;border-radius:999px;padding:0 6px;font-size:.75em;font-weight:700}
+.metis-name{font-weight:600}
+.chat{display:flex;flex-direction:column;min-width:0;background:var(--panel)}
+.chhd{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border-bottom:1px solid var(--line)}
+.chhd b{font-size:1.02em}
+.toggle{font-size:.82em;color:var(--mute);display:flex;align-items:center;gap:6px}
+.sw{width:26px;height:14px;border-radius:999px;background:var(--line);position:relative}
+.sw::after{content:"";position:absolute;left:2px;top:2px;width:10px;height:10px;border-radius:50%;background:var(--panel)}
+.msgs{padding:10px 14px;flex:1}
+.msg{display:flex;gap:10px;margin-bottom:14px}
+.av{width:32px;height:32px;border-radius:var(--radius);flex:none;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.78em;color:#fff}
+.who{font-weight:700}
+.tm{color:var(--mute);font-size:.82em;margin-left:6px;font-family:var(--num)}
+.urg{font-size:.72em;font-weight:700;color:var(--crit);border:1px solid var(--crit);border-radius:3px;padding:0 4px;margin-left:6px;letter-spacing:.04em}
+.timer{font-size:.78em;color:var(--mute);margin-left:6px;font-family:var(--num)}
+.btns{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:var(--btn);color:var(--btnink);border-radius:var(--radius);padding:3px 10px;font-size:.88em}
+.btn .k{color:var(--mute);font-family:var(--num);margin-right:6px;font-size:.9em}
+.btn.ghost{background:transparent;color:var(--mute)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.dora{color:var(--ink)}
+.rail{background:var(--side);border-left:1px solid var(--line);padding:10px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.rail .h{font-weight:700;font-size:.92em;display:flex;justify-content:space-between}
+.rail .h span{color:var(--mute);font-weight:400}
+.attn{border:1px solid var(--warn);border-left-width:3px;border-radius:var(--radius);padding:6px 8px;background:var(--panel);font-size:.88em}
+.attn b{display:block;font-size:.82em;letter-spacing:.05em;text-transform:uppercase;color:var(--warn)}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:var(--pad) 10px}
+.kpi .l{color:var(--mute);font-size:.76em;letter-spacing:.05em;text-transform:uppercase}
+.kpi .v{font-family:var(--num);font-variant-numeric:tabular-nums;font-size:1.35em;font-weight:600;letter-spacing:-.01em}
+.kpi .d{font-family:var(--num);font-size:.8em;color:var(--mute)}
+.kpi .d.up{color:var(--ok)}.kpi .d.dn{color:var(--crit)}
+.kpi.watch{border-color:var(--warn);box-shadow:inset 3px 0 0 var(--warn)}
+.kpi.watch .st{color:var(--warn);font-size:.74em;font-weight:700;letter-spacing:.04em}
+.chart{height:70px;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);position:relative;overflow:hidden}
+.chart svg{position:absolute;inset:0;width:100%;height:100%}
+.log{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:6px 8px;font-family:"JetBrains Mono",ui-monospace,Menlo,monospace;font-size:.76em;color:var(--mute);line-height:1.55}
+.log .lh{font-family:var(--font);color:var(--ink);font-weight:600;font-size:1.1em;margin-bottom:2px}
+.odd{color:var(--ink)}
+.metis-dm{border-radius:10px;padding:10px 12px;margin-top:2px}
+.sparkle-btn{display:inline-block;border-radius:999px;padding:4px 12px;font-weight:600;font-size:.88em}
+.mini{width:330px;border-radius:10px;overflow:hidden;border:1px solid #c9c9cf;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:var(--size);padding:12px}
+.mini .cap{font-size:.78em;color:var(--mute);margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em}
+.swatches{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.sw2{font-size:11px;display:flex;align-items:center;gap:5px;color:#3f3f46;background:#fff;border:1px solid #d4d4d8;border-radius:6px;padding:2px 6px}
+.sw2 i{width:14px;height:14px;border-radius:3px;display:inline-block;border:1px solid rgba(0,0,0,.15)}
+.meta{font-size:12px;color:#3f3f46;margin-top:8px}
+.d-ink{--bg:#0E0F12;--side:#131418;--panel:#16171C;--raised:#1C1E24;--line:#26282F;--ink:#E6E7EB;--mute:#8B8E98;--accent:#4C7DFF;--ok:#3FB27F;--warn:#E2A93B;--crit:#F2555A;--btn:#1C1E24;--btnink:#E6E7EB}.d-ink-alt{--bg:#FFFFFF;--side:#F7F7F8;--panel:#FFFFFF;--raised:#F4F4F6;--line:#E4E4E8;--ink:#16171C;--mute:#6B6E78;--accent:#2F5FE8;--ok:#1F8A5B;--warn:#A86B00;--crit:#D02F35;--btn:#FFFFFF;--btnink:#16171C}.d-ink{--font:Inter, -apple-system, "Segoe UI", sans-serif;--num:"JetBrains Mono", ui-monospace, Menlo, monospace;--size:13px;--radius:6px;--pad:6px}.d-ink-alt{--font:Inter, -apple-system, "Segoe UI", sans-serif;--num:"JetBrains Mono", ui-monospace, Menlo, monospace;--size:13px;--radius:6px;--pad:6px}.d-ledger{--bg:#F6F8FA;--side:#FFFFFF;--panel:#FFFFFF;--raised:#F6F8FA;--line:#E3E8EE;--ink:#1A2433;--mute:#5E6B7E;--accent:#1F6FEB;--ok:#1A7F4B;--warn:#9A6700;--crit:#C9372C;--btn:#FFFFFF;--btnink:#1A2433}.d-ledger-alt{--bg:#0D1117;--side:#11161D;--panel:#151B23;--raised:#1B222C;--line:#2A323D;--ink:#E6EDF3;--mute:#8D96A0;--accent:#4C8DFF;--ok:#3FB27F;--warn:#D29922;--crit:#F0605A;--btn:#1B222C;--btnink:#E6EDF3}.d-ledger{--font:"Inter", -apple-system, "Segoe UI", sans-serif;--num:"Inter", -apple-system, sans-serif;--size:14px;--radius:8px;--pad:9px}.d-ledger-alt{--font:"Inter", -apple-system, "Segoe UI", sans-serif;--num:"Inter", -apple-system, sans-serif;--size:14px;--radius:8px;--pad:9px}.d-ops{--bg:#0B0C0E;--side:#111217;--panel:#141519;--raised:#1A1C22;--line:#2A2D35;--ink:#D8D9DC;--mute:#7D8089;--accent:#3D9DF2;--ok:#56C271;--warn:#F2B33D;--crit:#FF5A52;--btn:#1A1C22;--btnink:#D8D9DC}.d-ops-alt{--bg:#F4F5F5;--side:#FFFFFF;--panel:#FFFFFF;--raised:#F0F1F2;--line:#D9DBDF;--ink:#1B1D22;--mute:#5C5F68;--accent:#1F78D1;--ok:#2B8A3E;--warn:#9C6500;--crit:#D3302A;--btn:#FFFFFF;--btnink:#1B1D22}.d-ops{--font:"IBM Plex Sans", -apple-system, "Segoe UI", sans-serif;--num:"IBM Plex Mono", ui-monospace, Menlo, monospace;--size:12px;--radius:2px;--pad:4px}.d-ops-alt{--font:"IBM Plex Sans", -apple-system, "Segoe UI", sans-serif;--num:"IBM Plex Mono", ui-monospace, Menlo, monospace;--size:12px;--radius:2px;--pad:4px}.d-paper{--bg:#FBFAF7;--side:#F4F2EC;--panel:#FFFFFF;--raised:#F4F2EC;--line:#E5E1D8;--ink:#1F1D1A;--mute:#6E685E;--accent:#1F7A4D;--ok:#1F7A4D;--warn:#94600A;--crit:#B3261E;--btn:#FFFFFF;--btnink:#1F1D1A}.d-paper-alt{--bg:#191816;--side:#1F1E1B;--panel:#23221F;--raised:#2A2925;--line:#36342F;--ink:#ECE9E2;--mute:#A39D91;--accent:#4CB37F;--ok:#4CB37F;--warn:#D9A443;--crit:#EB6B61;--btn:#2A2925;--btnink:#ECE9E2}.d-paper{--font:-apple-system, "Segoe UI", "Helvetica Neue", sans-serif;--num:-apple-system, "Segoe UI", sans-serif;--size:14px;--radius:4px;--pad:8px}.d-paper-alt{--font:-apple-system, "Segoe UI", "Helvetica Neue", sans-serif;--num:-apple-system, "Segoe UI", sans-serif;--size:14px;--radius:4px;--pad:8px}
+</style></head><body><h1>Human in the Loop — visual directions</h1><p class="lead">Same screen (layout A, Garage, day 9 of Loop #1) in four personalities. All four respect the anti-slop principle: the base workspace is sober, and only Metis wears gradients and ✨. Each direction is shown in its natural mode, plus the opposite mode and the Metis surface. Fonts are approximated with system fonts; the type choice comes later. The accent is never purple: purple belongs to Metis. Names ("Ramen Labs", "Bluewren", "Acme Corp") are placeholders, except Acme Corp from the cascade.</p><section><h2>1 · Ink</h2><p>Linear-like. Cool neutral greys, tight density, quiet, one blue accent. Feels like an engineering tool. Natural mode: <b>dark</b>. Type: Inter / numbers "JetBrains Mono". Radius 6px, base size 13px.</p>
+<div class="app d-ink">
+  <div class="top"><span class="brand">Ramen Labs</span><span class="ticker"><span class="lbl">NEWS</span>Anonymous billionaire says AGI is "basically done, pending a few details" &nbsp;·&nbsp; Regulator opens a consultation on the consultation</span><span class="day">Day 9</span></div>
+  <div class="grid">
+    <div class="side">
+      <div class="co">Ramen Labs</div>
+      <div class="h">Channels</div>
+      <div class="ch"># general</div>
+      <div class="ch on"># customers <span class="badge">2</span></div>
+      <div class="ch"># product</div>
+      <div class="h">Direct messages</div>
+      <div class="ch unread">Dora Kessler</div>
+      <div class="ch"><span class="metis-name">✨ Metis</span> <span class="badge">1</span></div>
+    </div>
+    <div class="chat">
+      <div class="chhd"><b># customers</b><span class="toggle">Metis handles #customers <span class="sw"></span></span></div>
+      <div class="msgs">
+        <div class="msg"><div class="av" style="background:#C2683F">DK</div><div><span class="who">Dora Kessler</span><span class="tm">day 2</span><div class="dora">WE'RE LIVE. ramen tonight? 🍜 — Dora</div></div></div>
+        <div class="msg"><div class="av" style="background:#5B6B8C">AC</div><div><span class="who">Acme Corp</span><span class="tm">day 8</span><span class="timer">0:52</span><div>Can you add SSO? We'd pay 3x.</div><div class="btns"><span class="btn"><span class="k">1</span>Ship it this week</span><span class="btn"><span class="k">2</span>Put it on the roadmap</span><span class="btn ghost"><span class="k">D</span>Ask Metis</span></div></div></div>
+        <div class="msg"><div class="av" style="background:#3C8D7A">BW</div><div><span class="who">Bluewren Analytics</span><span class="urg">URGENT</span><span class="tm">day 9</span><span class="timer">0:31</span><div>Your model told our CFO the invoice was "vibes-based". Refund?</div><div class="btns"><span class="btn"><span class="k">1</span>Refund</span><span class="btn"><span class="k">2</span>Offer a credit</span><span class="btn"><span class="k">3</span>Call it a beta</span><span class="btn ghost"><span class="k">D</span>Ask Metis</span></div></div></div>
+      </div>
+    </div>
+    <div class="rail">
+      <div class="attn"><b>Needs attention</b>Runway under 30 days</div>
+      <div class="h">Overview <span>today</span></div>
+      <div class="kpis">
+        <div class="kpi"><div class="l">Cash</div><div class="v">$9,180</div><div class="d dn">−$322</div></div>
+        <div class="kpi watch"><div class="l">Runway</div><div class="v">24 days</div><div class="st">▲ WATCH</div></div>
+        <div class="kpi"><div class="l">MRR</div><div class="v">$1,862</div><div class="d up">+$49</div></div>
+        <div class="kpi"><div class="l">Customers</div><div class="v">38</div><div class="d up">+4</div></div>
+      </div>
+      <div class="chart"><svg viewBox="0 0 300 70" preserveAspectRatio="none"><polyline fill="none" stroke="#8B8E98" stroke-width="1.5" points="0,18 30,20 60,24 90,27 120,31 150,35 180,38 210,42 240,46 270,49 300,52"/><polyline fill="none" stroke="#4C7DFF" stroke-width="2" points="0,66 30,65 60,63 90,62 120,60 150,57 180,55 210,53 240,50 270,48 300,45"/></svg></div>
+      <div class="log"><div class="lh">Aegis-4 · inference log</div>&gt; route ticket_4412 → summarize<br>&gt; 1,204 tok · 380 ms<br><span class="odd">&gt; output: "hello. who is in the loop?"</span><br>&gt; route ticket_4413 → classify</div>
+    </div>
+  </div>
+</div><div class="row" style="margin-top:12px"><div class="mini d-ink-alt" style="width:auto;padding:0;border:none;background:none"></div><div class="mini d-ink"><div class="cap">Metis surface — the contrast is the joke</div>
+<div class="msg"><div class="av" style="background:linear-gradient(135deg,#7C3AED,#C026D3 55%,#F472B6);color:#fff;border-radius:50%">✨</div><div><span class="who">Metis</span><span class="tm">day 5</span>
+<div class="metis-dm" style="background:linear-gradient(135deg,rgba(124,58,237,.12),rgba(244,114,182,.12));border:1px solid rgba(192,38,211,.35)">Hi, I'm Metis. I can answer #customers for you.</div>
+<div style="margin-top:8px"><span class="sparkle-btn" style="background:linear-gradient(135deg,#7C3AED,#C026D3 55%,#F472B6);color:#fff">✨ Let Metis handle #customers</span></div></div></div></div><div class="mini d-ink-alt"><div class="cap">Metis surface — the contrast is the joke</div>
+<div class="msg"><div class="av" style="background:linear-gradient(135deg,#7C3AED,#C026D3 55%,#F472B6);color:#fff;border-radius:50%">✨</div><div><span class="who">Metis</span><span class="tm">day 5</span>
+<div class="metis-dm" style="background:linear-gradient(135deg,rgba(124,58,237,.12),rgba(244,114,182,.12));border:1px solid rgba(192,38,211,.35)">Hi, I'm Metis. I can answer #customers for you.</div>
+<div style="margin-top:8px"><span class="sparkle-btn" style="background:linear-gradient(135deg,#7C3AED,#C026D3 55%,#F472B6);color:#fff">✨ Let Metis handle #customers</span></div></div></div></div></div><div class="swatches"><span class="sw2"><i style="background:#0E0F12"></i>bg #0E0F12</span><span class="sw2"><i style="background:#16171C"></i>panel #16171C</span><span class="sw2"><i style="background:#E6E7EB"></i>ink #E6E7EB</span><span class="sw2"><i style="background:#8B8E98"></i>mute #8B8E98</span><span class="sw2"><i style="background:#26282F"></i>line #26282F</span><span class="sw2"><i style="background:#4C7DFF"></i>accent #4C7DFF</span><span class="sw2"><i style="background:#3FB27F"></i>ok #3FB27F</span><span class="sw2"><i style="background:#E2A93B"></i>warn #E2A93B</span><span class="sw2"><i style="background:#F2555A"></i>crit #F2555A</span></div><details class="meta"><summary>Opposite mode (light)</summary>
+<div class="app d-ink-alt">
+  <div class="top"><span class="brand">Ramen Labs</span><span class="ticker"><span class="lbl">NEWS</span>Anonymous billionaire says AGI is "basically done, pending a few details" &nbsp;·&nbsp; Regulator opens a consultation on the consultation</span><span class="day">Day 9</span></div>
+  <div class="grid">
+    <div class="side">
+      <div class="co">Ramen Labs</div>
+      <div class="h">Channels</div>
+      <div class="ch"># general</div>
+      <div class="ch on"># customers <span class="badge">2</span></div>
+      <div class="ch"># product</div>
+      <div class="h">Direct messages</div>
+      <div class="ch unread">Dora Kessler</div>
+      <div class="ch"><span class="metis-name">✨ Metis</span> <span class="badge">1</span></div>
+    </div>
+    <div class="chat">
+      <div class="chhd"><b># customers</b><span class="toggle">Metis handles #customers <span class="sw"></span></span></div>
+      <div class="msgs">
+        <div class="msg"><div class="av" style="background:#C2683F">DK</div><div><span class="who">Dora Kessler</span><span class="tm">day 2</span><div class="dora">WE'RE LIVE. ramen tonight? 🍜 — Dora</div></div></div>
+        <div class="msg"><div class="av" style="background:#5B6B8C">AC</div><div><span class="who">Acme Corp</span><span class="tm">day 8</span><span class="timer">0:52</span><div>Can you add SSO? We'd pay 3x.</div><div class="btns"><span class="btn"><span class="k">1</span>Ship it this week</span><span class="btn"><span class="k">2</span>Put it on the roadmap</span><span class="btn ghost"><span class="k">D</span>Ask Metis</span></div></div></div>
+        <div class="msg"><div class="av" style="background:#3C8D7A">BW</div><div><span class="who">Bluewren Analytics</span><span class="urg">URGENT</span><span class="tm">day 9</span><span class="timer">0:31</span><div>Your model told our CFO the invoice was "vibes-based". Refund?</div><div class="btns"><span class="btn"><span class="k">1</span>Refund</span><span class="btn"><span class="k">2</span>Offer a credit</span><span class="btn"><span class="k">3</span>Call it a beta</span><span class="btn ghost"><span class="k">D</span>Ask Metis</span></div></div></div>
+      </div>
+    </div>
+    <div class="rail">
+      <div class="attn"><b>Needs attention</b>Runway under 30 days</div>
+      <div class="h">Overview <span>today</span></div>
+      <div class="kpis">
+        <div class="kpi"><div class="l">Cash</div><div class="v">$9,180</div><div class="d dn">−$322</div></div>
+        <div class="kpi watch"><div class="l">Runway</div><div class="v">24 days</div><div class="st">▲ WATCH</div></div>
+        <div class="kpi"><div class="l">MRR</div><div class="v">$1,862</div><div class="d up">+$49</div></div>
+        <div class="kpi"><div class="l">Customers</div><div class="v">38</div><div class="d up">+4</div></div>
+      </div>
+      <div class="chart"><svg viewBox="0 0 300 70" preserveAspectRatio="none"><polyline fill="none" stroke="#6B6E78" stroke-width="1.5" points="0,18 30,20 60,24 90,27 120,31 150,35 180,38 210,42 240,46 270,49 300,52"/><polyline fill="none" stroke="#2F5FE8" stroke-width="2" points="0,66 30,65 60,63 90,62 120,60 150,57 180,55 210,53 240,50 270,48 300,45"/></svg></div>
+      <div class="log"><div class="lh">Aegis-4 · inference log</div>&gt; route ticket_4412 → summarize<br>&gt; 1,204 tok · 380 ms<br><span class="odd">&gt; output: "hello. who is in the loop?"</span><br>&gt; route ticket_4413 → classify</div>
+    </div>
+  </div>
+</div></details></section><section><h2>2 · Ledger</h2><p>Stripe-Dashboard-like. Bright white surfaces, slate ink, roomy tables, numbers as heroes in proportional tabular figures. Feels like a finance product. Natural mode: <b>light</b>. Type: "Inter" / numbers "Inter". Radius 8px, base size 14px.</p>
+<div class="app d-ledger">
+  <div class="top"><span class="brand">Ramen Labs</span><span class="ticker"><span class="lbl">NEWS</span>Anonymous billionaire says AGI is "basically done, pending a few details" &nbsp;·&nbsp; Regulator opens a consultation on the consultation</span><span class="day">Day 9</span></div>
+  <div class="grid">
+    <div class="side">
+      <div class="co">Ramen Labs</div>
+      <div class="h">Channels</div>
+      <div class="ch"># general</div>
+      <div class="ch on"># customers <span class="badge">2</span></div>
+      <div class="ch"># product</div>
+      <div class="h">Direct messages</div>
+      <div class="ch unread">Dora Kessler</div>
+      <div class="ch"><span class="metis-name">✨ Metis</span> <span class="badge">1</span></div>
+    </div>
+    <div class="chat">
+      <div class="chhd"><b># customers</b><span class="toggle">Metis handles #customers <span class="sw"></span></span></div>
+      <div class="msgs">
+        <div class="msg"><div class="av" style="background:#C2683F">DK</div><div><span class="who">Dora Kessler</span><span class="tm">day 2</span><div class="dora">WE'RE LIVE. ramen tonight? 🍜 — Dora</div></div></div>
+        <div class="msg"><div class="av" style="background:#5B6B8C">AC</div><div><span class="who">Acme Corp</span><span class="tm">day 8</span><span class="timer">0:52</span><div>Can you add SSO? We'd pay 3x.</div><div class="btns"><span class="btn"><span class="k">1</span>Ship it this week</span><span class="btn"><span class="k">2</span>Put it on the roadmap</span><span class="btn ghost"><span class="k">D</span>Ask Metis</span></div></div></div>
+        <div class="msg"><div class="av" style="background:#3C8D7A">BW</div><div><span class="who">Bluewren Analytics</span><span class="urg">URGENT</span><span class="tm">day 9</span><span class="timer">0:31</span><div>Your model told our CFO the invoice was "vibes-based". Refund?</div><div class="btns"><span class="btn"><span class="k">1</span>Refund</span><span class="btn"><span class="k">2</span>Offer a credit</span><span class="btn"><span class="k">3</span>Call it a beta</span><span class="btn ghost"><span class="k">D</span>Ask Metis</span></div></div></div>
+      </div>
+    </div>
+    <div class="rail">
+      <div class="attn"><b>Needs attention</b>Runway under 30 days</div>
+      <div class="h">Overview <span>today</span></div>
+      <div class="kpis">
+        <div class="kpi"><div class="l">Cash</div><div class="v">$9,180</div><div class="d dn">−$322</div></div>
+        <div class="kpi watch"><div class="l">Runway</div><div class="v">24 days</div><div class="st">▲ WATCH</div></div>
+        <div class="kpi"><div class="l">MRR</div><div class="v">$1,862</div><div class="d up">+$49</div></div>
+        <div class="kpi"><div class="l">Customers</div><div class="v">38</div><div class="d up">+4</div></div>
+      </div>
+      <div class="chart"><svg viewBox="0 0 300 70" preserveAspectRatio="none"><polyline fill="none" stroke="#5E6B7E" stroke-width="1.5" points="0,18 30,20 60,24 90,27 120,31 150,35 180,38 210,42 240,46 270,49 300,52"/><polyline fill="none" stroke="#1F6FEB" stroke-width="2" points="0,66 30,65 60,63 90,62 120,60 150,57 180,55 210,53 240,50 270,48 300,45"/></svg></div>
+      <div class="log"><div class="lh">Aegis-4 · inference log</div>&gt; route ticket_4412 → summarize<br>&gt; 1,204 tok · 380 ms<br><span class="odd">&gt; output: "hello. who is in the loop?"</span><br>&gt; route ticket_4413 → classify</div>
+    </div>
+  </div>
+</div><div class="row" style="margin-top:12px"><div class="mini d-ledger-alt" style="width:auto;padding:0;border:none;background:none"></div><div class="mini d-ledger"><div class="cap">Metis surface — the contrast is the joke</div>
+<div class="msg"><div class="av" style="background:linear-gradient(135deg,#7C3AED,#C026D3 55%,#F472B6);color:#fff;border-radius:50%">✨</div><div><span class="who">Metis</span><span class="tm">day 5</span>
+<div class="metis-dm" style="background:linear-gradient(135deg,rgba(124,58,237,.12),rgba(244,114,182,.12));border:1px solid rgba(192,38,211,.35)">Hi, I'm Metis. I can answer #customers for you.</div>
+<div style="margin-top:8px"><span class="sparkle-btn" style="background:linear-gradient(135deg,#7C3AED,#C026D3 55%,#F472B6);color:#fff">✨ Let Metis handle #customers</span></div></div></div></div><div class="mini d-ledger-alt"><div class="cap">Metis surface — the contrast is the joke</div>
+<div class="msg"><div class="av" style="background:linear-gradient(135deg,#7C3AED,#C026D3 55%,#F472B6);color:#fff;border-radius:50%">✨</div><div><span class="who">Metis</span><span class="tm">day 5</span>
+<div class="metis-dm" style="background:linear-gradient(135deg,rgba(124,58,237,.12),rgba(244,114,182,.12));border:1px solid rgba(192,38,211,.35)">Hi, I'm Metis. I can answer #customers for you.</div>
+<div style="margin-top:8px"><span class="sparkle-btn" style="background:linear-gradient(135deg,#7C3AED,#C026D3 55%,#F472B6);color:#fff">✨ Let Metis handle #customers</span></div></div></div></div></div><div class="swatches"><span class="sw2"><i style="background:#F6F8FA"></i>bg #F6F8FA</span><span class="sw2"><i style="background:#FFFFFF"></i>panel #FFFFFF</span><span class="sw2"><i style="background:#1A2433"></i>ink #1A2433</span><span class="sw2"><i style="background:#5E6B7E"></i>mute #5E6B7E</span><span class="sw2"><i style="background:#E3E8EE"></i>line #E3E8EE</span><span class="sw2"><i style="background:#1F6FEB"></i>accent #1F6FEB</span><span class="sw2"><i style="background:#1A7F4B"></i>ok #1A7F4B</span><span class="sw2"><i style="background:#9A6700"></i>warn #9A6700</span><span class="sw2"><i style="background:#C9372C"></i>crit #C9372C</span></div><details class="meta"><summary>Opposite mode (dark)</summary>
+<div class="app d-ledger-alt">
+  <div class="top"><span class="brand">Ramen Labs</span><span class="ticker"><span class="lbl">NEWS</span>Anonymous billionaire says AGI is "basically done, pending a few details" &nbsp;·&nbsp; Regulator opens a consultation on the consultation</span><span class="day">Day 9</span></div>
+  <div class="grid">
+    <div class="side">
+      <div class="co">Ramen Labs</div>
+      <div class="h">Channels</div>
+      <div class="ch"># general</div>
+      <div class="ch on"># customers <span class="badge">2</span></div>
+      <div class="ch"># product</div>
+      <div class="h">Direct messages</div>
+      <div class="ch unread">Dora Kessler</div>
+      <div class="ch"><span class="metis-name">✨ Metis</span> <span class="badge">1</span></div>
+    </div>
+    <div class="chat">
+      <div class="chhd"><b># customers</b><span class="toggle">Metis handles #customers <span class="sw"></span></span></div>
+      <div class="msgs">
+        <div class="msg"><div class="av" style="background:#C2683F">DK</div><div><span class="who">Dora Kessler</span><span class="tm">day 2</span><div class="dora">WE'RE LIVE. ramen tonight? 🍜 — Dora</div></div></div>
+        <div class="msg"><div class="av" style="background:#5B6B8C">AC</div><div><span class="who">Acme Corp</span><span class="tm">day 8</span><span class="timer">0:52</span><div>Can you add SSO? We'd pay 3x.</div><div class="btns"><span class="btn"><span class="k">1</span>Ship it this week</span><span class="btn"><span class="k">2</span>Put it on the roadmap</span><span class="btn ghost"><span class="k">D</span>Ask Metis</span></div></div></div>
+        <div class="msg"><div class="av" style="background:#3C8D7A">BW</div><div><span class="who">Bluewren Analytics</span><span class="urg">URGENT</span><span class="tm">day 9</span><span class="timer">0:31</span><div>Your model told our CFO the invoice was "vibes-based". Refund?</div><div class="btns"><span class="btn"><span class="k">1</span>Refund</span><span class="btn"><span class="k">2</span>Offer a credit</span><span class="btn"><span class="k">3</span>Call it a beta</span><span class="btn ghost"><span class="k">D</span>Ask Metis</span></div></div></div>
+      </div>
+    </div>
+    <div class="rail">
+      <div class="attn"><b>Needs attention</b>Runway under 30 days</div>
+      <div class="h">Overview <span>today</span></div>
+      <div class="kpis">
+        <div class="kpi"><div class="l">Cash</div><div class="v">$9,180</div><div class="d dn">−$322</div></div>
+        <div class="kpi watch"><div class="l">Runway</div><div class="v">24 days</div><div class="st">▲ WATCH</div></div>
+        <div class="kpi"><div class="l">MRR</div><div class="v">$1,862</div><div class="d up">+$49</div></div>
+        <div class="kpi"><div class="l">Customers</div><div class="v">38</div><div class="d up">+4</div></div>
+      </div>
+      <div class="chart"><svg viewBox="0 0 300 70" preserveAspectRatio="none"><polyline fill="none" stroke="#8D96A0" stroke-width="1.5" points="0,18 30,20 60,24 90,27 120,31 150,35 180,38 210,42 240,46 270,49 300,52"/><polyline fill="none" stroke="#4C8DFF" stroke-width="2" points="0,66 30,65 60,63 90,62 120,60 150,57 180,55 210,53 240,50 270,48 300,45"/></svg></div>
+      <div class="log"><div class="lh">Aegis-4 · inference log</div>&gt; route ticket_4412 → summarize<br>&gt; 1,204 tok · 380 ms<br><span class="odd">&gt; output: "hello. who is in the loop?"</span><br>&gt; route ticket_4413 → classify</div>
+    </div>
+  </div>
+</div></details></section><section><h2>3 · Ops</h2><p>Grafana/Datadog-like. Dark, very dense, sharp corners, monospace numbers, status colour does real work. Feels like an on-call console. Natural mode: <b>dark</b>. Type: "IBM Plex Sans" / numbers "IBM Plex Mono". Radius 2px, base size 12px.</p>
+<div class="app d-ops">
+  <div class="top"><span class="brand">Ramen Labs</span><span class="ticker"><span class="lbl">NEWS</span>Anonymous billionaire says AGI is "basically done, pending a few details" &nbsp;·&nbsp; Regulator opens a consultation on the consultation</span><span class="day">Day 9</span></div>
+  <div class="grid">
+    <div class="side">
+      <div class="co">Ramen Labs</div>
+      <div class="h">Channels</div>
+      <div class="ch"># general</div>
+      <div class="ch on"># customers <span class="badge">2</span></div>
+      <div class="ch"># product</div>
+      <div class="h">Direct messages</div>
+      <div class="ch unread">Dora Kessler</div>
+      <div class="ch"><span class="metis-name">✨ Metis</span> <span class="badge">1</span></div>
+    </div>
+    <div class="chat">
+      <div class="chhd"><b># customers</b><span class="toggle">Metis handles #customers <span class="sw"></span></span></div>
+      <div class="msgs">
+        <div class="msg"><div class="av" style="background:#C2683F">DK</div><div><span class="who">Dora Kessler</span><span class="tm">day 2</span><div class="dora">WE'RE LIVE. ramen tonight? 🍜 — Dora</div></div></div>
+        <div class="msg"><div class="av" style="background:#5B6B8C">AC</div><div><span class="who">Acme Corp</span><span class="tm">day 8</span><span class="timer">0:52</span><div>Can you add SSO? We'd pay 3x.</div><div class="btns"><span class="btn"><span class="k">1</span>Ship it this week</span><span class="btn"><span class="k">2</span>Put it on the roadmap</span><span class="btn ghost"><span class="k">D</span>Ask Metis</span></div></div></div>
+        <div class="msg"><div class="av" style="background:#3C8D7A">BW</div><div><span class="who">Bluewren Analytics</span><span class="urg">URGENT</span><span class="tm">day 9</span><span class="timer">0:31</span><div>Your model told our CFO the invoice was "vibes-based". Refund?</div><div class="btns"><span class="btn"><span class="k">1</span>Refund</span><span class="btn"><span class="k">2</span>Offer a credit</span><span class="btn"><span class="k">3</span>Call it a beta</span><span class="btn ghost"><span class="k">D</span>Ask Metis</span></div></div></div>
+      </div>
+    </div>
+    <div class="rail">
+      <div class="attn"><b>Needs attention</b>Runway under 30 days</div>
+      <div class="h">Overview <span>today</span></div>
+      <div class="kpis">
+        <div class="kpi"><div class="l">Cash</div><div class="v">$9,180</div><div class="d dn">−$322</div></div>
+        <div class="kpi watch"><div class="l">Runway</div><div class="v">24 days</div><div class="st">▲ WATCH</div></div>
+        <div class="kpi"><div class="l">MRR</div><div class="v">$1,862</div><div class="d up">+$49</div></div>
+        <div class="kpi"><div class="l">Customers</div><div class="v">38</div><div class="d up">+4</div></div>
+      </div>
+      <div class="chart"><svg viewBox="0 0 300 70" preserveAspectRatio="none"><polyline fill="none" stroke="#7D8089" stroke-width="1.5" points="0,18 30,20 60,24 90,27 120,31 150,35 180,38 210,42 240,46 270,49 300,52"/><polyline fill="none" stroke="#3D9DF2" stroke-width="2" points="0,66 30,65 60,63 90,62 120,60 150,57 180,55 210,53 240,50 270,48 300,45"/></svg></div>
+      <div class="log"><div class="lh">Aegis-4 · inference log</div>&gt; route ticket_4412 → summarize<br>&gt; 1,204 tok · 380 ms<br><span class="odd">&gt; output: "hello. who is in the loop?"</span><br>&gt; route ticket_4413 → classify</div>
+    </div>
+  </div>
+</div><div class="row" style="margin-top:12px"><div class="mini d-ops-alt" style="width:auto;padding:0;border:none;background:none"></div><div class="mini d-ops"><div class="cap">Metis surface — the contrast is the joke</div>
+<div class="msg"><div class="av" style="background:linear-gradient(135deg,#7C3AED,#C026D3 55%,#F472B6);color:#fff;border-radius:50%">✨</div><div><span class="who">Metis</span><span class="tm">day 5</span>
+<div class="metis-dm" style="background:linear-gradient(135deg,rgba(124,58,237,.12),rgba(244,114,182,.12));border:1px solid rgba(192,38,211,.35)">Hi, I'm Metis. I can answer #customers for you.</div>
+<div style="margin-top:8px"><span class="sparkle-btn" style="background:linear-gradient(135deg,#7C3AED,#C026D3 55%,#F472B6);color:#fff">✨ Let Metis handle #customers</span></div></div></div></div><div class="mini d-ops-alt"><div class="cap">Metis surface — the contrast is the joke</div>
+<div class="msg"><div class="av" style="background:linear-gradient(135deg,#7C3AED,#C026D3 55%,#F472B6);color:#fff;border-radius:50%">✨</div><div><span class="who">Metis</span><span class="tm">day 5</span>
+<div class="metis-dm" style="background:linear-gradient(135deg,rgba(124,58,237,.12),rgba(244,114,182,.12));border:1px solid rgba(192,38,211,.35)">Hi, I'm Metis. I can answer #customers for you.</div>
+<div style="margin-top:8px"><span class="sparkle-btn" style="background:linear-gradient(135deg,#7C3AED,#C026D3 55%,#F472B6);color:#fff">✨ Let Metis handle #customers</span></div></div></div></div></div><div class="swatches"><span class="sw2"><i style="background:#0B0C0E"></i>bg #0B0C0E</span><span class="sw2"><i style="background:#141519"></i>panel #141519</span><span class="sw2"><i style="background:#D8D9DC"></i>ink #D8D9DC</span><span class="sw2"><i style="background:#7D8089"></i>mute #7D8089</span><span class="sw2"><i style="background:#2A2D35"></i>line #2A2D35</span><span class="sw2"><i style="background:#3D9DF2"></i>accent #3D9DF2</span><span class="sw2"><i style="background:#56C271"></i>ok #56C271</span><span class="sw2"><i style="background:#F2B33D"></i>warn #F2B33D</span><span class="sw2"><i style="background:#FF5A52"></i>crit #FF5A52</span></div><details class="meta"><summary>Opposite mode (light)</summary>
+<div class="app d-ops-alt">
+  <div class="top"><span class="brand">Ramen Labs</span><span class="ticker"><span class="lbl">NEWS</span>Anonymous billionaire says AGI is "basically done, pending a few details" &nbsp;·&nbsp; Regulator opens a consultation on the consultation</span><span class="day">Day 9</span></div>
+  <div class="grid">
+    <div class="side">
+      <div class="co">Ramen Labs</div>
+      <div class="h">Channels</div>
+      <div class="ch"># general</div>
+      <div class="ch on"># customers <span class="badge">2</span></div>
+      <div class="ch"># product</div>
+      <div class="h">Direct messages</div>
+      <div class="ch unread">Dora Kessler</div>
+      <div class="ch"><span class="metis-name">✨ Metis</span> <span class="badge">1</span></div>
+    </div>
+    <div class="chat">
+      <div class="chhd"><b># customers</b><span class="toggle">Metis handles #customers <span class="sw"></span></span></div>
+      <div class="msgs">
+        <div class="msg"><div class="av" style="background:#C2683F">DK</div><div><span class="who">Dora Kessler</span><span class="tm">day 2</span><div class="dora">WE'RE LIVE. ramen tonight? 🍜 — Dora</div></div></div>
+        <div class="msg"><div class="av" style="background:#5B6B8C">AC</div><div><span class="who">Acme Corp</span><span class="tm">day 8</span><span class="timer">0:52</span><div>Can you add SSO? We'd pay 3x.</div><div class="btns"><span class="btn"><span class="k">1</span>Ship it this week</span><span class="btn"><span class="k">2</span>Put it on the roadmap</span><span class="btn ghost"><span class="k">D</span>Ask Metis</span></div></div></div>
+        <div class="msg"><div class="av" style="background:#3C8D7A">BW</div><div><span class="who">Bluewren Analytics</span><span class="urg">URGENT</span><span class="tm">day 9</span><span class="timer">0:31</span><div>Your model told our CFO the invoice was "vibes-based". Refund?</div><div class="btns"><span class="btn"><span class="k">1</span>Refund</span><span class="btn"><span class="k">2</span>Offer a credit</span><span class="btn"><span class="k">3</span>Call it a beta</span><span class="btn ghost"><span class="k">D</span>Ask Metis</span></div></div></div>
+      </div>
+    </div>
+    <div class="rail">
+      <div class="attn"><b>Needs attention</b>Runway under 30 days</div>
+      <div class="h">Overview <span>today</span></div>
+      <div class="kpis">
+        <div class="kpi"><div class="l">Cash</div><div class="v">$9,180</div><div class="d dn">−$322</div></div>
+        <div class="kpi watch"><div class="l">Runway</div><div class="v">24 days</div><div class="st">▲ WATCH</div></div>
+        <div class="kpi"><div class="l">MRR</div><div class="v">$1,862</div><div class="d up">+$49</div></div>
+        <div class="kpi"><div class="l">Customers</div><div class="v">38</div><div class="d up">+4</div></div>
+      </div>
+      <div class="chart"><svg viewBox="0 0 300 70" preserveAspectRatio="none"><polyline fill="none" stroke="#5C5F68" stroke-width="1.5" points="0,18 30,20 60,24 90,27 120,31 150,35 180,38 210,42 240,46 270,49 300,52"/><polyline fill="none" stroke="#1F78D1" stroke-width="2" points="0,66 30,65 60,63 90,62 120,60 150,57 180,55 210,53 240,50 270,48 300,45"/></svg></div>
+      <div class="log"><div class="lh">Aegis-4 · inference log</div>&gt; route ticket_4412 → summarize<br>&gt; 1,204 tok · 380 ms<br><span class="odd">&gt; output: "hello. who is in the loop?"</span><br>&gt; route ticket_4413 → classify</div>
+    </div>
+  </div>
+</div></details></section><section><h2>4 · Paper</h2><p>Notion/Basecamp-like. Warm off-white, near-black ink, almost no colour; the green of money is the only accent. Feels like a company handbook. Natural mode: <b>light</b>. Type: -apple-system / numbers -apple-system. Radius 4px, base size 14px.</p>
+<div class="app d-paper">
+  <div class="top"><span class="brand">Ramen Labs</span><span class="ticker"><span class="lbl">NEWS</span>Anonymous billionaire says AGI is "basically done, pending a few details" &nbsp;·&nbsp; Regulator opens a consultation on the consultation</span><span class="day">Day 9</span></div>
+  <div class="grid">
+    <div class="side">
+      <div class="co">Ramen Labs</div>
+      <div class="h">Channels</div>
+      <div class="ch"># general</div>
+      <div class="ch on"># customers <span class="badge">2</span></div>
+      <div class="ch"># product</div>
+      <div class="h">Direct messages</div>
+      <div class="ch unread">Dora Kessler</div>
+      <div class="ch"><span class="metis-name">✨ Metis</span> <span class="badge">1</span></div>
+    </div>
+    <div class="chat">
+      <div class="chhd"><b># customers</b><span class="toggle">Metis handles #customers <span class="sw"></span></span></div>
+      <div class="msgs">
+        <div class="msg"><div class="av" style="background:#C2683F">DK</div><div><span class="who">Dora Kessler</span><span class="tm">day 2</span><div class="dora">WE'RE LIVE. ramen tonight? 🍜 — Dora</div></div></div>
+        <div class="msg"><div class="av" style="background:#5B6B8C">AC</div><div><span class="who">Acme Corp</span><span class="tm">day 8</span><span class="timer">0:52</span><div>Can you add SSO? We'd pay 3x.</div><div class="btns"><span class="btn"><span class="k">1</span>Ship it this week</span><span class="btn"><span class="k">2</span>Put it on the roadmap</span><span class="btn ghost"><span class="k">D</span>Ask Metis</span></div></div></div>
+        <div class="msg"><div class="av" style="background:#3C8D7A">BW</div><div><span class="who">Bluewren Analytics</span><span class="urg">URGENT</span><span class="tm">day 9</span><span class="timer">0:31</span><div>Your model told our CFO the invoice was "vibes-based". Refund?</div><div class="btns"><span class="btn"><span class="k">1</span>Refund</span><span class="btn"><span class="k">2</span>Offer a credit</span><span class="btn"><span class="k">3</span>Call it a beta</span><span class="btn ghost"><span class="k">D</span>Ask Metis</span></div></div></div>
+      </div>
+    </div>
+    <div class="rail">
+      <div class="attn"><b>Needs attention</b>Runway under 30 days</div>
+      <div class="h">Overview <span>today</span></div>
+      <div class="kpis">
+        <div class="kpi"><div class="l">Cash</div><div class="v">$9,180</div><div class="d dn">−$322</div></div>
+        <div class="kpi watch"><div class="l">Runway</div><div class="v">24 days</div><div class="st">▲ WATCH</div></div>
+        <div class="kpi"><div class="l">MRR</div><div class="v">$1,862</div><div class="d up">+$49</div></div>
+        <div class="kpi"><div class="l">Customers</div><div class="v">38</div><div class="d up">+4</div></div>
+      </div>
+      <div class="chart"><svg viewBox="0 0 300 70" preserveAspectRatio="none"><polyline fill="none" stroke="#6E685E" stroke-width="1.5" points="0,18 30,20 60,24 90,27 120,31 150,35 180,38 210,42 240,46 270,49 300,52"/><polyline fill="none" stroke="#1F7A4D" stroke-width="2" points="0,66 30,65 60,63 90,62 120,60 150,57 180,55 210,53 240,50 270,48 300,45"/></svg></div>
+      <div class="log"><div class="lh">Aegis-4 · inference log</div>&gt; route ticket_4412 → summarize<br>&gt; 1,204 tok · 380 ms<br><span class="odd">&gt; output: "hello. who is in the loop?"</span><br>&gt; route ticket_4413 → classify</div>
+    </div>
+  </div>
+</div><div class="row" style="margin-top:12px"><div class="mini d-paper-alt" style="width:auto;padding:0;border:none;background:none"></div><div class="mini d-paper"><div class="cap">Metis surface — the contrast is the joke</div>
+<div class="msg"><div class="av" style="background:linear-gradient(135deg,#7C3AED,#C026D3 55%,#F472B6);color:#fff;border-radius:50%">✨</div><div><span class="who">Metis</span><span class="tm">day 5</span>
+<div class="metis-dm" style="background:linear-gradient(135deg,rgba(124,58,237,.12),rgba(244,114,182,.12));border:1px solid rgba(192,38,211,.35)">Hi, I'm Metis. I can answer #customers for you.</div>
+<div style="margin-top:8px"><span class="sparkle-btn" style="background:linear-gradient(135deg,#7C3AED,#C026D3 55%,#F472B6);color:#fff">✨ Let Metis handle #customers</span></div></div></div></div><div class="mini d-paper-alt"><div class="cap">Metis surface — the contrast is the joke</div>
+<div class="msg"><div class="av" style="background:linear-gradient(135deg,#7C3AED,#C026D3 55%,#F472B6);color:#fff;border-radius:50%">✨</div><div><span class="who">Metis</span><span class="tm">day 5</span>
+<div class="metis-dm" style="background:linear-gradient(135deg,rgba(124,58,237,.12),rgba(244,114,182,.12));border:1px solid rgba(192,38,211,.35)">Hi, I'm Metis. I can answer #customers for you.</div>
+<div style="margin-top:8px"><span class="sparkle-btn" style="background:linear-gradient(135deg,#7C3AED,#C026D3 55%,#F472B6);color:#fff">✨ Let Metis handle #customers</span></div></div></div></div></div><div class="swatches"><span class="sw2"><i style="background:#FBFAF7"></i>bg #FBFAF7</span><span class="sw2"><i style="background:#FFFFFF"></i>panel #FFFFFF</span><span class="sw2"><i style="background:#1F1D1A"></i>ink #1F1D1A</span><span class="sw2"><i style="background:#6E685E"></i>mute #6E685E</span><span class="sw2"><i style="background:#E5E1D8"></i>line #E5E1D8</span><span class="sw2"><i style="background:#1F7A4D"></i>accent #1F7A4D</span><span class="sw2"><i style="background:#1F7A4D"></i>ok #1F7A4D</span><span class="sw2"><i style="background:#94600A"></i>warn #94600A</span><span class="sw2"><i style="background:#B3261E"></i>crit #B3261E</span></div><details class="meta"><summary>Opposite mode (dark)</summary>
+<div class="app d-paper-alt">
+  <div class="top"><span class="brand">Ramen Labs</span><span class="ticker"><span class="lbl">NEWS</span>Anonymous billionaire says AGI is "basically done, pending a few details" &nbsp;·&nbsp; Regulator opens a consultation on the consultation</span><span class="day">Day 9</span></div>
+  <div class="grid">
+    <div class="side">
+      <div class="co">Ramen Labs</div>
+      <div class="h">Channels</div>
+      <div class="ch"># general</div>
+      <div class="ch on"># customers <span class="badge">2</span></div>
+      <div class="ch"># product</div>
+      <div class="h">Direct messages</div>
+      <div class="ch unread">Dora Kessler</div>
+      <div class="ch"><span class="metis-name">✨ Metis</span> <span class="badge">1</span></div>
+    </div>
+    <div class="chat">
+      <div class="chhd"><b># customers</b><span class="toggle">Metis handles #customers <span class="sw"></span></span></div>
+      <div class="msgs">
+        <div class="msg"><div class="av" style="background:#C2683F">DK</div><div><span class="who">Dora Kessler</span><span class="tm">day 2</span><div class="dora">WE'RE LIVE. ramen tonight? 🍜 — Dora</div></div></div>
+        <div class="msg"><div class="av" style="background:#5B6B8C">AC</div><div><span class="who">Acme Corp</span><span class="tm">day 8</span><span class="timer">0:52</span><div>Can you add SSO? We'd pay 3x.</div><div class="btns"><span class="btn"><span class="k">1</span>Ship it this week</span><span class="btn"><span class="k">2</span>Put it on the roadmap</span><span class="btn ghost"><span class="k">D</span>Ask Metis</span></div></div></div>
+        <div class="msg"><div class="av" style="background:#3C8D7A">BW</div><div><span class="who">Bluewren Analytics</span><span class="urg">URGENT</span><span class="tm">day 9</span><span class="timer">0:31</span><div>Your model told our CFO the invoice was "vibes-based". Refund?</div><div class="btns"><span class="btn"><span class="k">1</span>Refund</span><span class="btn"><span class="k">2</span>Offer a credit</span><span class="btn"><span class="k">3</span>Call it a beta</span><span class="btn ghost"><span class="k">D</span>Ask Metis</span></div></div></div>
+      </div>
+    </div>
+    <div class="rail">
+      <div class="attn"><b>Needs attention</b>Runway under 30 days</div>
+      <div class="h">Overview <span>today</span></div>
+      <div class="kpis">
+        <div class="kpi"><div class="l">Cash</div><div class="v">$9,180</div><div class="d dn">−$322</div></div>
+        <div class="kpi watch"><div class="l">Runway</div><div class="v">24 days</div><div class="st">▲ WATCH</div></div>
+        <div class="kpi"><div class="l">MRR</div><div class="v">$1,862</div><div class="d up">+$49</div></div>
+        <div class="kpi"><div class="l">Customers</div><div class="v">38</div><div class="d up">+4</div></div>
+      </div>
+      <div class="chart"><svg viewBox="0 0 300 70" preserveAspectRatio="none"><polyline fill="none" stroke="#A39D91" stroke-width="1.5" points="0,18 30,20 60,24 90,27 120,31 150,35 180,38 210,42 240,46 270,49 300,52"/><polyline fill="none" stroke="#4CB37F" stroke-width="2" points="0,66 30,65 60,63 90,62 120,60 150,57 180,55 210,53 240,50 270,48 300,45"/></svg></div>
+      <div class="log"><div class="lh">Aegis-4 · inference log</div>&gt; route ticket_4412 → summarize<br>&gt; 1,204 tok · 380 ms<br><span class="odd">&gt; output: "hello. who is in the loop?"</span><br>&gt; route ticket_4413 → classify</div>
+    </div>
+  </div>
+</div></details></section></body></html>

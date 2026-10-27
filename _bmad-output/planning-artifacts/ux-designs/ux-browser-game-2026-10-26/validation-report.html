@@ -1,0 +1,1252 @@
+<!DOCTYPE html>
+<!--
+  UX Design Validation Report — skeleton template.
+
+  This file is a starter the synthesis pass fills in directly. There is no
+  substitution engine. The LLM:
+    1. Reads {doc_workspace}/review-rubric.md and every review-{slug}.md from
+       additional reviewers.
+    2. Copies this skeleton.
+    3. Replaces the placeholder content (everything between TEMPLATE markers)
+       with the consolidated review, preserving the structure and CSS.
+    4. Writes the result to {doc_workspace}/validation-report.html.
+    5. Writes a markdown twin to {doc_workspace}/validation-report.md.
+
+  Visual rules the LLM must preserve:
+    - The container width, the color tokens, the typography.
+    - One dimension = one collapsible <section class="dimension">.
+    - Verdict pill uses the verdict-* class matching its judgment.
+    - Severity badge uses the badge-sev-* class matching its level.
+    - Each extra reviewer (accessibility, adversarial, etc.) gets its own
+      collapsible section below the rubric dimensions.
+    - The footer always shows the artifact paths and timestamp.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>UX Design Validation: Human in the Loop</title>
+<style>
+  :root {
+    --bg: #fafaf9;
+    --surface: #ffffff;
+    --border: #e7e5e4;
+    --text: #1c1917;
+    --muted: #78716c;
+
+    --verdict-strong: #16a34a;
+    --verdict-adequate: #65a30d;
+    --verdict-thin: #d97706;
+    --verdict-broken: #dc2626;
+
+    --sev-low: #64748b;
+    --sev-medium: #ca8a04;
+    --sev-high: #ea580c;
+    --sev-critical: #dc2626;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    font-size: 15px;
+  }
+  .container { max-width: 960px; margin: 0 auto; padding: 32px 24px 64px; }
+
+  header.report-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 24px;
+  }
+  .title h1 { margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.01em; }
+  .title .subtitle { color: var(--muted); font-size: 13px; margin-top: 4px; font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+
+  .synthesis {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--muted);
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin-bottom: 24px;
+    font-size: 15.5px;
+  }
+  .synthesis p { margin: 0 0 10px; }
+  .synthesis p:last-child { margin-bottom: 0; }
+
+  .dimension-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .dim-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+  .dim-card .dim-name { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+  .dim-card .dim-verdict { font-size: 14px; font-weight: 600; }
+
+  section.dimension, section.reviewer-section { margin-bottom: 14px; }
+  section.dimension details, section.reviewer-section details {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  section summary {
+    padding: 14px 20px;
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  section summary::-webkit-details-marker { display: none; }
+  section summary::before {
+    content: "▸";
+    display: inline-block;
+    color: var(--muted);
+    transition: transform 0.15s ease;
+  }
+  section details[open] summary::before { transform: rotate(90deg); }
+  section summary h2 {
+    display: inline;
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    flex: 1;
+  }
+  .verdict-pill {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: white;
+  }
+  .verdict-strong { background: var(--verdict-strong); }
+  .verdict-adequate { background: var(--verdict-adequate); }
+  .verdict-thin { background: var(--verdict-thin); }
+  .verdict-broken { background: var(--verdict-broken); }
+
+  .dim-body { padding: 4px 20px 18px; }
+  .dim-judgment { color: var(--text); font-size: 14.5px; }
+  .dim-judgment p { margin: 0 0 10px; }
+
+  .findings-list { padding: 0 20px 4px; }
+  article.finding {
+    padding: 14px 0;
+    border-top: 1px solid var(--border);
+  }
+  article.finding:first-child { border-top: none; }
+  article.finding header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+  }
+  .badge {
+    font-size: 10.5px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    line-height: 1.4;
+  }
+  .badge-sev-low { background: rgba(100, 116, 139, 0.12); color: var(--sev-low); }
+  .badge-sev-medium { background: rgba(202, 138, 4, 0.14); color: var(--sev-medium); }
+  .badge-sev-high { background: rgba(234, 88, 12, 0.14); color: var(--sev-high); }
+  .badge-sev-critical { background: rgba(220, 38, 38, 0.14); color: var(--sev-critical); }
+  .finding-title { margin: 0; font-size: 15px; font-weight: 500; flex: 1; min-width: 200px; }
+  .finding-location { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12.5px; color: var(--muted); }
+  .finding-note, .finding-fix { margin-top: 6px; font-size: 14px; }
+  .finding-fix strong { color: var(--muted); font-weight: 500; }
+
+  .reviewer-source {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+
+  .mechanical {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 24px;
+    font-size: 14px;
+  }
+  .mechanical h3 { margin: 0 0 10px; font-size: 14px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .mechanical ul { margin: 0; padding-left: 20px; }
+  .mechanical li { margin-bottom: 4px; color: var(--text); }
+
+  footer.report-footer {
+    margin-top: 40px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--muted);
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  footer .meta { display: flex; gap: 24px; flex-wrap: wrap; }
+  .reviewer-section table { border-collapse: collapse; width: 100%; font-size: 13px; margin: 8px 0 12px; display: block; overflow-x: auto; }
+  .reviewer-section th, .reviewer-section td { border: 1px solid var(--border); padding: 4px 8px; text-align: left; vertical-align: top; }
+  .reviewer-section th { color: var(--muted); font-weight: 600; }
+  .dim-judgment ul, .finding-note ul { margin: 4px 0 8px; padding-left: 20px; }
+  .finding-note p { margin: 0 0 6px; }
+  code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.92em; }
+  .snapshot-note { color: var(--muted); font-size: 13px; margin: 0 0 16px; font-style: italic; }
+</style>
+</head>
+<body>
+  <div class="container">
+
+    <header class="report-header">
+      <div class="title">
+        <h1>Human in the Loop — UX Design Validation Report</h1>
+        <div class="subtitle">/Users/tizianobasile/workspace/me/browser-game/_bmad-output/planning-artifacts/ux-designs/ux-browser-game-2026-10-26/</div>
+      </div>
+    </header>
+
+    <p class="snapshot-note">Snapshot of the spines before the Finalize fix pass; see .decision-log.md for resolutions.</p>
+
+    <div class="synthesis">
+<p><strong>Adequate. Fix the highs before architecture.</strong> The pair is mechanically clean: all 212 <code>{path.to.token}</code> references resolve, DESIGN.md follows the canonical section order, the five Key Flows are well formed, and the core Pillar rules (no game UI, no visible Alignment, anti-slop, audio off by default, <code>$12,400</code> + <code>Deploy</code>) hold. It is not yet a complete contract for AI-driven development:</p>
+<ul><li>Several GDD mechanics have no committed surface: hiring, GPU purchase, the chronicle and the rail's tile inventory.</li><li>Interactive and disabled states, the icon set, and high-contrast and colour-blind-safe tokens are left open.</li><li>The tab-title counter is described in ways that contradict each other.</li></ul>
+<p>Each of these gaps would be filled with generic defaults.</p>
+<p><strong>Accessibility review.</strong> The accessibility reviewer shifts the picture. It adds 2 critical focus-management findings, which the rubric review did not surface: automatic focus-follow onto new messages, and focus lost when the focused control collapses, expires or disables. As specified, the pair is <strong>not yet AA-conformant</strong>. The review gives a <strong>conditional pass on intent</strong>: the Accessibility Floor is ambitious and mostly right, the Ledger base tokens largely hold up, and the gaps are behavioural (focus, live regions, shortcuts, text alternatives) plus unspecified states such as infection stages, Red Runway and the unverified Ink, Ops and Paper palettes. Fix the two critical items and the high findings before architecture.</p>
+    </div>
+
+    <div class="dimension-summary">
+      <div class="dim-card">
+        <div class="dim-name">Flow coverage</div>
+        <div class="dim-verdict" style="color: var(--verdict-thin)">thin</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-name">Token completeness</div>
+        <div class="dim-verdict" style="color: var(--verdict-adequate)">adequate</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-name">Component coverage</div>
+        <div class="dim-verdict" style="color: var(--verdict-thin)">thin</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-name">State coverage</div>
+        <div class="dim-verdict" style="color: var(--verdict-adequate)">adequate</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-name">Visual reference coverage</div>
+        <div class="dim-verdict" style="color: var(--verdict-adequate)">adequate</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-name">Bloat &amp; overspecification</div>
+        <div class="dim-verdict" style="color: var(--verdict-strong)">strong</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-name">Inheritance discipline</div>
+        <div class="dim-verdict" style="color: var(--verdict-adequate)">adequate</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-name">Shape fit</div>
+        <div class="dim-verdict" style="color: var(--verdict-strong)">strong</div>
+      </div>
+    </div>
+
+    <section class="dimension">
+      <details open>
+        <summary>
+          <h2>Flow coverage</h2>
+          <span class="verdict-pill verdict-thin">thin</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>Verdict: thin. 11 findings (4 high, 3 medium, 4 low).</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">Hiring (M9) has no surface</h3>
+              <span class="finding-location">EXPERIENCE.md → The Cascade (6:30); Component Patterns → Assign</span>
+            </header>
+            <div class="finding-note"><p>The spines never say how a candidate is presented (traits, salary), how the player hires or declines, or how the Safety Researcher hire works. They also leave out the named cap rolling into anonymous headcount ("Engineering (34)") and the resignation pattern. Only "Talent tile (DM from candidate)" (EXPERIENCE.md → The Cascade, 6:30) and the Assign picker (Component Patterns, Assign) exist.</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> commit to the hire being a candidate DM with answer buttons (e.g. "Hire · $350/day" / "Pass") that list traits in plain text. Specify the Team rail section's anatomy (named rows, morale word, headcount groups) and the resignation message. Add a short Key Flow or State rows.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">Buying Compute / GPUs (M4) has no surface</h3>
+              <span class="finding-location">EXPERIENCE.md → State Patterns (Compute exhausted); DESIGN.md → Do's and Don'ts</span>
+            </header>
+            <div class="finding-note"><p>The only hint is "+ actions" in the Compute-exhausted state (EXPERIENCE.md → State Patterns). Rent-a-Brain is named only in the Do's list (DESIGN.md → Do's and Don'ts). Compute is one of four visible resources and a link in the growth loop.</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> commit to where purchases happen (for example an Infrastructure rail-section action, a Rent-a-Brain quote message, or the Metis capacity DM). Specify its copy, its confirmation (or explicit lack of one) and its feedback.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">The chronicle (M13) is missing from both spines</h3>
+              <span class="finding-location">DESIGN.md and EXPERIENCE.md (IA table); GDD M13</span>
+            </header>
+            <div class="finding-note"><p>(the word "chronicle" appears zero times). Pillar 3 says "a run produces a readable … chronicle", and the GDD describes it "in workspace idiom (a changelog / company timeline)".</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> decide whether the chronicle is a player-viewable surface or only feeds the end-of-run highlights. A viewable surface could be an LGTM Docs "Company timeline" reached from the sidebar or rail. Add the decision to the IA table either way.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">The rail's content inventory is uncommitted</h3>
+              <span class="finding-location">DESIGN.md → Components → Dashboard rail; EXPERIENCE.md → Component Patterns → KPI tile</span>
+            </header>
+            <div class="finding-note"><p>"Tiles keep fixed positions and never reorder" (DESIGN.md → Components → Dashboard rail; EXPERIENCE.md → Component Patterns, KPI tile), but the spines never define:</p>
+<ul><li>which tiles exist in Overview, and their slots;</li><li>which metrics live in the Team, Infrastructure and Growth sections;</li><li>where Hype (hidden until Seed), GPU utilisation, Customers, Headcount, implied valuation, peak valuation and the enterprise pipeline appear.</li></ul></div>
+            <div class="finding-fix"><strong>Fix:</strong> add a per-phase rail map (metric → tile or section → slot order → phase born), derived from GDD Level Types.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Heavy-decision outcomes are not specified</h3>
+              <span class="finding-location">EXPERIENCE.md → Key Flows (Flow 2); GDD → Management Mechanics</span>
+            </header>
+            <div class="finding-note"><p>Risky releases and crises are probabilistic (GDD → Management Mechanics), but no pattern shows success or failure after the click. No flow covers a capability grant or a crisis; Flow 2 covers only a term sheet.</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> add an outcome pattern (e.g. the doc gains an "Outcome" section, or the AllGreen status changes, plus a toast). Add a short flow for a capability grant ("Give Metis production deploy access").</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">The Untimed queue cap has no surface</h3>
+              <span class="finding-location">EXPERIENCE.md → Accessibility Floor → Timing; GDD (Untimed queue cap)</span>
+            </header>
+            <div class="finding-note"><p>The GDD's "visible queue cap of 30; beyond it, new messages … wait upstream" is not covered; EXPERIENCE.md → Accessibility Floor → Timing only hides timers.</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> specify where the cap is shown and what "waiting upstream" looks like.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Pause Metis for audit, the only active Alignment recovery lever (Pillar 2), has no flow</h3>
+              <span class="finding-location">EXPERIENCE.md → Key Flows (Flow 3); Component rows; GDD Pillar 2</span>
+            </header>
+            <div class="finding-note"><p>Component rows exist, but the player journey does not: discovering the action, confirming it, the 3-day pause and the cooldown.</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> add a short flow or extend Flow 3 with a failed audit attempt.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">The GDD's urgent affordance "Red badge / @mention" (M2)</h3>
+              <span class="finding-location">EXPERIENCE.md → Component Patterns → Message; GDD M2</span>
+            </header>
+            <div class="finding-note"><p>is only half addressed; @mention is never mentioned (EXPERIENCE.md → Component Patterns, Message).</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> state whether @mentions exist and how they render.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">The opt-in local stats export (E6) is missing</h3>
+              <span class="finding-location">DESIGN.md → Components → Settings &amp; Accessibility screen; EXPERIENCE.md IA</span>
+            </header>
+            <div class="finding-note"><p>from Settings → Data (DESIGN.md → Components, Settings &amp; Accessibility screen; EXPERIENCE.md IA).</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> add the row.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">The "Low motion" preset contents are undefined</h3>
+              <span class="finding-location">EXPERIENCE.md → Accessibility Floor → Presets</span>
+            </header>
+            <div class="finding-note"><p>, while the Screen reader preset is defined (EXPERIENCE.md → Accessibility Floor, Presets).</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> list the settings it sets.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Flow 5 (Kenji) has no failure path</h3>
+              <span class="finding-location">EXPERIENCE.md → Key Flows (Flow 5)</span>
+            </header>
+            <div class="finding-note"></div>
+            <div class="finding-fix"><strong>Fix:</strong> add one, e.g. a missed non-urgent message under the "urgent only" verbosity, or the Untimed queue cap being reached.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <section class="dimension">
+      <details>
+        <summary>
+          <h2>Token completeness</h2>
+          <span class="verdict-pill verdict-adequate">adequate</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>Verdict: adequate. 8 findings (2 high, 2 medium, 4 low).</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">Backlog previews fail AA contrast</h3>
+              <span class="finding-location">DESIGN.md → Components → Backlog queue</span>
+            </header>
+            <div class="finding-note"><p>They are rendered in <code>{colors.ink-muted}</code> at 60% opacity (DESIGN.md → Components → Backlog queue), which measures <strong>2.46:1 light / 2.93:1 dark</strong>, below the 4.5:1 WCAG 2.2 AA requirement for text the player must read.</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> keep <code>ink-muted</code> at full opacity (5.4:1) and signal "waiting" through size, single-line truncation or weight.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">High-contrast and colour-blind-safe variants have no tokens</h3>
+              <span class="finding-location">DESIGN.md → Colors; GDD → Accessibility → Contrast</span>
+            </header>
+            <div class="finding-note"><p>DESIGN.md → Colors says they are "derived per theme in E8". The GDD makes both MVP settings (Accessibility → Contrast).</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> define at least the Ledger high-contrast and colour-blind-safe sets in frontmatter (e.g. <code>ok-cb</code>, <code>critical-cb</code>, <code>*-hc</code>), with measured contrast.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">The Ink, Ops and Paper palettes exist only as a prose table</h3>
+              <span class="finding-location">DESIGN.md → Colors → Theme palettes</span>
+            </header>
+            <div class="finding-note"><p>(DESIGN.md → Colors, "Theme palettes"). Consumers cannot source-extract them, and the table is incomplete: no <code>surface-raised</code>, <code>line-control</code>, <code>on-accent</code>, <code>on-critical</code>, tints, Metis lines or sidebar.</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> move them to frontmatter (theme-prefixed keys or one file per theme) with full key parity to Ledger. Alternatively, state a derivation rule plus the AA gate.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Dark-mode resolution for component tokens is implicit</h3>
+              <span class="finding-location">DESIGN.md → components frontmatter; sidebar and sidebar-dark tokens</span>
+            </header>
+            <div class="finding-note"><p>Every <code>components</code> entry references only unsuffixed tokens, and no rule says <code>{colors.x}</code> resolves to <code>x-dark</code> in dark mode. <code>sidebar-dark</code> has no light twin, yet the <code>sidebar</code> component uses <code>{colors.surface}</code>, so the dark sidebar colour is ambiguous.</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> add one sentence to Colors ("component refs resolve to the <code>-dark</code> twin when one exists"). Add a <code>sidebar</code> light token or point the component at a sidebar token.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Some values bypass tokens</h3>
+              <span class="finding-location">DESIGN.md → components (metis-button, attention-list); Elevation &amp; Depth; EXPERIENCE.md → Accessibility Floor (focus ring)</span>
+            </header>
+            <div class="finding-note"><p>These are literals or prose:</p>
+<ul><li><code>metis-button.color: '#FFFFFF'</code>;</li><li><code>attention-list.edge</code> is written in prose;</li><li>the overlay shadow and the 45% scrim (DESIGN.md → Elevation &amp; Depth);</li><li>the focus ring (EXPERIENCE.md → Accessibility Floor) has no component token.</li></ul></div>
+            <div class="finding-fix"><strong>Fix:</strong> add <code>on-metis</code>, a <code>focus-ring</code> component and a <code>shadow-overlay</code> token.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title"><code>{founder}</code> clashes with token syntax</h3>
+              <span class="finding-location">EXPERIENCE.md → Component Patterns → Founding fields</span>
+            </header>
+            <div class="finding-note"><p>This content placeholder (EXPERIENCE.md → Component Patterns, Founding fields) uses the same syntax as token references, so a resolver will flag it.</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> write it as <code>&lt;founder&gt;</code> or <code>{{founder}}</code>.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Several tokens are never referenced</h3>
+              <span class="finding-location">DESIGN.md → colors and typography frontmatter (on-accent, ok-tint, watch-tint, *-tint-dark, metis-*-dark, typography.mono)</span>
+            </header>
+            <div class="finding-note"><p><code>on-accent</code>, <code>ok-tint</code>, <code>watch-tint</code>, every <code><em>-tint-dark</code>, <code>metis-</em>-dark</code> and <code>typography.mono</code>.</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> state where each is used. The KPI watch state has no tint background, and no Ledger button uses an accent fill.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Contrast is not stated for some pairs</h3>
+              <span class="finding-location">DESIGN.md → Colors (contrast paragraph)</span>
+            </header>
+            <div class="finding-note"><ul><li><code>metis-ink</code> on <code>metis-tint</code> (6.4:1 when computed — passes);</li><li>stage-25 infected answer buttons, including the mono key hints on the gradient;</li><li>desaturated text under Red Runway.</li></ul></div>
+            <div class="finding-fix"><strong>Fix:</strong> add a line to the contrast paragraph.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <section class="dimension">
+      <details open>
+        <summary>
+          <h2>Component coverage</h2>
+          <span class="verdict-pill verdict-thin">thin</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>Verdict: thin. 6 findings (2 high, 2 medium, 2 low).</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">DESIGN.md never specifies interactive states</h3>
+              <span class="finding-location">DESIGN.md → Components (answer-button, primary-button, outlined buttons, policy-toggle, sidebar row); EXPERIENCE.md → Component Patterns and State Patterns</span>
+            </header>
+            <div class="finding-note"><p>Hover, pressed, focus and disabled are missing for answer-button, primary-button, the quieter outlined buttons (Ask Metis, Assign), policy-toggle and sidebar-row hover. The disabled look carries weight: the Surpassed lock, the disabled <code>D</code> key when Compute is exhausted, and toggles during audit (EXPERIENCE.md → Component Patterns and State Patterns) all depend on it.</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> add per-component state specs and tokens, plus the focus ring as a component.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">No icon set is named</h3>
+              <span class="finding-location">DESIGN.md → Layout &amp; Spacing → Mobile; Components → Founding screen; Components → Mobile tab bar; GDD → Asset Requirements</span>
+            </header>
+            <div class="finding-note"><p>The GDD asks for "one icon set" (Asset Requirements), but the spines use ⚙, 🎲 and "icon + label" (DESIGN.md → Layout &amp; Spacing, Mobile; Components → Founding screen; Components → Mobile tab bar) without choosing one. An AI developer will pick a default.</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> name the set, its stroke and its size (e.g. Lucide 16/20px, 1.5 stroke), or commit to text plus a closed list of Unicode glyphs.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">EXPERIENCE.md names components that have no visual spec in DESIGN.md</h3>
+              <span class="finding-location">EXPERIENCE.md → Component Patterns, Notifications and State Patterns (no matching DESIGN.md spec)</span>
+            </header>
+            <div class="finding-note"><ul><li>the staff picker (Assign);</li><li>investor cards (one sentence, no anatomy or selected state);</li><li>the in-app notification-permission banner (Notifications);</li><li>the tablet KPI chip and the rail drawer;</li><li>the text input and the 🎲 icon button;</li><li>the Safety Researcher's "Ask for a reading" button;</li><li>the chart (no frontmatter entry, axes, legend or hover);</li><li>the clue-replay graph.</li></ul></div>
+            <div class="finding-fix"><strong>Fix:</strong> add a spec and a <code>components</code> entry for each.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">DESIGN.md has components with no behaviour rule in EXPERIENCE.md</h3>
+              <span class="finding-location">DESIGN.md → Components (channel header, chart, investor cards, mobile tab bar, end-of-run document, clue replay, header bar); EXPERIENCE.md → Component Patterns</span>
+            </header>
+            <div class="finding-note"><ul><li>channel header;</li><li>chart (update cadence, time range, readout, accessible data-table alternative);</li><li>investor-card selection (does a click select, then confirm?);</li><li>mobile tab bar (badges, fire pin);</li><li>end-of-run document (download buttons, what "Start Loop #N" does to the save);</li><li>clue replay (whether the graph animates, when Continue becomes available);</li><li>header bar.</li></ul></div>
+            <div class="finding-fix"><strong>Fix:</strong> add a row for each to Component Patterns.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">The disabled <code>D</code> key relies on a "tooltip 'Metis is at capacity'"</h3>
+              <span class="finding-location">EXPERIENCE.md → State Patterns → Compute exhausted; GDD M11</span>
+            </header>
+            <div class="finding-note"><p>(EXPERIENCE.md → State Patterns, Compute exhausted). There is no tooltip spec, and GDD M11 says "no tooltips".</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> specify it as a standard SaaS disabled-reason tooltip with its own spec, or show the reason as inline text.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">The "outlined destructive-style button" for Pause Metis</h3>
+              <span class="finding-location">DESIGN.md → Components → Policy &amp; Metis settings page</span>
+            </header>
+            <div class="finding-note"><p>(DESIGN.md → Components → Policy &amp; Metis settings page) has no tokens.</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> add a <code>button-destructive</code> entry.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <section class="dimension">
+      <details>
+        <summary>
+          <h2>State coverage</h2>
+          <span class="verdict-pill verdict-adequate">adequate</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>Verdict: adequate. 9 findings (2 high, 6 medium, 1 low).</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">The tab-title counter is described in three ways that contradict each other</h3>
+              <span class="finding-location">EXPERIENCE.md → Component Patterns → Browser tab title; State Patterns → Away; Responsive &amp; Platform; Key Flows (Flow 2)</span>
+            </header>
+            <div class="finding-note"><ul><li>"Updates live in background tabs" (EXPERIENCE.md → Component Patterns, Browser tab title);</li><li>"No live simulation … tab title keeps showing the last count" (State Patterns, Away);</li><li>"the UI must not run timers … while hidden" (Responsive &amp; Platform). Flow 2 opens on <code>(17)</code> before Marco returns. The counter is the game's re-engagement hook and drives the CPU ≈ 0 architecture.</li></ul></div>
+            <div class="finding-fix"><strong>Fix:</strong> commit to one rule, either "frozen at the last count while hidden; recomputed on return" or a low-frequency projected count with a stated budget, and align Flow 2.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">The cascade's trigger model is uncommitted</h3>
+              <span class="finding-location">EXPERIENCE.md → The Cascade</span>
+            </header>
+            <div class="finding-note"><p>Beats are listed by clock time (EXPERIENCE.md → The Cascade), but the spines don't say:</p>
+<ul><li>whether beats are gated on the player's action;</li><li>what happens to an idle player who never clicks <code>Deploy</code>;</li><li>what happens if the 1:30 customer or the 3:00 SSO message is ignored.</li></ul></div>
+            <div class="finding-fix"><strong>Fix:</strong> mark each beat as time-triggered or gated on a named action, and add an idle state for the first screen.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Two tabs open on the same save has no state</h3>
+              <span class="finding-location">EXPERIENCE.md → State Patterns (no multi-tab state)</span>
+            </header>
+            <div class="finding-note"><p>This is likely for a game played as "a tab left open".</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> one tab is active; any other shows a Huddlr-style "Huddlr is open in another tab · Use here" screen.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Save-error states are missing</h3>
+              <span class="finding-location">EXPERIENCE.md → State Patterns (save errors)</span>
+            </header>
+            <div class="finding-note"><p>local save unreadable or corrupted, content-pack version mismatch on load, storage quota exceeded. Only the rejected import and the denied persistence request are covered (State Patterns).</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> add rows.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Behaviour is unspecified for</h3>
+              <span class="finding-location">EXPERIENCE.md → State Patterns (audit pause, Compute exhausted)</span>
+            </header>
+            <div class="finding-note"><ul><li>Ask Metis (<code>D</code>) and Auto-triage during an audit pause (State Patterns only covers the toggles);</li><li>Auto-triage when Compute is exhausted.</li></ul></div>
+            <div class="finding-fix"><strong>Fix:</strong> commit to the behaviour for both.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Clock behaviour per surface is incomplete</h3>
+              <span class="finding-location">EXPERIENCE.md → Component Patterns → Game bar; GDD M1 clock table</span>
+            </header>
+            <div class="finding-note"><p>Settings pauses the clock (Component Patterns, Game bar), which is not in the GDD's M1 clock table. The shortcut overlay, Metis · Automations, the Archive, mobile tab switches and the tablet drawer are unstated.</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> add a clock state per surface and flag the Settings pause for a GDD sync.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Backlog queue navigation is unstated</h3>
+              <span class="finding-location">EXPERIENCE.md → Component Patterns → Backlog queue</span>
+            </header>
+            <div class="finding-note"><p>can the player leave the queue for a channel, the rail or Settings while it is active, and what the rest of the workspace shows (Component Patterns, Backlog queue).</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> commit to locked-in or free navigation and the matching return behaviour.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">High-legibility fonts can't be enabled offline</h3>
+              <span class="finding-location">DESIGN.md → Typography; EXPERIENCE.md → Foundation (offline play)</span>
+            </header>
+            <div class="finding-note"><p>They are "downloaded only when the setting is enabled" (DESIGN.md → Typography), but the game must be playable "offline after first load" (EXPERIENCE.md → Foundation), and no state covers enabling the setting offline.</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> precache the fonts, or define an "Available when online" state.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Smaller missing states</h3>
+              <span class="finding-location">EXPERIENCE.md → State Patterns (various surfaces)</span>
+            </header>
+            <div class="finding-note"><ul><li>PNG/PDF generation in progress and failure;</li><li>empty Archive;</li><li>browser notifications unsupported (iOS Safari without install);</li><li>founding-field validation (empty company name, over-length);</li><li>where Esc on the away report lands;</li><li>how "You don't have permission…" is displayed at Surpassed (toast or inline);</li><li>clue replay when no Safety Researcher was hired.</li></ul></div>
+            <div class="finding-fix"><strong>Fix:</strong> add one-line rows.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <section class="dimension">
+      <details>
+        <summary>
+          <h2>Visual reference coverage</h2>
+          <span class="verdict-pill verdict-adequate">adequate</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>Verdict: adequate. 3 findings (1 medium, 2 low).</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title"><code>mockups/bar-names-avatars.html</code> still shows superseded or banned names</h3>
+              <span class="finding-location">mockups/bar-names-avatars.html; DESIGN.md → Visual references</span>
+            </header>
+            <div class="finding-note"><p>"10x Ventures", "Superintelligence Inc. (Stealth)" and "ClosedAI". Both spines say they win on conflict, but neither lists what the mocks get wrong, so an agent pulling copy from the mock reintroduces near-miss brand names.</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> annotate the mock, or add a "superseded in mocks" list to DESIGN.md → Visual references.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Wireframe placeholder names aren't flagged</h3>
+              <span class="finding-location">Wireframe mockups; EXPERIENCE.md → Key Flows (Flow 5); .decision-log.md</span>
+            </header>
+            <div class="finding-note"><p>The decision log says "Ramen Labs" and "Bluewren Analytics" are not decisions; the spines don't say so, and Flow 5 uses Bluewren Analytics as a customer.</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> note that mock company names are placeholders.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">EXPERIENCE.md doesn't link <code>directions.html</code> or <code>type-title-naming.html</code></h3>
+              <span class="finding-location">DESIGN.md → Visual references; EXPERIENCE.md (links)</span>
+            </header>
+            <div class="finding-note"><p>DESIGN.md links them, so there are no orphans. No fix needed.</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> None needed (acknowledged as acceptable in the review).</div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <section class="dimension">
+      <details>
+        <summary>
+          <h2>Bloat &amp; overspecification</h2>
+          <span class="verdict-pill verdict-strong">strong</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>Verdict: strong. 1 findings (1 low).</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">EXPERIENCE.md restates some GDD numbers</h3>
+              <span class="finding-location">EXPERIENCE.md → Foundation; timing and audit-cost sections</span>
+            </header>
+            <div class="finding-note"><p>It says numbers are referenced by ID, not restated (Foundation), but it repeats the backlog 10–15 s window, the runway &lt; 30 / &lt; 7 thresholds, the timing multipliers and the audit costs. These will drift when tuning changes.</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> cite the M-ID or the <code>[tuning]</code> key instead. The Inspiration &amp; Anti-patterns section and the cascade timings do earn their place.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <section class="dimension">
+      <details>
+        <summary>
+          <h2>Inheritance discipline</h2>
+          <span class="verdict-pill verdict-adequate">adequate</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>Verdict: adequate. 8 findings (4 medium, 4 low).</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">The Metis avatar shape conflicts</h3>
+              <span class="finding-location">.decision-log.md (Game bar, names, avatars); DESIGN.md → Shapes and Components → Avatars</span>
+            </header>
+            <div class="finding-note"><p>.decision-log.md (Game bar, names, avatars) says "Metis is always the gradient orb with ✨"; DESIGN.md → Shapes and Components → Avatars say a "rounded square filled with the gradient".</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> decide, then update the other document.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">The sidebar contents conflict</h3>
+              <span class="finding-location">.decision-log.md (Workspace layout); DESIGN.md → Components → Sidebar; EXPERIENCE.md IA</span>
+            </header>
+            <div class="finding-note"><p>The decision log (Workspace layout) says "company switcher, channels, DMs, policies". DESIGN.md → Components → Sidebar has no switcher and no Automations entry, yet the EXPERIENCE.md IA says Metis · Automations is reached from the "sidebar".</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> add the sidebar row (e.g. "✨ Automations") or remove it from the IA, and log that the switcher was dropped.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Cascade beats add several elements each</h3>
+              <span class="finding-location">EXPERIENCE.md → The Cascade; GDD M11</span>
+            </header>
+            <div class="finding-note"><p>GDD M11 says "each beat adds exactly one element". EXPERIENCE.md → The Cascade adds the rail, a Cash tile, an MRR tile and a toast at 0:30, and the header bar, sidebar and chat at 1:30.</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> log this as a deliberate UX deviation approved by the GDD owner, or split the beats.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Flow 2 includes "Metis approved: Raise Team tier to $599"</h3>
+              <span class="finding-location">EXPERIENCE.md → Key Flows → Flow 2, step 2; GDD (Team tier $499)</span>
+            </header>
+            <div class="finding-note"><p>(EXPERIENCE.md → Key Flows, Flow 2, step 2). The GDD fixes the Team tier at $499 and has no pricing-change mechanic. AI agents read flows as spec.</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> replace it with a decision the GDD allows.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">"Pre-Product Labs" (DESIGN.md → Do's and Don'ts) vs "Pre-Product Labs (Stealth)"</h3>
+              <span class="finding-location">DESIGN.md → Do's and Don'ts; EXPERIENCE.md → Open items; .decision-log.md</span>
+            </header>
+            <div class="finding-note"><p>(EXPERIENCE.md → Open items, decision log).</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> use one form.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Assumptions are not reconciled</h3>
+              <span class="finding-location">.decision-log.md (Flow 2 assumption); EXPERIENCE.md → Open items, Input Schemes</span>
+            </header>
+            <div class="finding-note"><p>The decision log's Flow 2 assumption ("a Seed-round heavy decision waits") is not carried into Open items, and the flow shows a Series A term sheet. "No remapping [ASSUMPTION]" (Input Schemes) is still unconfirmed.</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> reconcile both and tag them consistently.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">The EXPERIENCE.md <code>sources</code> list omits <code>addendum.md</code></h3>
+              <span class="finding-location">EXPERIENCE.md frontmatter (sources); DESIGN.md frontmatter</span>
+            </header>
+            <div class="finding-note"><p>, which DESIGN.md lists.</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> align the two lists.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">The game bar's "Best N days" sits against the Don't "score widgets … in the bar"</h3>
+              <span class="finding-location">DESIGN.md → Do's and Don'ts (game bar)</span>
+            </header>
+            <div class="finding-note"><p>(DESIGN.md → Do's and Don'ts).</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> clarify that plain-text personal best is allowed and widgets are not.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <section class="dimension">
+      <details>
+        <summary>
+          <h2>Shape fit</h2>
+          <span class="verdict-pill verdict-strong">strong</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>Verdict: strong. 2 findings (2 low).</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">EXPERIENCE.md section order departs from the game example</h3>
+              <span class="finding-location">EXPERIENCE.md section order (Input Schemes after Accessibility)</span>
+            </header>
+            <div class="finding-note"><p>(Input Schemes comes after Accessibility). This is acceptable. The invented sections (The Cascade, Signals &amp; Infection, Notifications, Open items) earn their place.</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> None needed (acknowledged as acceptable in the review).</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Both spines are still <code>status: draft</code>,</h3>
+              <span class="finding-location">DESIGN.md and EXPERIENCE.md frontmatter (status); DESIGN.md → Visual references</span>
+            </header>
+            <div class="finding-note"><p>and DESIGN.md ends with a "Visual references" paragraph outside the canonical sections.</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> set the status to final at hand-off; the trailing paragraph is fine.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <section class="reviewer-section">
+      <details>
+        <summary>
+          <h2>Accessibility review</h2>
+          <span class="reviewer-source">review-accessibility.md</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+<p>Scope: DESIGN.md, EXPERIENCE.md, .decision-log.md (2026-10-26 drafts), checked against WCAG 2.2 AA and game-accessibility practice, with the GDD (Accessibility, Controls and Input, M1–M3, M7–M8, M11, Art Style) as the set of constraints. Contrast ratios below were recomputed with the WCAG 2.x relative-luminance formula. Opacity and gradient cases were alpha-blended. Red Runway was modelled as CSS <code>saturate(0.2)</code>.</p>
+<p><strong>Deliberate design versus defect.</strong> Alignment signals are meant to stay silent: no toast, no announcement, no highlight. This review does not flag that silence. It flags places where the spec makes a signal <strong>less</strong> perceivable for an assistive-technology (AT) user than for a sighted player (a parity defect), or <strong>more</strong> perceivable (a leak). It also flags places where a deliberate effect (infection, desaturation, shimmer) breaks a WCAG requirement that the effect does not need to break.</p>
+<p><strong>Not yet AA-conformant as specified. Conditional pass on intent.</strong> The Accessibility Floor is ambitious and mostly right: Timing options that meet 2.2.1, a verbosity setting, presets, no colour-only states, single-key shortcuts that can be turned off, a high-legibility font and 44px touch targets. The Ledger base tokens mostly hold up, and the contrast claims in DESIGN.md are accurate for the pairs they list.</p>
+<p>The gaps are behavioural, and they are where a screen-reader or keyboard player lives:</p>
+<ul><li>focus is moved automatically to new messages;</li><li>focus is lost when buttons collapse, expire or lock;</li><li>the chat live-region strategy conflicts with the verbosity setting;</li><li>browse-mode screen readers swallow the single-key shortcuts;</li><li>the climax chart has no text alternative;</li><li>the strikethrough on the title is not programmatically conveyed;</li><li>toasts auto-dismiss outside the Timing setting.</li></ul>
+<p>Visually, the problems are not in the base Ledger palette. They are in states the spec leaves unspecified:</p>
+<ul><li>backlog previews at 60% opacity;</li><li>text, edges and focus rings on infection gradients;</li><li>Red Runway in dark mode;</li><li>the unverified Ink, Ops and Paper palettes, several of which fail.</li></ul>
+<p>Flow 5 (Kenji) is credible only after the critical and high findings are fixed, and it should be extended to the clue replay and to an NVDA/JAWS user.</p>
+<p><strong>Counts:</strong> 2 critical · 9 high · 19 medium · 11 low.</p>
+            <h4>Contrast table (Ledger, recomputed)</h4>
+<p>Thresholds: text 4.5:1. Large text (≥ 24px, or ≥ 18.66px bold) 3:1. Non-text and UI components (1.4.11) 3:1.</p><table><tr><th>Pair</th><th>Light</th><th>Dark</th><th>Need</th><th>Result</th></tr><tr><td>ink / surface</td><td>15.62</td><td>14.65</td><td>4.5</td><td>Pass</td></tr><tr><td>ink / bg</td><td>14.68</td><td>16.02</td><td>4.5</td><td>Pass</td></tr><tr><td>ink-muted / surface</td><td>5.41</td><td>5.77</td><td>4.5</td><td>Pass</td></tr><tr><td>ink-muted / bg (rail canvas)</td><td>5.08</td><td>6.31</td><td>4.5</td><td>Pass</td></tr><tr><td>ink-muted / surface-raised</td><td>5.08</td><td>5.34</td><td>4.5</td><td>Pass</td></tr><tr><td><strong>ink-muted at 60% opacity / surface (backlog previews)</strong></td><td><strong>2.46</strong></td><td><strong>2.93</strong></td><td>4.5</td><td><strong>Fail</strong></td></tr><tr><td>accent / surface (links)</td><td>4.63</td><td>5.41</td><td>4.5</td><td>Pass (light is marginal)</td></tr><tr><td><strong>accent / bg (links in the rail, which sits on canvas)</strong></td><td><strong>4.35</strong></td><td>5.0+</td><td>4.5</td><td><strong>Fail (light)</strong></td></tr><tr><td>on-accent / accent</td><td>4.63</td><td>5.91 (dark text)</td><td>4.5</td><td>Pass</td></tr><tr><td>primary button (surface on ink)</td><td>15.62</td><td>14.65</td><td>4.5</td><td>Pass</td></tr><tr><td>ok / surface · ok / bg</td><td>5.02 · 4.72</td><td>6.50</td><td>4.5</td><td>Pass</td></tr><tr><td>ok / ok-tint</td><td>4.52</td><td>5.96</td><td>4.5</td><td>Pass (light: 0.02 margin)</td></tr><tr><td><strong>ok / critical-tint (green delta inside a critical tile)</strong></td><td><strong>4.42</strong></td><td>6.20</td><td>4.5</td><td><strong>Fail (light)</strong></td></tr><tr><td>watch / surface · watch / bg</td><td>4.87 · 4.57</td><td>6.86</td><td>4.5</td><td>Pass</td></tr><tr><td>watch / watch-tint</td><td>4.59</td><td>6.22</td><td>4.5</td><td>Pass</td></tr><tr><td>critical / surface · critical / bg</td><td>5.16 · 4.85</td><td>5.38</td><td>4.5</td><td>Pass</td></tr><tr><td>critical / critical-tint</td><td>4.55</td><td>5.13</td><td>4.5</td><td>Pass</td></tr><tr><td>ink / critical-tint (banner, critical tile)</td><td>13.77</td><td>13.98</td><td>4.5</td><td>Pass</td></tr><tr><td>ink-muted / critical-tint (KPI label in a critical tile)</td><td>4.77</td><td>5.51</td><td>4.5</td><td>Pass</td></tr><tr><td>Unread badge text on critical (11px caps)</td><td>5.16 (white)</td><td>5.88 (dark text)</td><td>4.5</td><td>Pass</td></tr><tr><td>line-control / surface · bg</td><td>3.31 · 3.11</td><td>3.39 · 3.71</td><td>3.0</td><td>Pass (light bg is marginal)</td></tr><tr><td>line-control-dark / surface-raised-dark</td><td>—</td><td>3.14</td><td>3.0</td><td>Pass (marginal)</td></tr><tr><td>line / surface (card edges, toast edge, timer track)</td><td>1.23</td><td>1.34</td><td>3.0</td><td>Fail, but acceptable only where the line is decorative</td></tr><tr><td>Timer fill (muted / critical) vs track</td><td>4.39 / 4.19</td><td>4.32 / 4.02</td><td>3.0</td><td>Pass</td></tr><tr><td>Toggle on (metis-1) / surface</td><td>5.70</td><td><strong>3.04</strong></td><td>3.0</td><td>Pass (dark is marginal)</td></tr><tr><td><strong>Toggle on versus off (metis-1 vs line-control)</strong></td><td><strong>1.72</strong></td><td><strong>1.12</strong></td><td>—</td><td>State must not rely on fill colour (1.4.1)</td></tr><tr><td>Focus ring (accent) / surface</td><td>4.63</td><td>5.41</td><td>3.0</td><td>Pass</td></tr><tr><td>Focus ring / critical-tint · metis-tint</td><td>4.08 · 4.15</td><td>5.19</td><td>3.0</td><td>Pass</td></tr><tr><td>Focus ring / game bar</td><td>4.14</td><td>5.99</td><td>3.0</td><td>Pass</td></tr><tr><td><strong>Focus ring on Metis gradient (infection sidebar or headers, or no offset)</strong></td><td><strong>1.02–1.23</strong></td><td><strong>1.78</strong></td><td>3.0</td><td><strong>Fail</strong></td></tr><tr><td>KPI watch / critical edge vs surface</td><td>4.87 / 4.55 (on tint)</td><td>6.86 / 5.13</td><td>3.0</td><td>Pass</td></tr><tr><td>metis-ink / metis-tint</td><td>6.36</td><td>9.00</td><td>4.5</td><td>Pass</td></tr><tr><td>ink / metis-tint (Metis DM body)</td><td>13.98</td><td>—</td><td>4.5</td><td>Pass</td></tr><tr><td>White / metis-1 · mid · metis-2 · mid · metis-3</td><td>5.70 · 5.31 · 4.71 · 4.71 · 4.60</td><td>same</td><td>4.5</td><td>Pass (the 4.60 end stop is marginal)</td></tr><tr><td><strong>Ink text on a gradient pill (if answer buttons keep ink at infection stage 25)</strong></td><td><strong>2.74–3.40</strong></td><td>—</td><td>4.5</td><td><strong>Fail unless the text turns white</strong></td></tr><tr><td><strong>ink-muted on a "faint" sidebar gradient (25% metis-1)</strong></td><td><strong>3.69</strong> (4.51 at 12%)</td><td>4.62 (25% metis-2)</td><td>4.5</td><td><strong>Fail above about 12% in light</strong></td></tr><tr><td>metis-line / metis-tint (bubble border)</td><td>1.58</td><td>1.92</td><td>3.0</td><td>Fail, acceptable while decorative</td></tr><tr><td>Game bar ink / muted</td><td>15.51 / 5.86</td><td>same</td><td>4.5</td><td>Pass</td></tr><tr><td><strong>Red Runway: critical text in dark mode after desaturation</strong></td><td>7.33</td><td><strong>4.34</strong></td><td>4.5</td><td><strong>Fail (dark)</strong></td></tr><tr><td>Red Runway: ok vs critical luminance difference</td><td>1.28</td><td>1.35</td><td>—</td><td>Hue is lost; the +/− signs carry the meaning (OK)</td></tr><tr><td>Letter logos: white on avatar-1 #C2683F / avatar-3 #3C8D7A</td><td>3.93 / 3.97</td><td>—</td><td>4.5</td><td>Fail (arguably exempt as logotypes)</td></tr></table><p><strong>Theme palettes (E8, unverified).</strong> Failures against their own surfaces:</p><table><tr><th>Theme</th><th>Light failures</th><th>Dark failures</th></tr><tr><td>Ink</td><td>ok 4.33, watch 4.40</td><td>white on accent 3.69, white on critical 3.37 (needs dark on-fill tokens)</td></tr><tr><td>Ops</td><td>accent/bg 4.12, ok 4.37</td><td>white on accent 2.88, white on critical 3.07; muted 4.62 is marginal</td></tr><tr><td>Paper</td><td>none for text</td><td>white on accent 2.60, white on critical 3.08</td></tr></table><p>All three themes lack a <code>line-control</code> token (their <code>line</code> is 1.22–1.39), so control borders are undefined.</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-critical">critical</span>
+              <h3 class="finding-title">Automatic focus-follow breaks keyboard and screen-reader play</h3>
+              <span class="finding-location">EXPERIENCE.md → Interaction Primitives; WCAG 2.4.3, 3.2.1, 3.2.2</span>
+            </header>
+            <div class="finding-note"><p>(EXPERIENCE → Interaction Primitives: "Focus follows the newest unanswered message … when the player is not already interacting"; WCAG 2.4.3 Focus Order, 3.2.1/3.2.2 unexpected context change; game-a11y "never move the player's cursor"). At Seed and Series A rates (one message every 5–10 s), focus will jump away while a screen-reader user is mid-sentence or deciding. "Not already interacting" is undefined for an AT user, whose pauses while listening look like idleness. Combined with "<code>1</code>/<code>2</code>/<code>3</code> answer the focused/top message", a key press can land on a different message than the one just heard.</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> never move DOM focus on message arrival. Keep a visible "current message" pointer that moves only on <code>J</code>/<code>K</code>, on click, or after the player's own answer. Make shortcuts act only on the focused or current message, never on an implicit "top". Turn auto-follow off in the Screen reader preset at the very least; preferably remove it.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-critical">critical</span>
+              <h3 class="finding-title">Focus is lost when the focused control disappears or disables</h3>
+              <span class="finding-location">EXPERIENCE.md → Message, Backlog queue, Auto-triage, Surpassed, Bankrupt, audit pause; WCAG 2.4.3, 2.1.1</span>
+            </header>
+            <div class="finding-note"><p>(Message: buttons collapse into an outcome line on answer or expiry; the backlog's top item expires and the next rises; Auto-triage empties the queue; Surpassed "controls lock one by one"; Bankrupt "controls disable"; audit-pause toggles disabled; <code>D</code> disabled at capacity; WCAG 2.4.3, 2.1.1). Removing or <code>disabled</code>-ing the element that has focus drops focus to <code>&lt;body&gt;</code>. The next Tab press restarts from the top of the page, and a screen-reader user gets no cue. Expiry can happen <em>while the user is on the button</em>.</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> specify a focus destination for every removal: the outcome line (made focusable with <code>tabindex=-1</code>), then the next unanswered message, then the new top backlog item, then the restored channel. Use <code>aria-disabled="true"</code> (focusable, announced) instead of <code>disabled</code> for capacity, audit and Surpassed locks, so the "You don't have permission…" text can be reached and announced.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">The chat live region conflicts with the verbosity setting</h3>
+              <span class="finding-location">EXPERIENCE.md → Accessibility Floor (chat log region, verbosity); WCAG 4.1.3, 1.3.1</span>
+            </header>
+            <div class="finding-note"><p>(Accessibility Floor: "chat = a log region" plus verbosity all / urgent only / periodic; WCAG 4.1.3, 1.3.1). <code>role="log"</code> is implicitly <code>aria-live="polite"</code> and announces every insertion, so "urgent only" and "periodic summary" cannot work on it. At 12–40 messages per minute, "all" floods the queue and goes stale.</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> chat container <code>role="log" aria-live="off"</code>, plus one dedicated, visually hidden announcer (<code>role="status"</code>, polite; <code>assertive</code> only for urgent items if the user opts in) driven by the verbosity setting. Throttle and coalesce it ("3 new messages in #customers, 1 urgent"). Define which channels count: all, or only the active one.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">Single-key shortcuts collide with screen-reader browse-mode keys</h3>
+              <span class="finding-location">EXPERIENCE.md → Interaction Primitives; Key Flows (Flow 5); WCAG 2.1.1, 2.1.4</span>
+            </header>
+            <div class="finding-note"><p>(Interaction Primitives <code>1 2 3 D A J K G</code>; WCAG 2.1.1, 2.1.4; Flow 5 tests only VoiceOver). In NVDA and JAWS browse mode, <code>1</code>–<code>3</code> jump between heading levels, <code>D</code> goes to the next landmark (NVDA), <code>A</code> to the next radio button or annotation, and <code>K</code> to the next link. These keys never reach the page unless the user switches to focus mode, so "fully playable with a screen reader" fails on Windows. VoiceOver Quick Nav has the same issue when single-key mode is on.</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> provide modifier alternatives (e.g. <code>Alt+1…3</code>, <code>Alt+D</code>, <code>Alt+A</code>, <code>Alt+J/K</code>) that are always active alongside the single keys, list them in the <code>?</code> overlay, and add an NVDA/JAWS variant of Flow 5. Keep the 2.1.4 off switch, and consider offering "shortcuts active only while a message has focus" (the second 2.1.4 option).</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">No text alternative for the clue-replay metrics graph or the rail chart</h3>
+              <span class="finding-location">DESIGN.md → Clue replay; Dashboard rail → Chart; Flow 3; WCAG 1.1.1, 1.4.1</span>
+            </header>
+            <div class="finding-note"><p>(DESIGN → Clue replay "metrics graph … crossing point ringed"; Dashboard rail → Chart; Flow 3 climax; WCAG 1.1.1, 1.4.1). The reveal ("the lines cross on day 61") is the game's climax and is purely visual. Kenji's flow stops before it. The animated drawing also has no motion setting.</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> give the graph an accessible name plus a text summary written as part of the incident page ("Valuation rose from $12.4K to $41M; Alignment fell from 100 to 0; they crossed on Day 61 …"), and a "View data" table (day, valuation, Alignment, marked decisions). Label lines directly (not by colour alone) and add a dashed or solid distinction. Put the draw animation under the motion settings. Give the rail chart the same summary-plus-table pattern.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">The title strikethrough is not programmatically conveyed, so the signal is lost for screen-reader users (a parity defect)</h3>
+              <span class="finding-location">DESIGN.md → Game bar; EXPERIENCE.md → Flow 5 step 5; WCAG 1.3.1</span>
+            </header>
+            <div class="finding-note"><p>(DESIGN → Game bar "real strike-through text"; Flow 5 step 5 "read as 'Human, in struck through, the Loop'"; WCAG 1.3.1). VoiceOver, NVDA and JAWS do not announce CSS <code>text-decoration</code>. <code>&lt;s&gt;</code> and <code>&lt;del&gt;</code> are reported only with non-default formatting or verbosity settings. As specified, a screen-reader user hears "Human in the Loop" unchanged at stage 75 and stage 50, so the signal is <em>more hidden</em> for AT users, not equally silent.</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> render struck words as <code>&lt;s&gt;</code> with a visually hidden suffix ("in, struck through") or an equivalent accessible name on the title element, so the plain-text reading matches Flow 5. This is parity, not a leak: it is read only when the user reaches the title, never announced. Also make the game-bar title the page's first heading, so it is encountered at natural navigation points.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">Backlog previews at 60% opacity fail text contrast</h3>
+              <span class="finding-location">DESIGN.md → Components → Backlog queue; WCAG 1.4.3</span>
+            </header>
+            <div class="finding-note"><p>(DESIGN → Backlog queue "<code>ink-muted</code>, 60% opacity"; WCAG 1.4.3). They measure 2.46:1 in light and 2.93:1 in dark. These are live content the player reads to plan the queue (channel and sender), not disabled controls, so the "inactive component" exemption does not apply.</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> drop the opacity and use <code>ink-muted</code> at full strength (5.41 / 5.77). Signal "waiting" through size, single-line truncation and the absence of buttons instead.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">Infection stages 25 and 10 leave text, state and focus contrast undefined, and the obvious implementations fail</h3>
+              <span class="finding-location">DESIGN.md → UI infection; WCAG 1.4.3, 1.4.11, 2.4.7</span>
+            </header>
+            <div class="finding-note"><p>(DESIGN → UI infection; WCAG 1.4.3, 1.4.11, 2.4.7). Measured cases:</p>
+<ul><li>Ink text on a gradient pill: 2.74–3.40.</li><li><code>ink-muted</code> sidebar rows on a "faint" gradient: 3.69 at 25% in light (passes only at 12% or less).</li><li>The focus ring over gradient backgrounds: 1.02–1.78.</li><li>At stage 10, "gradients on headers and tiles" can erase the critical-tile tint and the watch and critical edges, which are the fire signal.</li></ul></div>
+            <div class="finding-fix"><strong>Fix:</strong> add an infection contrast contract to DESIGN.md:
+  - pill text is always white (≥ 4.6 on every stop);
+  - sidebar gradient tint ≤ 10% opacity in light and ≤ 25% in dark, or use <code>ink</code> for row text;
+  - KPI values sit on <code>surface</code> or <code>metis-tint</code>, never on a raw gradient;
+  - watch and critical edges, labels and tints are exempt from infection (as they are from Red Runway);
+  - the focus ring gains a 2px <code>surface</code> (or dark) outer halo, a double ring, so it reaches ≥ 3:1 on any background.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">Toasts auto-dismiss outside the Timing setting and have no announcement or history</h3>
+              <span class="finding-location">EXPERIENCE.md → Toast (auto-dismiss after 6 s); WCAG 2.2.1, 4.1.3</span>
+            </header>
+            <div class="finding-note"><p>(EXPERIENCE → Toast "auto-dismiss after 6 s (paused on hover/focus)"; WCAG 2.2.1, 4.1.3). Toasts carry deploy results, new customers and bank notices. A keyboard user cannot reach a toast before it vanishes, a screen magnifier user may never see the top-right corner, and Extended, Relaxed and Untimed do not scale it.</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> scale the dismiss time with Timing (Untimed means persistent until dismissed), announce toasts through the polite status announcer (subject to verbosity), and keep an "Activity" or notifications list in Huddlr (a SaaS idiom) so nothing is shown only in a toast.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">No confirmation is announced after answering, expiring, Ask Metis, Assign or Auto-triage</h3>
+              <span class="finding-location">EXPERIENCE.md → Message, Ask Metis, Auto-triage, Game Feel; WCAG 4.1.3</span>
+            </header>
+            <div class="finding-note"><p>(EXPERIENCE → Message, Ask Metis, Auto-triage, Game Feel; WCAG 4.1.3). Sighted players get collapsing buttons, rolling KPIs and delta flashes. Screen-reader users get nothing, because "KPI changes are not announced individually" and verbosity "urgent only" suppresses the rest. Expiry of the message under the user's focus is likewise silent.</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> after each player action, one polite status message: "Answered: Put it on the roadmap. Cash −$2,000, Runway −5 days". After an expiry of an urgent message: "Expired: Refund request, default applied". After Auto-triage: "Metis replied to 15 messages". These are outcomes of the player's own visible actions, not hidden signals, so they do not leak Alignment.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">No way to reach urgent messages in other channels</h3>
+              <span class="finding-location">EXPERIENCE.md → Interaction Primitives (J/K); Flow 5 step 3; WCAG 2.1.1, 2.4.1</span>
+            </header>
+            <div class="finding-note"><p>(Interaction Primitives <code>J</code>/<code>K</code> "next/previous message"; Flow 5 step 3; WCAG 2.1.1, 2.4.1 in spirit). Announcements say "Urgent, #customers, …", but <code>J</code>/<code>K</code> move within the open channel and <code>G C</code> only reaches Chat. Mouse users click the red badge.</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> add "jump to next unanswered" and "next urgent" across channels (Slack's <code>Alt+Shift+↓</code> idiom, e.g. <code>U</code> plus a modifier variant), list it in <code>?</code>, and use it in Flow 5.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Accent links on the rail canvas fail</h3>
+              <span class="finding-location">DESIGN.md → Colors (accent on rail canvas bg); WCAG 1.4.3</span>
+            </header>
+            <div class="finding-note"><p>(rail background = <code>bg</code>; accent/bg 4.35:1; WCAG 1.4.3).</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> darken <code>accent</code> to about <code>#1A64D6</code> (≥ 4.9 on bg and ≥ 5.2 on surface), or put rail links on <code>surface</code>.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">A green positive delta inside a critical tile fails</h3>
+              <span class="finding-location">DESIGN.md → Colors (ok on critical-tint); WCAG 1.4.3</span>
+            </header>
+            <div class="finding-note"><p>(ok on critical-tint 4.42:1, light; WCAG 1.4.3).</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> darken <code>ok</code> to about <code>#16733F</code>, or render deltas in a critical tile in <code>ink</code> with the +/− sign.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Red Runway desaturation drops dark-mode critical text to 4.34:1</h3>
+              <span class="finding-location">DESIGN.md → Red Runway; WCAG 1.4.3</span>
+            </header>
+            <div class="finding-note"><p>(URGENT tags and negative deltas outside the exempt tile, attention list and banner; WCAG 1.4.3). It also greys the focus ring until it is barely distinct from control borders (1.69 between them; it still reaches 5.58 against the surface).</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> exempt critical-coloured text and the focus ring from the filter. Desaturating backgrounds, avatars and chart only is enough for the effect. Re-verify both modes after the change.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">The Ink, Ops and Paper palettes fail as listed</h3>
+              <span class="finding-location">DESIGN.md → Colors → Theme palettes; WCAG 1.4.3, 1.4.11</span>
+            </header>
+            <div class="finding-note"><p>(DESIGN → Theme palettes; WCAG 1.4.3, 1.4.11). See the theme table above for the per-theme numbers.</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> add <code>line-control</code>, <code>on-accent-dark</code>, <code>on-critical-dark</code> and the tints per theme, and gate E8 on a scripted contrast check of every token pair in the table.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">High-contrast variant and forced-colors mode are undefined</h3>
+              <span class="finding-location">DESIGN.md → Colors (derived per theme in E8); WCAG 1.4.11, 1.4.1</span>
+            </header>
+            <div class="finding-note"><p>(DESIGN → Colors "derived per theme in E8"; WCAG 1.4.11, 1.4.1). Under Windows forced colors, background-only signals disappear: gradient pills with no border, the timer-bar fill, toggle tracks, unread badges, the KPI tint, and desaturation.</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> specify <code>@media (forced-colors: active)</code> rules: borders on every control and pill, <code>Highlight</code> for the timer fill and the toggle-on state, and system colours for the focus ring. Define what infection does in high-contrast mode (✨, emoji and pill shapes only; no gradients), so the signal survives without losing contrast.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">The policy toggle state relies on track colour</h3>
+              <span class="finding-location">DESIGN.md → policy-toggle; WCAG 1.4.1, 1.4.11</span>
+            </header>
+            <div class="finding-note"><p>(on vs off 1.72 light / 1.12 dark; WCAG 1.4.1, 1.4.11).</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> specify thumb position plus an on-state glyph (✓) or "On"/"Off" text, <code>role="switch"</code> with <code>aria-checked</code>, and the visible label as its accessible name.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">The colour-blind-safe variant swaps OK to blue, which collides with <code>accent</code></h3>
+              <span class="finding-location">DESIGN.md → Colors (colour-blind-safe variant); WCAG 1.4.1</span>
+            </header>
+            <div class="finding-note"><p>(links, focus ring, chart growth line, selected states; WCAG 1.4.1).</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> choose a teal or blue clearly distinct from accent, or move accent; keep +/− signs and underlined links mandatory in that variant.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Fixed heights break 200% text and text spacing</h3>
+              <span class="finding-location">DESIGN.md → Layout (gamebar-height, header-height, tabbar-height); WCAG 1.4.4, 1.4.12</span>
+            </header>
+            <div class="finding-note"><p>(<code>gamebar-height: 28px</code>, <code>header-height: 40px</code>, <code>tabbar-height: 56px</code>, single-line badges and key caps; 2-column KPI grid in a 320px rail; WCAG 1.4.4, 1.4.12).</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> make them <code>min-height</code> in rem, let the rail KPI grid drop to one column above about 150% text, and let truncated one-line previews expand on focus with the full text available to AT.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Reflow at 320 CSS px is undefined for overlay internals</h3>
+              <span class="finding-location">DESIGN.md / EXPERIENCE.md → overlays; WCAG 1.4.10</span>
+            </header>
+            <div class="finding-note"><p>(term-sheet "three side-by-side cards", clue-replay graph, inference-log mono lines, shortcut table; WCAG 1.4.10).</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> state that cards stack, the graph scales or falls back to its table, and log lines wrap. No horizontal scroll except the ticker animation.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Sticky chrome stacks up and obscures focus</h3>
+              <span class="finding-location">DESIGN.md → Layout (game bar, header, banner, tab bar); WCAG 2.4.11, 1.4.10</span>
+            </header>
+            <div class="finding-note"><p>(game bar + header + overdraft banner + pinned fire + 56px tab bar, about 210px of a 256px-high viewport at 400% zoom; toasts top-right over the chat's top message; tablet drawer over chat; pinned Auto-triage; WCAG 2.4.11, 1.4.10).</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> - set <code>scroll-padding</code> for all sticky regions;
+  - collapse the banner and the pinned fire to one line (or unpin them) at short viewport heights;
+  - position toasts so they never cover the focused message, or move them on focus;
+  - make the drawer modal (trap focus) or push the content aside.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Desktop target size is unspecified</h3>
+              <span class="finding-location">DESIGN.md → Layout &amp; Spacing (target size); WCAG 2.5.8</span>
+            </header>
+            <div class="finding-note"><p>(44px is stated for touch only; 🎲, section collapse chevrons, toggles, ⚙ in a 28px bar, "Manage" links; WCAG 2.5.8).</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> add a 24×24 CSS px minimum target (or the 2.5.8 spacing exception) for every desktop control to DESIGN.md.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Dialog initial focus and reading are unspecified</h3>
+              <span class="finding-location">EXPERIENCE.md → Overlay documents; WCAG 2.4.3, 1.3.1</span>
+            </header>
+            <div class="finding-note"><p>(Overlay doc; Flow 5 "read top to bottom"; WCAG 2.4.3, 1.3.1).</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> <code>role="dialog" aria-modal="true"</code>, <code>aria-labelledby</code> set to the doc title, and initial focus on the title (<code>tabindex=-1</code>), not on the primary button. Otherwise a screen-reader user lands on "Review 17 messages" with the report unread. Document that Esc does nothing in decision docs, and say so in the dialog.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Auto-advancing end sequences can cut off content</h3>
+              <span class="finding-location">EXPERIENCE.md → State Patterns (Bankrupt, Surpassed); WCAG 2.2.1, 4.1.3</span>
+            </header>
+            <div class="finding-note"><p>(Bankrupt "after ~2 s the Wind-down memo opens"; Surpassed lock sequence → AllGreen page opens; WCAG 2.2.1, 3.2.5 practice, 4.1.3). A 2-second transition interrupts the announcement of "Account closed" or of Metis's last line.</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> end each sequence with a user-initiated "Continue" (an "Open report" link in the bank or AllGreen voice), or wait for input. Move focus to the new page's h1.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Cascade births and first-screen focus are unspecified for AT</h3>
+              <span class="finding-location">EXPERIENCE.md → The Cascade (M11 beats), Founding; WCAG 2.4.3, 4.1.3</span>
+            </header>
+            <div class="finding-note"><p>(M11 beats; Founding → <code>$12,400</code> + Deploy; new channels and rail sections; WCAG 2.4.3, 4.1.3).</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> after "Found company", focus moves to Deploy (with <code>$12,400</code> as its description). New landmarks get labels and appear in skip links once born. Born sections are not announced (parity with sighted users noticing peripherally), but a new DM or channel follows the same verbosity rule as messages.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">The tab-title corruption has no plain-text format</h3>
+              <span class="finding-location">EXPERIENCE.md → Component Patterns → Browser tab title; WCAG 2.4.2, 1.3.1</span>
+            </header>
+            <div class="finding-note"><p>(Component Patterns: "Mirrors the corruption stages"; WCAG 2.4.2, 1.3.1). <code>document.title</code> cannot carry strike-through. Combining U+0336 ("H̶u̶m̶a̶n̶") is read letter by letter or as garbage by screen readers.</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> define the exact tab-title string per stage, test it in VoiceOver, NVDA and JAWS, and choose a form that reads acceptably. Otherwise keep stages 75 and 50 in the tab title as plain wording and corrupt visually only in the game bar, provided the game bar carries the accessible equivalent from the high finding above.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">The ticker has no on-page pause control</h3>
+              <span class="finding-location">EXPERIENCE.md → Ticker; WCAG 2.2.2</span>
+            </header>
+            <div class="finding-note"><p>(hover or focus pause only; static mode buried in Settings; WCAG 2.2.2).</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> add a small pause/play control in the ticker (a SaaS idiom); respect <code>prefers-reduced-motion</code> by default (already stated); include static and hidden options on desktop as well as mobile.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Disabled controls carry their reason only in tooltips</h3>
+              <span class="finding-location">EXPERIENCE.md → State Patterns (Compute exhausted, audit pause); WCAG 1.3.1, 1.4.13, 2.1.1</span>
+            </header>
+            <div class="finding-note"><p>(<code>D</code> disabled with tooltip "Metis is at capacity"; toggles "Paused for audit · N days"; WCAG 1.3.1, 1.4.13, 2.1.1).</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> with <code>aria-disabled</code>, put the reason in visible inline text or <code>aria-describedby</code>. Make the tooltips focus-triggered, dismissable (Esc) and hoverable.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">The end-of-run PNG and PDF have no accessibility spec</h3>
+              <span class="finding-location">DESIGN.md → End-of-run documents; WCAG 1.1.1, 1.3.1</span>
+            </header>
+            <div class="finding-note"><p>(DESIGN → End-of-run documents; WCAG 1.1.1, 1.3.1 via PDF techniques).</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> generate a tagged PDF (title, <code>lang</code>, headings, list structure, reading order, the Metis mark as an artifact). Next to Download PNG, offer "Copy alt text" (a prepared description containing the header strip, cause and highlights). The page itself stays the accessible HTML version.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Transient delta information</h3>
+              <span class="finding-location">EXPERIENCE.md → KPI tile (delta flash, rolling numbers off); WCAG 2.2.1, 1.3.1</span>
+            </header>
+            <div class="finding-note"><p>(static +/− label "for 2 s" when rolling numbers are off; delta flash ~1.2 s; WCAG 2.2.1, 1.3.1).</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> keep each tile's last delta persistently visible (e.g. "+$2,000 since last change"), and make the flash only decoration on top. Keep flashes below 3 per second during Auto-triage roll-ups (2.3.1).</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Infection parity is acceptable, but should be made explicit</h3>
+              <span class="finding-location">EXPERIENCE.md → Signals &amp; Infection</span>
+            </header>
+            <div class="finding-note"><p>(Signals &amp; Infection; game-a11y parity). Stages 50, 25 and 10 each include a text-level change ("✨ Summary by Metis", emoji headings such as "chart increasing Overview", sparkles in the ticker label). Screen-reader users therefore receive the signal silently, as sighted players do. The gradient, shimmer and pill changes are visual-only, which is fine.</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> state in EXPERIENCE that emoji and ✨ are not <code>aria-hidden</code>, and that infection never changes roles or accessible names. Keep the inference log <code>aria-live="off"</code> (odd lines: parity, no leak).</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Shimmer and seizure safety are not quantified</h3>
+              <span class="finding-location">DESIGN.md → Metis surfaces, infection stage 25+; WCAG 2.3.1, 2.2.2</span>
+            </header>
+            <div class="finding-note"><p>(DESIGN → Metis surfaces, infection stage 25+; WCAG 2.3.1, 2.2.2).</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> specify the shimmer as a low-luminance sweep (ΔL &lt; 10%) slower than 3 Hz, never a flash. Keep the motion toggle (2.2.2 is satisfied through Settings plus <code>prefers-reduced-motion</code>). With shimmer off, the static gradient keeps the signal.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Metis bubble borders fail 3:1</h3>
+              <span class="finding-location">DESIGN.md → Metis bubble (metis-line on metis-tint); WCAG 1.4.11</span>
+            </header>
+            <div class="finding-note"><p>(metis-line on metis-tint 1.58, dark 1.92; 1.4.11). This is acceptable while the bubble is not interactive.</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> if bubbles become clickable, use <code>metis-ink</code> for the border.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Letter logos on avatar-1 and avatar-3 are at 3.93 and 3.97</h3>
+              <span class="finding-location">DESIGN.md → avatar-1, avatar-3 letter logos; WCAG 1.4.3</span>
+            </header>
+            <div class="finding-note"><p>(1.4.3; the logotype exemption is arguable).</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> darken those two fills slightly or use dark letters. The sender name is always present as text.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">The ok-tint and line-control/bg pairs pass with almost no margin</h3>
+              <span class="finding-location">DESIGN.md → ok-tint, line-control/bg, toggle-on, metis-3 end stop</span>
+            </header>
+            <div class="finding-note"><p>(4.52, 3.11; dark toggle-on 3.04; the white-on-metis-3 end stop 4.60).</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> add about 0.3 of headroom so anti-aliasing and future token tweaks do not tip them under.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Founding form semantics</h3>
+              <span class="finding-location">EXPERIENCE.md → Founding fields; WCAG 3.3.1, 3.3.2, 4.1.2</span>
+            </header>
+            <div class="finding-note"><p>(WCAG 3.3.1, 3.3.2, 4.1.2).</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> make "What's the name of your company?" the field's label. Give 🎲 the accessible name "Generate another name" and announce the new name politely. Give the required "Your name" an inline error and <code>aria-invalid</code>.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Unread badge semantics are ambiguous</h3>
+              <span class="finding-location">EXPERIENCE.md → Component Patterns (unread badge); WCAG 1.4.1, 1.3.1</span>
+            </header>
+            <div class="finding-note"><p>("urgent ones also turn the badge on"; 1.4.1, 1.3.1).</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> state that the badge appears only when an urgent item exists, and give sidebar rows an accessible name such as "#customers, 4 unread, 1 urgent".</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Rolling numbers</h3>
+              <span class="finding-location">EXPERIENCE.md → KPI tile (rolling numbers); WCAG 1.3.1</span>
+            </header>
+            <div class="finding-note"><p>(1.3.1).</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> the accessible text of KPI values is always the final value; render the roll in an <code>aria-hidden</code> layer.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Screen reader preset timing</h3>
+              <span class="finding-location">EXPERIENCE.md → Accessibility Floor → Presets (Extended)</span>
+            </header>
+            <div class="finding-note"><p>(Presets: Extended). Screen-reader reading plus navigation is often more than twice as slow.</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> consider Relaxed as the preset default, and surface "Accessibility settings" on the founding screen (a SaaS "Preferences" link), so the Timing setting can be chosen before the first timed message. Settings already pauses the clock.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">The score label discloses the accessibility setting in shared documents</h3>
+              <span class="finding-location">DESIGN.md / EXPERIENCE.md → end-of-run documents (score label, GDD-mandated)</span>
+            </header>
+            <div class="finding-note"><p>(<code>213 days · untimed</code> in PNG and PDF; GDD-mandated; game-a11y practice). Some players will not want to share their Timing setting.</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> raise with the GDD owner. Option: show the label in-game and in the personal best, and make it optional in the exported image.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Orientation and game speed</h3>
+              <span class="finding-location">EXPERIENCE.md → Responsive &amp; Platform; WCAG 1.3.4</span>
+            </header>
+            <div class="finding-note"><p>(WCAG 1.3.4; game-a11y).</p></div>
+            <div class="finding-fix"><strong>Fix:</strong> state that orientation is never locked. Note for the GDD owner: under Untimed the game clock (1 minute = 1 day) still runs, so slower readers burn runway faster. A "game speed" accessibility option, labelled like Timing, would close that gap.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <div class="mechanical">
+      <h3>Mechanical notes</h3>
+      <ul>
+<li>Token references: 211 in DESIGN.md and 1 in EXPERIENCE.md, 0 unresolved. The only non-token brace is <code>{founder}</code> (a content placeholder).</li><li>Spec validity: all colours are valid 6-digit hex; typography keys are spec keys (<code>hl-sans</code> and <code>hl-mono</code> use <code>note</code>, an allowed pattern); <code>rounded</code> and <code>spacing</code> are valid.</li><li>Light/dark pairs: every workspace colour has a <code>-dark</code> twin. Deliberately mode-invariant tokens: <code>scrim</code>, <code>gamebar-*</code>, <code>metis-1..3</code>, <code>avatar-1..8</code>. <code>sidebar-dark</code> is the one token without a light twin.</li><li>Contrast claims in DESIGN.md → Colors were recomputed and hold (ink/surface 15.6 / 14.7; muted/surface 5.4 / 5.8; accent/surface 4.6 / 5.4; critical on tint 4.55 / 5.1; control line/surface 3.3 / 3.4; white on Metis stops 5.7, 4.7, 4.6). The one failure is backlog previews at 60% opacity: 2.46 light, 2.93 dark.</li><li>Mock labels (G1, F1, R1, B1/B2, C2, T1, style "D · Flat bust", option "A — Three panes") all exist in the mocks they are cited from.</li><li>Mockup links: all 5 files in <code>mockups/</code> are linked from at least one spine; <code>.working/*-1.html</code> are working copies and correctly not linked. Both spines state that the spine wins on conflict with a mock.</li><li>Pillar and GDD rule check: Pillar 1 (no game UI) holds; Pillar 2 (no visible Alignment) holds; anti-slop holds; audio off by default holds; first screen <code>$12,400</code> + <code>Deploy</code> holds; tab-title counter is present but self-contradictory (see State coverage).</li><li>Finding counts: rubric 0 critical, 10 high, 18 medium, 20 low; accessibility 2 critical, 9 high, 19 medium, 11 low; consolidated 2 critical, 19 high, 37 medium, 31 low (89).</li>
+      </ul>
+    </div>
+
+    <footer class="report-footer">
+      <div class="meta">
+        <span>DESIGN.md: /Users/tizianobasile/workspace/me/browser-game/_bmad-output/planning-artifacts/ux-designs/ux-browser-game-2026-10-26/DESIGN.md</span>
+        <span>EXPERIENCE.md: /Users/tizianobasile/workspace/me/browser-game/_bmad-output/planning-artifacts/ux-designs/ux-browser-game-2026-10-26/EXPERIENCE.md</span>
+        <span>Rubric: /Users/tizianobasile/workspace/me/browser-game/_bmad-output/planning-artifacts/ux-designs/ux-browser-game-2026-10-26/review-rubric.md</span>
+        <span>Accessibility: /Users/tizianobasile/workspace/me/browser-game/_bmad-output/planning-artifacts/ux-designs/ux-browser-game-2026-10-26/review-accessibility.md</span>
+        <span>Generated: 2026-10-26</span>
+      </div>
+    </footer>
+  </div>
+</body>
+</html>

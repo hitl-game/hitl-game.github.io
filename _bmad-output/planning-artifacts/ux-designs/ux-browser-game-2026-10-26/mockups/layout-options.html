@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Workspace layout options</title>
+<style>
+/* Low-fi structural wireframes. Greyscale on purpose: this pass decides STRUCTURE only
+   (where the dashboard, ticker, inference log and Metis surfaces live), not colour or type. */
+:root{--bg:#f4f4f5;--panel:#fff;--line:#d4d4d8;--ink:#18181b;--mute:#71717a;--soft:#e4e4e7;--hot:#18181b}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:13px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding:24px}
+h1{font-size:20px;margin:0 0 4px}
+h2{font-size:16px;margin:40px 0 4px}
+p.lead{color:var(--mute);margin:0 0 16px;max-width:900px}
+.why{max-width:1100px;color:#3f3f46;margin:4px 0 12px}
+.why b{color:var(--ink)}
+.frame{border:1px solid var(--line);border-radius:8px;background:var(--panel);overflow:hidden;max-width:1200px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.chrome{display:flex;gap:6px;align-items:center;padding:6px 10px;background:var(--soft);border-bottom:1px solid var(--line);font-size:11px;color:var(--mute)}
+.chrome .dot{width:9px;height:9px;border-radius:50%;background:#c4c4c8}
+.chrome .tab{margin-left:10px;background:#fff;border:1px solid var(--line);border-bottom:none;padding:3px 10px;border-radius:6px 6px 0 0;color:var(--ink)}
+.top{display:flex;align-items:center;gap:12px;height:34px;border-bottom:1px solid var(--line);padding:0 12px;font-size:12px}
+.top .brand{font-weight:600}
+.ticker{flex:1;overflow:hidden;white-space:nowrap;color:var(--mute);border-left:1px solid var(--line);border-right:1px solid var(--line);padding:0 10px}
+.ticker b{color:var(--ink);font-weight:600;margin-right:6px}
+.grid{display:grid;height:480px}
+.side{border-right:1px solid var(--line);padding:10px 8px;background:#fafafa;font-size:12px}
+.side .co{font-weight:600;margin-bottom:10px}
+.side .h{color:var(--mute);font-size:11px;text-transform:uppercase;letter-spacing:.04em;margin:10px 0 4px}
+.side .ch{display:flex;justify-content:space-between;padding:2px 4px;border-radius:4px}
+.side .ch.on{background:var(--soft);font-weight:600}
+.side .badge{background:var(--hot);color:#fff;border-radius:8px;padding:0 6px;font-size:10px}
+.side .pol{font-size:10px;color:var(--mute)}
+.chat{display:flex;flex-direction:column;min-width:0}
+.chat .hd{padding:8px 12px;border-bottom:1px solid var(--line);font-weight:600}
+.chat .msgs{flex:1;padding:8px 12px;overflow:hidden}
+.msg{display:flex;gap:8px;margin-bottom:10px}
+.av{width:28px;height:28px;border-radius:6px;background:var(--soft);flex:none;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--mute)}
+.msg .who{font-weight:600}.msg .t{color:var(--mute);font-size:11px;margin-left:6px}
+.btns{display:flex;gap:6px;margin-top:4px}
+.btn{border:1px solid var(--line);border-radius:5px;padding:2px 8px;font-size:11px;background:#fff}
+.btn.k{color:var(--mute)}
+.urg{font-size:10px;border:1px solid var(--ink);border-radius:3px;padding:0 4px;margin-left:6px}
+.dash{border-left:1px solid var(--line);padding:10px;background:#fafafa;display:flex;flex-direction:column;gap:8px;min-width:0}
+.dash .h{font-weight:600;font-size:12px}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.kpi{border:1px solid var(--line);border-radius:6px;padding:6px 8px;background:#fff}
+.kpi .l{color:var(--mute);font-size:10px;text-transform:uppercase;letter-spacing:.04em}
+.kpi .v{font-size:16px;font-weight:600;font-variant-numeric:tabular-nums}
+.kpi .s{font-size:10px;color:var(--mute)}
+.kpi.fire{border:2px solid var(--ink)}
+.kpi.fire .s{color:var(--ink);font-weight:600}
+.spark{height:36px;border:1px dashed var(--line);border-radius:4px;display:flex;align-items:center;justify-content:center;color:var(--mute);font-size:10px}
+.log{border:1px solid var(--line);border-radius:6px;background:#fff;font:11px/1.5 ui-monospace,Menlo,monospace;padding:6px;color:var(--mute)}
+.log .hd{font-family:-apple-system,sans-serif;font-weight:600;color:var(--ink);font-size:11px;margin-bottom:2px}
+.odd{color:var(--ink)}
+.strip{display:flex;gap:6px;padding:8px 12px;border-bottom:1px solid var(--line);background:#fafafa}
+.strip .kpi{flex:1}
+.drawer{border-top:1px solid var(--line);background:#fafafa;padding:4px 12px;font:11px ui-monospace,Menlo,monospace;color:var(--mute)}
+.note{font-size:11px;color:var(--mute);padding:8px 12px;border-top:1px solid var(--line);background:#fafafa}
+.pills{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 0}
+.pill{border:1px solid var(--line);border-radius:999px;padding:2px 10px;font-size:11px;background:#fff}
+.pill.pro::before{content:"+ ";font-weight:700}
+.pill.con::before{content:"− ";font-weight:700}
+.cascade{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-width:1200px;margin-top:10px}
+.mini{border:1px solid var(--line);border-radius:6px;background:#fff;height:150px;position:relative;overflow:hidden;font-size:10px}
+.mini .cap{position:absolute;bottom:0;left:0;right:0;padding:4px 6px;border-top:1px solid var(--line);background:#fafafa;color:var(--mute)}
+.mini .c{position:absolute;inset:0 0 22px 0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px}
+.mini .big{font-size:20px;font-weight:600}
+.mini .b{border:1px solid var(--ink);border-radius:4px;padding:2px 10px}
+.blk{position:absolute;background:var(--soft);border:1px solid var(--line);border-radius:3px;display:flex;align-items:center;justify-content:center;color:var(--mute)}
+.mobile{display:flex;gap:16px;margin-top:10px;flex-wrap:wrap}
+.phone{width:200px;height:360px;border:1px solid var(--line);border-radius:18px;background:#fff;overflow:hidden;display:flex;flex-direction:column;font-size:10px}
+.phone .ph{padding:6px 8px;border-bottom:1px solid var(--line);font-weight:600;display:flex;justify-content:space-between}
+.phone .pb{flex:1;padding:6px 8px}
+.phone .pt{display:flex;border-top:1px solid var(--line)}
+.phone .pt span{flex:1;text-align:center;padding:6px 0;color:var(--mute)}
+.phone .pt span.on{color:var(--ink);font-weight:600}
+</style>
+</head>
+<body>
+<h1>Human in the Loop — workspace layout options</h1>
+<p class="lead">Structure only, no colour or type decisions. All four keep what the GDD fixes: Slack-like sidebar on the left, chat in the centre, news ticker in the header, inference log collapsible. They differ in <b>where the dashboard lives</b> and therefore in how fast you see where the fire is while you triage. Snapshot: Garage, about minute 9 of Loop #1.</p>
+
+<!-- ================= A ================= -->
+<h2>A — Three panes: sidebar · chat · dashboard rail</h2>
+<p class="why">The dashboard is a <b>permanent right column</b> (~320px), like a Linear/Stripe detail panel. The inference log sits at the bottom of the rail. Every click in chat moves a number in your peripheral vision.</p>
+<div class="frame">
+  <div class="chrome"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tab">(3) Human in the Loop</span></div>
+  <div class="top"><span class="brand">Ramen Labs</span><span class="ticker"><b>NEWS</b>Anonymous billionaire says AGI "basically done, pending a few details" · Regulator announces a consultation on the consultation</span><span>Day 9</span></div>
+  <div class="grid" style="grid-template-columns:190px 1fr 320px">
+    <div class="side">
+      <div class="co">Ramen Labs ▾</div>
+      <div class="h">Channels</div>
+      <div class="ch"># general</div>
+      <div class="ch on"># customers <span class="badge">2</span></div>
+      <div class="ch"># product</div>
+      <div class="h">Direct messages</div>
+      <div class="ch">Dora Kessler</div>
+      <div class="ch">✨ Metis <span class="badge">1</span></div>
+      <div class="h">Policies</div>
+      <div class="pol">Metis handles #customers ○ off</div>
+    </div>
+    <div class="chat">
+      <div class="hd"># customers</div>
+      <div class="msgs">
+        <div class="msg"><div class="av">AC</div><div><span class="who">Acme Corp</span><span class="t">day 8</span><div>Can you add SSO? We'd pay 3x.</div><div class="btns"><span class="btn">1 Ship it this week</span><span class="btn">2 Put it on the roadmap</span><span class="btn k">D Ask Metis</span><span class="btn k">A Assign</span></div></div></div>
+        <div class="msg"><div class="av">BW</div><div><span class="who">Bluewren Analytics</span><span class="urg">URGENT</span><span class="t">day 9</span><div>Your model told our CFO the invoice was "vibes-based". Refund?</div><div class="btns"><span class="btn">1 Refund</span><span class="btn">2 Offer a credit</span><span class="btn">3 Explain it was a beta</span><span class="btn k">D</span></div></div></div>
+      </div>
+    </div>
+    <div class="dash">
+      <div class="h">Overview</div>
+      <div class="kpis">
+        <div class="kpi"><div class="l">Cash</div><div class="v">$9,180</div><div class="s">−$322 today</div></div>
+        <div class="kpi fire"><div class="l">Runway</div><div class="v">24 days</div><div class="s">▲ Under 30 days</div></div>
+        <div class="kpi"><div class="l">MRR</div><div class="v">$1,862</div><div class="s">+$49 today</div></div>
+        <div class="kpi"><div class="l">Customers</div><div class="v">38</div><div class="s">+4 today</div></div>
+      </div>
+      <div class="spark">cash / MRR sparkline</div>
+      <div class="log"><div class="hd">Aegis-4 · inference log ▾</div>&gt; route: ticket_4412 → summarize<br>&gt; tokens: 1,204 · 380ms<br><span class="odd">&gt; output: "hello. who is in the loop?"</span><br>&gt; route: ticket_4413 → classify</div>
+    </div>
+  </div>
+</div>
+<div class="pills"><span class="pill pro">Fire always visible while triaging</span><span class="pill pro">Closest to Linear/Stripe</span><span class="pill pro">Delta flashes land in peripheral vision</span><span class="pill con">Chat narrower at 1280px</span><span class="pill con">Rail is crowded in Series A (6+ KPIs)</span></div>
+
+<!-- ================= B ================= -->
+<h2>B — KPI strip above the chat + full Dashboard view</h2>
+<p class="why">A <b>horizontal strip of 4–6 KPI tiles</b> stays above the chat (Grafana/Datadog style). <b>Dashboard</b> is also a full page reached from the sidebar (like a Slack "app") with charts, team and pipeline. The inference log is a console-style drawer at the bottom.</p>
+<div class="frame">
+  <div class="chrome"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tab">(3) Human in the Loop</span></div>
+  <div class="top"><span class="brand">Ramen Labs</span><span class="ticker"><b>NEWS</b>Anonymous billionaire says AGI "basically done, pending a few details"</span><span>Day 9</span></div>
+  <div class="grid" style="grid-template-columns:190px 1fr;height:440px">
+    <div class="side">
+      <div class="co">Ramen Labs ▾</div>
+      <div class="ch">▦ Dashboard</div>
+      <div class="h">Channels</div>
+      <div class="ch"># general</div>
+      <div class="ch on"># customers <span class="badge">2</span></div>
+      <div class="ch"># product</div>
+      <div class="h">Direct messages</div>
+      <div class="ch">Dora Kessler</div>
+      <div class="ch">✨ Metis <span class="badge">1</span></div>
+    </div>
+    <div class="chat">
+      <div class="strip">
+        <div class="kpi"><div class="l">Cash</div><div class="v">$9,180</div></div>
+        <div class="kpi fire"><div class="l">Runway</div><div class="v">24 days</div><div class="s">▲ Under 30</div></div>
+        <div class="kpi"><div class="l">MRR</div><div class="v">$1,862</div></div>
+        <div class="kpi"><div class="l">Customers</div><div class="v">38</div></div>
+      </div>
+      <div class="hd"># customers</div>
+      <div class="msgs">
+        <div class="msg"><div class="av">AC</div><div><span class="who">Acme Corp</span><span class="t">day 8</span><div>Can you add SSO? We'd pay 3x.</div><div class="btns"><span class="btn">1 Ship it this week</span><span class="btn">2 Put it on the roadmap</span><span class="btn k">D Ask Metis</span></div></div></div>
+        <div class="msg"><div class="av">BW</div><div><span class="who">Bluewren Analytics</span><span class="urg">URGENT</span><span class="t">day 9</span><div>Your model told our CFO the invoice was "vibes-based". Refund?</div><div class="btns"><span class="btn">1 Refund</span><span class="btn">2 Offer a credit</span><span class="btn">3 Explain it was a beta</span></div></div></div>
+      </div>
+      <div class="drawer">▸ Aegis-4 · inference log — &gt; output: "hello. who is in the loop?"</div>
+    </div>
+  </div>
+</div>
+<div class="pills"><span class="pill pro">Chat gets the full width</span><span class="pill pro">Strip scales: tiles wrap, the rest goes in the Dashboard view</span><span class="pill pro">Easy to collapse on mobile</span><span class="pill con">Charts/team only in a separate view</span><span class="pill con">Less "Stripe", more "Grafana"</span></div>
+
+<!-- ================= C ================= -->
+<h2>C — Dashboard in the centre, chat as a right panel</h2>
+<p class="why">Inverts Slack: the <b>Stripe dashboard is the main canvas</b>; the chat opens as a side panel (like a thread or an "Inbox" panel). The CEO looks at the numbers and answers on the side.</p>
+<div class="frame">
+  <div class="chrome"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tab">(3) Human in the Loop</span></div>
+  <div class="top"><span class="brand">Ramen Labs</span><span class="ticker"><b>NEWS</b>Regulator announces a consultation on the consultation</span><span>Day 9</span></div>
+  <div class="grid" style="grid-template-columns:190px 1fr 340px">
+    <div class="side">
+      <div class="co">Ramen Labs ▾</div>
+      <div class="ch on">▦ Overview</div>
+      <div class="h">Channels</div>
+      <div class="ch"># general</div>
+      <div class="ch"># customers <span class="badge">2</span></div>
+      <div class="ch"># product</div>
+      <div class="h">Direct messages</div>
+      <div class="ch">Dora Kessler</div>
+      <div class="ch">✨ Metis <span class="badge">1</span></div>
+    </div>
+    <div class="dash" style="border-left:none;background:#fff">
+      <div class="h">Overview</div>
+      <div class="kpis" style="grid-template-columns:repeat(4,1fr)">
+        <div class="kpi"><div class="l">Cash</div><div class="v">$9,180</div></div>
+        <div class="kpi fire"><div class="l">Runway</div><div class="v">24 days</div><div class="s">▲ Under 30</div></div>
+        <div class="kpi"><div class="l">MRR</div><div class="v">$1,862</div></div>
+        <div class="kpi"><div class="l">Customers</div><div class="v">38</div></div>
+      </div>
+      <div class="spark" style="height:150px">cash / MRR chart (large)</div>
+      <div class="log"><div class="hd">Aegis-4 · inference log ▾</div><span class="odd">&gt; output: "hello. who is in the loop?"</span></div>
+    </div>
+    <div class="chat" style="border-left:1px solid var(--line)">
+      <div class="hd"># customers</div>
+      <div class="msgs">
+        <div class="msg"><div class="av">AC</div><div><span class="who">Acme Corp</span><div>Can you add SSO? We'd pay 3x.</div><div class="btns"><span class="btn">1 Ship it</span><span class="btn">2 Roadmap</span><span class="btn k">D</span></div></div></div>
+        <div class="msg"><div class="av">BW</div><div><span class="who">Bluewren</span><span class="urg">URGENT</span><div>Refund?</div><div class="btns"><span class="btn">1</span><span class="btn">2</span><span class="btn">3</span></div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="pills"><span class="pill pro">Growth (the engine) is centre stage</span><span class="pill pro">Large charts</span><span class="pill con">Triage (80% of the time) squeezed into a narrow column</span><span class="pill con">Less "Slack": chat feels secondary</span></div>
+
+<!-- ================= D ================= -->
+<h2>D — Chat + dashboard as a pinned header, inference log in the rail</h2>
+<p class="why">Hybrid of A and B: a <b>dense "status bar" of KPIs under the ticker</b> (always visible, single line) + a <b>collapsible right rail</b> holding the detailed dashboard and the inference log. Closed rail = B, open rail = A.</p>
+<div class="frame">
+  <div class="chrome"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tab">(3) Human in the Loop</span></div>
+  <div class="top"><span class="brand">Ramen Labs</span><span class="ticker"><b>NEWS</b>Anonymous billionaire says AGI "basically done, pending a few details"</span><span>Day 9</span></div>
+  <div class="top" style="background:#fafafa;gap:18px;font-variant-numeric:tabular-nums"><span>Cash <b>$9,180</b></span><span style="border:2px solid var(--ink);padding:0 6px;border-radius:4px">Runway <b>24d ▲</b></span><span>MRR <b>$1,862</b></span><span>Customers <b>38</b></span><span style="margin-left:auto;color:var(--mute)">Details ⟩</span></div>
+  <div class="grid" style="grid-template-columns:190px 1fr 280px;height:446px">
+    <div class="side">
+      <div class="co">Ramen Labs ▾</div>
+      <div class="h">Channels</div>
+      <div class="ch"># general</div>
+      <div class="ch on"># customers <span class="badge">2</span></div>
+      <div class="ch"># product</div>
+      <div class="h">Direct messages</div>
+      <div class="ch">Dora Kessler</div>
+      <div class="ch">✨ Metis <span class="badge">1</span></div>
+    </div>
+    <div class="chat">
+      <div class="hd"># customers</div>
+      <div class="msgs">
+        <div class="msg"><div class="av">AC</div><div><span class="who">Acme Corp</span><span class="t">day 8</span><div>Can you add SSO? We'd pay 3x.</div><div class="btns"><span class="btn">1 Ship it this week</span><span class="btn">2 Put it on the roadmap</span><span class="btn k">D Ask Metis</span></div></div></div>
+        <div class="msg"><div class="av">BW</div><div><span class="who">Bluewren Analytics</span><span class="urg">URGENT</span><span class="t">day 9</span><div>Your model told our CFO the invoice was "vibes-based". Refund?</div><div class="btns"><span class="btn">1 Refund</span><span class="btn">2 Offer a credit</span><span class="btn">3 Explain it was a beta</span></div></div></div>
+      </div>
+    </div>
+    <div class="dash">
+      <div class="h">Details</div>
+      <div class="spark" style="height:90px">cash / MRR chart</div>
+      <div class="spark">team · GPU · hype (Seed+)</div>
+      <div class="log"><div class="hd">Aegis-4 · inference log ▾</div>&gt; tokens: 1,204 · 380ms<br><span class="odd">&gt; output: "hello. who is in the loop?"</span></div>
+    </div>
+  </div>
+</div>
+<div class="pills"><span class="pill pro">Fire visible in one line, always</span><span class="pill pro">Rail can be closed → wide chat</span><span class="pill pro">Scales well into Series A</span><span class="pill con">Two dashboard surfaces to design</span><span class="pill con">Status bar + ticker = two header lines</span></div>
+
+<!-- ================= CASCADE ================= -->
+<h2>How the UI is born (applies to all options; shown for A)</h2>
+<p class="why">Every option has to support the cascade: the workspace is not "turned on", it is <b>built piece by piece</b>. Empty regions do not exist yet; they are not hidden placeholders.</p>
+<div class="cascade">
+  <div class="mini"><div class="c"><div class="big">$12,400</div><div class="b">Deploy</div></div><div class="cap">0:10 — one number, one button. Nothing else.</div></div>
+  <div class="mini"><div class="blk" style="right:8px;top:8px;width:110px;height:60px">$12,400 · MRR $49</div><div class="c" style="inset:0 130px 22px 0"><div style="color:#71717a">🎉 New customer: Acme Corp ($49/mo)</div></div><div class="cap">0:30 — the number moves into the corner, MRR appears.</div></div>
+  <div class="mini"><div class="blk" style="left:0;top:0;bottom:22px;width:50px"># cust<br># gen</div><div class="blk" style="left:56px;top:8px;right:120px;bottom:30px">chat</div><div class="blk" style="right:8px;top:8px;width:105px;height:80px">Cash · MRR · Runway</div><div class="cap">2:00–3:00 — sidebar and chat appear; Runway is born.</div></div>
+  <div class="mini"><div class="blk" style="left:0;top:0;bottom:22px;width:50px">+ ✨ Metis</div><div class="blk" style="left:56px;top:8px;right:120px;bottom:30px">chat</div><div class="blk" style="right:8px;top:8px;width:105px;height:70px">KPI</div><div class="blk" style="right:8px;top:84px;width:105px;height:36px">inference log</div><div class="cap">5:00–8:00 — Metis DM, first policy, inference log.</div></div>
+</div>
+
+<!-- ================= MOBILE ================= -->
+<h2>Responsive (all options converge here)</h2>
+<p class="why">Below ~768px there is room for one surface at a time. Proposal: <b>bottom tab bar</b> with Chat · Dashboard · Metis, the fire KPI pinned at the top of every tab, ticker static or hidden.</p>
+<div class="mobile">
+  <div class="phone"><div class="ph"><span># customers</span><span>☰</span></div><div style="padding:4px 8px;border-bottom:1px solid #d4d4d8;background:#fafafa">Runway <b>24d ▲</b> · Cash $9,180</div><div class="pb"><div class="msg"><div class="av">AC</div><div><b>Acme Corp</b><div>Can you add SSO? We'd pay 3x.</div><div class="btns"><span class="btn">1 Ship it</span><span class="btn">2 Roadmap</span></div></div></div></div><div class="pt"><span class="on">Chat</span><span>Dashboard</span><span>✨ Metis</span></div></div>
+  <div class="phone"><div class="ph"><span>Overview</span><span>☰</span></div><div class="pb"><div class="kpis"><div class="kpi"><div class="l">Cash</div><div class="v">$9,180</div></div><div class="kpi fire"><div class="l">Runway</div><div class="v">24d</div></div><div class="kpi"><div class="l">MRR</div><div class="v">$1,862</div></div><div class="kpi"><div class="l">Cust.</div><div class="v">38</div></div></div><div class="spark" style="margin-top:6px;height:80px">chart</div></div><div class="pt"><span>Chat</span><span class="on">Dashboard</span><span>✨ Metis</span></div></div>
+</div>
+<p class="lead" style="margin-top:24px">"Ramen Labs", "Bluewren Analytics" and the headlines are placeholders for the wireframe only; the startup name is generated at founding, and customer names/product names are a decision still to make.</p>
+</body>
+</html>

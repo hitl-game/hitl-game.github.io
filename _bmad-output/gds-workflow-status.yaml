@@ -1,0 +1,32 @@
+# GDS Workflow Status
+# Tracks progress through the Game Dev Studio workflow path.
+# Values: "required" | "optional" | "skipped" | <path to output file when completed>
+
+project: browser-game
+project_type: game
+platform: web (browser webapp, non-game-like UI)
+created: '2026-10-26'
+last_updated: '2026-10-27'
+
+workflow_status:
+  # Phase 1 - Preproduction
+  brainstorm-game: _bmad-output/brainstorming-session-2026-10-26.md
+  domain-research: optional
+  create-game-brief: _bmad-output/planning-artifacts/briefs/brief-browser-game-2026-10-26/brief.md
+
+  # Phase 2 - Design
+  gdd: _bmad-output/planning-artifacts/gdds/gdd-browser-game-2026-10-26/gdd.md
+  create-narrative: _bmad-output/narrative-design.md
+  ux: _bmad-output/planning-artifacts/ux-designs/ux-browser-game-2026-10-26/
+  prd: optional
+
+  # Phase 3 - Technical
+  generate-project-context: _bmad-output/project-context.md
+  game-architecture: _bmad-output/game-architecture.md
+  create-epics-and-stories: _bmad-output/planning-artifacts/gdds/gdd-browser-game-2026-10-26/epics.md
+  check-implementation-readiness: _bmad-output/planning-artifacts/implementation-readiness-report-2026-10-27-final.md  # final major + minors fixed (epics v2.3)
+  test-framework: optional
+  test-design: _bmad-output/game-test-design.md
+
+  # Phase 4 - Production
+  sprint-planning: required

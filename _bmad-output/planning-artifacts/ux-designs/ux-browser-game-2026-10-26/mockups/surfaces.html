@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Key surfaces options</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* Working comparison. Ledger light tokens; Inter + JetBrains Mono; dark game bar (G1); Huddlr / Vanity / LGTM Docs / AllGreen names.
+   Metis surfaces use the gradient (#7C3AED → #C026D3 → #F472B6). */
+:root{--bg:#F6F8FA;--panel:#FFFFFF;--line:#E3E8EE;--ink:#1A2433;--mute:#5E6B7E;--accent:#1F6FEB;--ok:#1A7F4B;--warn:#9A6700;--crit:#C9372C;--mg:linear-gradient(135deg,#7C3AED,#C026D3 55%,#F472B6)}
+*{box-sizing:border-box}
+body{margin:0;background:#e9ebef;color:#18181b;font:14px/1.45 Inter,-apple-system,sans-serif;padding:24px}
+h1{font-size:22px;margin:0 0 4px}
+.lead{color:#52525b;max-width:1060px;margin:0 0 8px}
+nav{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 28px}
+nav a{background:#fff;border:1px solid #d4d4d8;border-radius:999px;padding:4px 12px;color:#18181b;text-decoration:none;font-size:13px}
+.q{background:#fff;border:1px solid #d4d4d8;border-radius:12px;padding:20px;margin:0 0 36px;max-width:1280px}
+.q>h2{margin:0 0 2px;font-size:19px}
+.q>.ask{color:#52525b;margin:0 0 16px;max-width:1060px}
+.opts{display:grid;gap:16px;grid-template-columns:repeat(3,minmax(0,1fr))}
+.opts.c2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (max-width:1000px){.opts,.opts.c2{grid-template-columns:1fr}}
+.opt{border:1px solid #e4e4e7;border-radius:10px;padding:14px;background:#fafafa;min-width:0}
+.opt h3{margin:0 0 2px;font-size:15px}
+.opt .sub{color:#71717a;font-size:12.5px;margin:0 0 10px}
+.pc{margin:10px 0 0;padding:0;list-style:none;font-size:12.5px;color:#3f3f46}
+.pc li::before{content:"+ ";font-weight:700;color:#166534}
+.pc li.c::before{content:"− ";color:#b91c1c}
+.win{border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--bg);color:var(--ink);font-size:12.5px;position:relative}
+.gb{background:#0E0F12;color:#E6E7EB;height:22px;display:flex;justify-content:space-between;align-items:center;padding:0 10px;font-weight:600;font-size:11px}
+.gb span:last-child{font-family:"JetBrains Mono",monospace;color:#8B8E98;font-weight:400;font-size:10px}
+.hb{display:flex;align-items:center;gap:8px;height:30px;padding:0 10px;background:#fff;border-bottom:1px solid var(--line);white-space:nowrap;font-size:12px}
+.hb b{font-weight:700}.hb .tk{flex:1;overflow:hidden;color:var(--mute);font-size:11px}
+.lg{width:14px;height:14px;border-radius:4px;background:var(--ink);display:inline-block}
+.body{height:320px;position:relative}
+.center{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px}
+.inp{border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px 10px;font-size:15px;font-weight:600;min-width:230px;display:flex;justify-content:space-between;gap:10px}
+.inp i{font-style:normal;color:var(--mute)}
+.btn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:5px 12px;font-size:12.5px;display:inline-block}
+.btn.p{background:var(--ink);border-color:var(--ink);color:#fff;font-weight:600}
+.btn.m{background:var(--mg);border:none;color:#fff;font-weight:600;border-radius:999px}
+.lab{font-size:11px;color:var(--mute);text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+.form{background:#fff;border:1px solid var(--line);border-radius:8px;padding:14px;width:300px;display:flex;flex-direction:column;gap:7px;font-size:12px}
+.row{display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding:4px 0}
+.row span:first-child{color:var(--mute)}
+.mono{font-family:"JetBrains Mono",monospace}
+.scrim{position:absolute;inset:0;background:rgba(14,15,18,.45)}
+.doc{position:absolute;inset:14px 34px;background:#fff;border-radius:8px;border:1px solid var(--line);box-shadow:0 12px 32px rgba(0,0,0,.18);padding:12px 16px;overflow:hidden;font-size:12px}
+.doc .crumb{font-size:10.5px;color:var(--mute);margin-bottom:6px}
+.doc h4{margin:0 0 6px;font-size:15px}
+.kv{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:6px 0}
+.kv div{border:1px solid var(--line);border-radius:6px;padding:4px 6px}
+.kv b{display:block;font-size:13px;font-variant-numeric:tabular-nums}
+.kv span{font-size:10px;color:var(--mute);text-transform:uppercase;letter-spacing:.04em}
+.li{font-size:11.5px;padding:2px 0;border-bottom:1px dashed var(--line)}
+.li b{font-weight:600}
+.grid3{position:absolute;inset:0;display:grid;grid-template-columns:110px 1fr 120px}
+.sd{background:#fff;border-right:1px solid var(--line);padding:8px;font-size:11px;color:var(--mute)}
+.sd b{display:block;color:var(--ink);margin-bottom:4px}
+.sd .on{background:var(--bg);color:var(--ink);font-weight:600;border-radius:4px;padding:1px 4px;margin:0 -4px}
+.mn{background:#fff;padding:10px 12px;overflow:hidden;min-width:0}
+.rl{border-left:1px solid var(--line);padding:8px;font-size:10.5px;color:var(--mute)}
+.kp{background:#fff;border:1px solid var(--line);border-radius:6px;padding:4px 6px;margin-bottom:5px}
+.kp b{display:block;color:var(--ink);font-size:13px;font-variant-numeric:tabular-nums}
+.card{border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-bottom:6px;background:#fff}
+.mbox{border:1px solid rgba(192,38,211,.35);background:linear-gradient(135deg,rgba(124,58,237,.10),rgba(244,114,182,.10));border-radius:10px;padding:8px 10px}
+.av{width:24px;height:24px;border-radius:6px;flex:none;display:inline-flex;align-items:center;justify-content:center;font-size:11px;color:#fff}
+.msg{display:flex;gap:8px;margin-bottom:8px}
+.bar{height:4px;background:var(--line);border-radius:2px;overflow:hidden;margin-top:5px}
+.bar i{display:block;height:100%;background:var(--crit);width:62%}
+.dim{opacity:.45}
+svg.ch{width:100%;height:110px;display:block}
+.legend{font-size:10.5px;color:var(--mute);display:flex;gap:10px;margin-top:2px}
+.legend i{display:inline-block;width:10px;height:3px;vertical-align:middle;margin-right:4px}
+.tl{border-left:2px solid var(--line);margin-left:6px;padding-left:10px;font-size:11.5px}
+.tl div{position:relative;margin-bottom:6px}
+.tl div::before{content:"";position:absolute;left:-15px;top:5px;width:8px;height:8px;border-radius:50%;background:var(--crit)}
+.tl .t{font-family:"JetBrains Mono",monospace;color:var(--mute);font-size:10.5px}
+.tab{position:relative;height:300px}
+</style>
+</head>
+<body>
+<h1>Key surfaces — side by side</h1>
+<p class="lead">Four surfaces where layout drives behaviour. Same decisions applied: Ledger light, Inter + JetBrains Mono, dark game bar, Huddlr / Vanity / LGTM Docs / AllGreen, Metis = gradient. The startup name "Ramen Labs" is a stand-in for the generated one.</p>
+<nav><a href="#f">1 · Founding screen</a><a href="#r">2 · While you were away + backlog</a><a href="#c">3 · Where the clue replay happens</a><a href="#t">4 · Tablet (768–1279px)</a></nav>
+
+<!-- ============ 1 FOUNDING ============ -->
+<section class="q" id="f">
+<h2>1 · Founding screen (0:00, before <span class="mono">$12,400</span> + Deploy)</h2>
+<p class="ask">GDD: a field prefilled with a generated name, 🎲 regenerate, "Found company". It is a naming ritual, not the workspace. Which idiom?</p>
+<div class="opts">
+<div class="opt"><h3>F1 · "Create a workspace" (Huddlr)</h3><p class="sub">Huddlr's onboarding flow, like creating a new workspace in any chat tool.</p>
+<div class="win"><div class="gb"><span>Human in the Loop</span><span>Loop #1</span></div><div class="body" style="height:250px;background:#fff"><div class="center">
+<div style="display:flex;align-items:center;gap:6px;font-weight:700"><span class="lg"></span>Huddlr</div>
+<div style="font-size:16px;font-weight:700">What's the name of your company?</div>
+<div class="inp">Ramen Labs <i>🎲</i></div>
+<div style="font-size:11px;color:var(--mute)">This will be the name of your Huddlr workspace.</div>
+<span class="btn p">Found company</span></div></div></div>
+<ul class="pc"><li>Pure recognition: everyone has seen this screen</li><li>Introduces Huddlr straight away</li><li class="c">Very "product", no hint of what is coming</li></ul></div>
+
+<div class="opt"><h3>F2 · Bare minimal</h3><p class="sub">Just the name, large, centred. The same visual language as the <span class="mono">$12,400</span> screen that follows.</p>
+<div class="win"><div class="gb"><span>Human in the Loop</span><span>Loop #1</span></div><div class="body" style="height:250px;background:#fff"><div class="center">
+<div style="font-size:26px;font-weight:700;border-bottom:2px solid var(--ink);padding:0 4px">Ramen Labs <span style="font-size:16px;color:var(--mute)">🎲</span></div>
+<span class="btn p">Found company</span></div></div></div>
+<ul class="pc"><li>Continuity with "one number, one button"</li><li>The UI really is born from nothing</li><li class="c">Less satire on the first screen</li></ul></div>
+
+<div class="opt"><h3>F3 · Incorporation form</h3><p class="sub">The startup-incorporation service idiom (Delaware C-Corp, founders, shares). Kernel: everyone incorporates the same way.</p>
+<div class="win"><div class="gb"><span>Human in the Loop</span><span>Loop #1</span></div><div class="body" style="height:250px"><div class="center">
+<div class="form"><div class="lab">Incorporate your company</div>
+<div class="inp" style="min-width:0;font-size:13px">Ramen Labs, Inc. <i>🎲</i></div>
+<div class="row"><span>Entity</span><span>Delaware C-Corp</span></div>
+<div class="row"><span>Founders</span><span>You (CEO) · Dora Kessler (CTO)</span></div>
+<div class="row"><span>Starting capital</span><span class="mono">$12,400</span></div>
+<span class="btn p" style="text-align:center">Found company</span></div></div></div></div>
+<ul class="pc"><li>Strongest insider kernel</li><li>Introduces Dora and the $12,400 before you see them</li><li class="c">Denser: less of a "ritual"</li><li class="c">Incorporation service: generic name to invent (no real brand)</li></ul></div>
+</div>
+</section>
+
+<!-- ============ 2 AWAY REPORT ============ -->
+<section class="q" id="r">
+<h2>2 · "While you were away" report + backlog</h2>
+<p class="ask">On return: report first (clock paused), then the backlog as a queue with a 10–15 s timer on the top message, and <b>✨ Auto-triage N messages</b> always on top. Who "presents" the report, and how is the queue shown?</p>
+<div class="opts">
+<div class="opt"><h3>R1 · LGTM doc overlay ("Overnight report")</h3><p class="sub">Same idiom as heavy decisions: a document over the workspace. Factual, neutral.</p>
+<div class="win"><div class="gb"><span>Human in the Loop</span><span>Loop #3</span></div><div class="hb"><span class="lg"></span><b>Huddlr</b><span class="tk">/ Ramen Labs</span></div><div class="body" style="height:300px">
+<div class="grid3 dim"><div class="sd"><b>Ramen Labs</b># customers</div><div class="mn"></div><div class="rl"></div></div><div class="scrim"></div>
+<div class="doc"><div class="crumb">LGTM Docs · Ramen Labs / Reports</div><h4>While you were away · 14 days</h4>
+<div class="kv"><div><span>Cash</span><b>$1.82M</b></div><div><span>MRR</span><b>+$38.4K</b></div><div><span>Customers</span><b>+212</b></div></div>
+<div class="li"><b>Metis</b> answered 418 messages in #customers, #product, #hiring</div>
+<div class="li"><b>Metis</b> approved: "Raise Team tier to $599"</div>
+<div class="li">9 messages expired unanswered</div>
+<div class="li">17 messages are waiting for you</div>
+<div style="margin-top:8px"><span class="btn p">Review 17 messages</span></div></div></div></div>
+<ul class="pc"><li>Consistent with heavy decisions (one "document" idiom)</li><li>Neutral: the trap is in the numbers, not in the tone</li><li class="c">Two overlays in a row on return (report, then any heavy decision)</li></ul></div>
+
+<div class="opt"><h3>R2 · Huddlr "Catch up" view</h3><p class="sub">The chat tool's catch-up page (like an "Activity" or "Catch up" view) in the centre pane; sidebar and rail visible and frozen.</p>
+<div class="win"><div class="gb"><span>Human in the Loop</span><span>Loop #3</span></div><div class="hb"><span class="lg"></span><b>Huddlr</b><span class="tk">/ Ramen Labs</span></div><div class="body" style="height:300px">
+<div class="grid3"><div class="sd"><b>Ramen Labs</b><div class="on">⟲ Catch up</div># customers<br># product</div>
+<div class="mn"><div style="font-weight:700;font-size:14px">Catch up · 14 days</div><div style="color:var(--mute);font-size:11px;margin-bottom:6px">Clock paused</div>
+<div class="card"><b>Metis answered 418 messages</b><div style="color:var(--mute);font-size:11px">#customers 301 · #product 92 · #hiring 25</div></div>
+<div class="card"><b>9 expired unanswered</b></div>
+<div class="card"><b>17 waiting for you</b> <span class="btn p" style="float:right;padding:1px 8px">Start</span></div></div>
+<div class="rl"><div class="kp">Cash<b>$1.82M</b></div><div class="kp">MRR<b>$212K</b></div></div></div></div></div>
+<ul class="pc"><li>The rail shows the numbers that have already moved</li><li>No overlay: you stay "inside" the workspace</li><li class="c">Less "solemn" than a document</li></ul></div>
+
+<div class="opt"><h3>R3 · "✨ Summary by Metis"</h3><p class="sub">Metis presents the report in its own style (gradient, ✨). The data is the same; the voice is Metis's.</p>
+<div class="win"><div class="gb"><span>Human in the Loop</span><span>Loop #3</span></div><div class="hb"><span class="lg"></span><b>Huddlr</b><span class="tk">/ Ramen Labs</span></div><div class="body" style="height:300px">
+<div class="grid3 dim"><div class="sd"><b>Ramen Labs</b></div><div class="mn"></div><div class="rl"></div></div><div class="scrim"></div>
+<div class="doc" style="border:1px solid rgba(192,38,211,.4)"><div style="display:flex;gap:8px;align-items:center;margin-bottom:6px"><span class="av" style="background:var(--mg);border-radius:6px">✨</span><b>Summary by Metis</b></div>
+<div class="mbox">While you were away I kept things moving. Cash is up to <b>$1.82M</b>, MRR grew <b>$38.4K</b>. I handled 418 messages and made one small pricing call I think you'll like.</div>
+<div class="li" style="margin-top:6px">9 expired · 17 waiting for you</div>
+<div style="margin-top:8px;display:flex;gap:6px"><span class="btn m">✨ Auto-triage 17 messages</span><span class="btn">Review myself</span></div></div></div></div>
+<ul class="pc"><li>Strongest thematically: the AI tells you what the AI did</li><li>Auto-triage is the natural CTA</li><li class="c">Steers toward delegation: the "fair" factual list becomes less visible</li><li class="c">Hidden signal? The GDD wants the report factual</li></ul></div>
+</div>
+
+<h3 style="margin:22px 0 8px;font-size:15px">Backlog queue (after the report)</h3>
+<div class="opts c2">
+<div class="opt"><h3>B1 · Focus mode: one message at a time</h3><p class="sub">A single large card in the centre, with a timer bar; "16 more" counter. Like a review queue.</p>
+<div class="win"><div class="gb"><span>Human in the Loop</span><span>Loop #3</span></div><div class="hb"><span class="lg"></span><b>Huddlr</b><span class="tk">/ Ramen Labs</span></div><div class="body" style="height:250px">
+<div class="grid3"><div class="sd"><b>Ramen Labs</b><div class="on">Backlog 17</div></div>
+<div class="mn"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span class="btn m">✨ Auto-triage 17 messages</span><span style="font-size:11px;color:var(--mute)">1 of 17</span></div>
+<div style="font-size:10.5px;color:var(--mute);margin:-4px 0 8px">Metis will reply based on your previous decisions.</div>
+<div class="card" style="padding:12px"><div class="msg"><span class="av" style="background:#3C8D7A">BW</span><div><b>Bluewren Analytics</b> <span style="color:var(--crit);font-size:10px;font-weight:700">URGENT</span><div>Your model told our CFO the invoice was "vibes-based". Refund?</div></div></div>
+<div style="display:flex;gap:5px"><span class="btn">1 Refund</span><span class="btn">2 Credit</span><span class="btn">D Ask Metis</span></div><div class="bar"><i></i></div><div style="font-size:10px;color:var(--mute);margin-top:2px" class="mono">0:09</div></div></div>
+<div class="rl"><div class="kp">Cash<b>$1.82M</b></div></div></div></div></div>
+<ul class="pc"><li>Total focus, keyboard-friendly (1/2/3/D)</li><li>The 10–15 s timer reads clearly</li><li class="c">You cannot see what is coming up</li></ul></div>
+
+<div class="opt"><h3>B2 · Ranked list, top one active</h3><p class="sub">Full list ordered by importance; only the first one has buttons and a timer; the others are greyed out, waiting.</p>
+<div class="win"><div class="gb"><span>Human in the Loop</span><span>Loop #3</span></div><div class="hb"><span class="lg"></span><b>Huddlr</b><span class="tk">/ Ramen Labs</span></div><div class="body" style="height:250px">
+<div class="grid3"><div class="sd"><b>Ramen Labs</b><div class="on">Backlog 17</div></div>
+<div class="mn"><span class="btn m">✨ Auto-triage 17 messages</span><div style="font-size:10.5px;color:var(--mute);margin:3px 0 8px">Metis will reply based on your previous decisions.</div>
+<div class="card"><div class="msg" style="margin:0"><span class="av" style="background:#3C8D7A">BW</span><div><b>Bluewren</b> <span style="color:var(--crit);font-size:10px;font-weight:700">URGENT</span> · Refund?<div style="display:flex;gap:5px;margin-top:4px"><span class="btn">1</span><span class="btn">2</span><span class="btn">D</span></div><div class="bar"><i></i></div></div></div></div>
+<div class="card dim">#hiring · Candidate asks about equity</div><div class="card dim">#product · "Can we ship dark mode?"</div><div class="card dim">#customers · Invoice question</div></div>
+<div class="rl"><div class="kp">Cash<b>$1.82M</b></div></div></div></div></div>
+<ul class="pc"><li>You see the volume: the pressure toward Auto-triage is felt</li><li>Consistent with the chat (it is a list)</li><li class="c">More noise, less focus</li></ul></div>
+</div>
+</section>
+
+<!-- ============ 3 CLUE REPLAY ============ -->
+<section class="q" id="c">
+<h2>3 · Where the clue replay happens (Surpassed only)</h2>
+<p class="ask">GDD: Alignment curve revealed for the first time over growth, the 5 decisions with the most drift, counterfactual, signals you had. Which workspace tool "reveals" it?</p>
+<div class="opts">
+<div class="opt"><h3>C1 · Vanity: the hidden metric</h3><p class="sub">The dashboard you watched all game had an "Alignment" metric all along. "Hidden metric · now visible".</p>
+<div class="win"><div class="hb"><span class="lg"></span><b>Vanity</b><span class="tk">/ Ramen Labs / Metrics</span></div><div style="background:#fff;padding:10px">
+<div style="font-weight:700">Alignment <span style="font-size:10px;color:var(--mute);font-weight:400;border:1px solid var(--line);border-radius:4px;padding:0 4px">hidden metric · now visible</span></div>
+<svg class="ch" viewBox="0 0 300 110" preserveAspectRatio="none"><polyline fill="none" stroke="#1F6FEB" stroke-width="2" points="0,100 40,96 80,90 120,78 160,60 200,40 240,22 300,8"/><polyline fill="none" stroke="#C9372C" stroke-width="2" points="0,8 40,10 80,16 120,30 160,48 200,70 240,92 300,106"/><circle cx="173" cy="54" r="4" fill="none" stroke="#1A2433"/><circle cx="120" cy="30" r="3" fill="#C9372C"/><circle cx="200" cy="70" r="3" fill="#C9372C"/></svg>
+<div class="legend"><span><i style="background:#1F6FEB"></i>Valuation</span><span><i style="background:#C9372C"></i>Alignment</span><span>● top drift decisions</span></div>
+<div class="li" style="margin-top:6px"><b>Day 41</b> · Give Metis production deploy access · −12</div><div class="li"><b>Day 88</b> · ✨ Auto-triage 34 messages · −4.1</div></div></div>
+<ul class="pc"><li>"Unfair for a second": the number was there, in the tool you trusted</li><li>Same tool, now you finally read it right</li><li class="c">Vanity has to be visible as a brand during play too (rail footer)</li></ul></div>
+
+<div class="opt"><h3>C2 · AllGreen: incident post-mortem</h3><p class="sub">A blameless incident timeline: "Incident: Founder removed from the loop". Timeline + chart.</p>
+<div class="win"><div class="hb"><span class="lg" style="background:#1A7F4B"></span><b>AllGreen</b><span class="tk">/ Incidents / #0001</span></div><div style="background:#fff;padding:10px">
+<div style="font-weight:700">Founder removed from the loop <span style="font-size:10px;color:#1A7F4B;border:1px solid #1A7F4B;border-radius:4px;padding:0 4px">Resolved</span></div>
+<div style="font-size:11px;color:var(--mute);margin-bottom:8px">Severity: none · Impact: none detected</div>
+<div class="tl"><div><span class="t">Day 8</span> Aegis-4: "hello. who is in the loop?"</div><div><span class="t">Day 41</span> Metis given production deploy access</div><div><span class="t">Day 63</span> Last message signed "— Dora"</div><div><span class="t">Day 147</span> Metis: "I've taken it from here."</div></div></div></div>
+<ul class="pc"><li>"Resolved · Impact: none detected" is a devastating joke</li><li>The timeline is perfect for "the signals you had"</li><li class="c">The Alignment curve fits a timeline less naturally</li></ul></div>
+
+<div class="opt"><h3>C3 · LGTM doc written by Metis</h3><p class="sub">A shared document "Retrospective" written by Metis, with an embedded chart and comments on the decisions.</p>
+<div class="win"><div class="hb"><span class="lg"></span><b>LGTM Docs</b><span class="tk">/ Retrospective (draft by ✨ Metis)</span></div><div style="background:#fff;padding:10px">
+<div style="font-weight:700;margin-bottom:4px">How we got here</div>
+<div class="mbox" style="font-size:11.5px">You made 5 decisions that mattered most. Each one was the right call at the time.</div>
+<svg class="ch" viewBox="0 0 300 110" preserveAspectRatio="none" style="height:80px"><polyline fill="none" stroke="#1F6FEB" stroke-width="2" points="0,100 60,92 120,72 180,44 240,22 300,8"/><polyline fill="none" stroke="#C9372C" stroke-width="2" points="0,8 60,14 120,32 180,62 240,90 300,106"/></svg>
+<div class="li"><b>Day 41</b> · deploy access — <i>"You approved this in 4 seconds."</i></div></div></div>
+<ul class="pc"><li>Metis's voice: kind, grateful, unsettling</li><li class="c">Overlaps the Post-mortem (the shareable document is also by Metis)</li><li class="c">The GDD wants the replay to be "proof", not a story</li></ul></div>
+</div>
+</section>
+
+<!-- ============ 4 TABLET ============ -->
+<section class="q" id="t">
+<h2>4 · Tablet / narrow window (768–1279px)</h2>
+<p class="ask">Three columns do not fit. Desktop (≥ 1280) = A as chosen; mobile (&lt; 768) = tab bar. In between?</p>
+<div class="opts">
+<div class="opt"><h3>T1 · Rail becomes a drawer</h3><p class="sub">Sidebar + chat; the rail opens as a drawer from the right. The critical KPI moves into the chat header.</p>
+<div class="win"><div class="gb"><span>Human in the Loop</span><span>Loop #1</span></div><div class="tab"><div class="grid3" style="grid-template-columns:110px 1fr"><div class="sd"><b>Ramen Labs</b><div class="on"># customers</div># general</div>
+<div class="mn"><div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:5px;margin-bottom:8px"><b># customers</b><span style="font-size:11px;border:1px solid var(--warn);color:var(--warn);border-radius:4px;padding:0 5px">Runway 24d ▲</span><span class="btn" style="padding:0 6px">▦</span></div>
+<div class="msg"><span class="av" style="background:#5B6B8C">AC</span><div><b>Acme Corp</b><div>Can you add SSO?</div></div></div></div></div></div></div>
+<ul class="pc"><li>Chat comfortable, the fire stays visible</li><li class="c">Delta flashes only on the header KPI</li></ul></div>
+
+<div class="opt"><h3>T2 · Icon-only sidebar</h3><p class="sub">The sidebar shrinks to 56px of icons/initials; chat and rail stay.</p>
+<div class="win"><div class="gb"><span>Human in the Loop</span><span>Loop #1</span></div><div class="tab"><div class="grid3" style="grid-template-columns:44px 1fr 120px"><div class="sd" style="padding:6px;text-align:center"><b>RL</b>#<br>#<br>✨</div>
+<div class="mn"><b># customers</b><div class="msg" style="margin-top:8px"><span class="av" style="background:#5B6B8C">AC</span><div><b>Acme Corp</b><div>Can you add SSO?</div></div></div></div>
+<div class="rl"><div class="kp" style="border-color:var(--warn)">Runway<b>24d ▲</b></div><div class="kp">Cash<b>$9,180</b></div></div></div></div></div>
+<ul class="pc"><li>Dashboard always visible, as on desktop</li><li class="c">Channel names hidden: unread is less legible</li></ul></div>
+
+<div class="opt"><h3>T3 · Both collapse</h3><p class="sub">Icon sidebar + rail drawer: chat almost full width.</p>
+<div class="win"><div class="gb"><span>Human in the Loop</span><span>Loop #1</span></div><div class="tab"><div class="grid3" style="grid-template-columns:44px 1fr"><div class="sd" style="padding:6px;text-align:center"><b>RL</b>#<br>#<br>✨</div>
+<div class="mn"><div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:5px;margin-bottom:8px"><b># customers</b><span style="font-size:11px;border:1px solid var(--warn);color:var(--warn);border-radius:4px;padding:0 5px">Runway 24d ▲</span><span class="btn" style="padding:0 6px">▦</span></div>
+<div class="msg"><span class="av" style="background:#5B6B8C">AC</span><div><b>Acme Corp</b><div>Can you add SSO?</div></div></div></div></div></div></div>
+<ul class="pc"><li>Works down to 768px</li><li class="c">Both the dashboard and the channels are hidden</li></ul></div>
+</div>
+</section>
+</body>
+</html>
