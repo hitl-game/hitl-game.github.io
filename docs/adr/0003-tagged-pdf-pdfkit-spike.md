@@ -31,7 +31,7 @@ All numbers come from the sample in `src/report/pdf`, generated in the built app
 | Sample PDF                                | 17.1 kB, A4, one page                                                                                                                                         |
 
 - **Machine.** Apple M4 Pro, 12 cores, 24 GB, macOS 27.0.1, Playwright 1.64.1. The repository does not define a "reference laptop", so the timings are from this machine. They leave a margin of more than 20× under the 3 s budget.
-- **"Cold"** is the first click after page load: it includes the dynamic imports of the report chunk and of the PDFKit chunk, and both font fetches, in that order. **"Warm"** is the second click.
+- **"Cold"** is the first click after page load: it includes the dynamic import of the report chunk, both font fetches, and then the dynamic import of the PDFKit chunk, in that order. **"Warm"** is the second click.
 - **Engines.** Chromium and WebKit were run locally. Firefox does not launch in the local environment ("Could not find profile folder"; the same limit as Story 1.1), so Firefox is covered by the three-engine `e2e` job on `main`.
 - **Deployed site.** The post-deploy `smoke` job runs the same spec against `https://hitl-game.github.io/spike/pdf.html`. That proof exists only after the first deploy from `main`.
 - **Rendering.** A page render (`pdftoppm`) of the browser output was checked by eye: heading, paragraphs, bullets, table, footer and mark are all visible.
