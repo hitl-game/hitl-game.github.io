@@ -4,7 +4,7 @@ baseline_commit: 6d5ac8d
 
 # Story 8.1: PDFKit tagged-PDF spike
 
-Status: in-progress
+Status: review
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -26,42 +26,42 @@ Source: epics.md → Story 8.1; test-design PDF-01 and risk R8. This is a **spik
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: Prove PDFKit builds and runs in the Vite app as a lazy chunk (AC 1)**
-  - [ ] 1.1 Read `node_modules/pdfkit/package.json`: the `exports` map serves `./js/pdfkit.browser.mjs` to non-Node consumers, and `js/pdfkit.standalone.js` also ships. Decide which one Vite 8 bundles correctly (default: the `exports` browser build through a dynamic `import('pdfkit')`). Record the choice and why in the ADR.
-  - [ ] 1.2 Resolve any Node-global fallout in the browser (`Buffer`, `process`, `fs`, streams). PDFKit 0.20 pulls `fontkit`, `linebreak`, `png-js`, `fflate`, `@noble/hashes`, `@noble/ciphers`. Fix with the smallest Vite config change; no polyfill package unless justified in the PR and the ADR.
-  - [ ] 1.3 Keep PDFKit out of the main chunk: dynamic `import()` only. Prove it with a check that fails if `dist/assets/index-*.js` contains PDFKit code (extend `.size-limit.json` or add a build-output test). The existing `initial bundle` size-limit entry stays at 150 KB gzip and must not grow.
-  - [ ] 1.4 Report the lazy chunk size (raw and gzip) in the ADR. No budget exists for it; record it so Story 8.8 can judge it.
-  - [ ] 1.5 Confirm the generation path needs no `SharedArrayBuffer`, no workers with shared memory, and no COOP/COEP headers (assert `crossOriginIsolated === false` and `typeof SharedArrayBuffer` is irrelevant to the code path, in the e2e spec).
-- [ ] **Task 2: Embed Inter (AC 2)**
-  - [ ] 2.1 Add the used Inter weights to `assets/fonts/` named `inter-<weight>.woff2` (architecture naming: `inter-500.woff2`). Minimum for the sample: regular for body and bold or semibold for the heading. Only weights actually used (architecture D14).
-  - [ ] 2.2 Add the Inter licence (SIL OFL 1.1) next to the fonts and state the source and version in the ADR. Do not add a runtime dependency to get the files; copy them once (a `devDependency` that is not used at runtime is not wanted either).
-  - [ ] 2.3 Load font bytes through Vite asset URLs (`?url`) and `fetch` them lazily. URLs are relative to `base` (`/`); zero requests outside the site origin.
-  - [ ] 2.4 Verify PDFKit/fontkit embeds WOFF2 directly. If it does not, convert to TTF/OTF and record that. Embedding must be a real subset embed: PDF/UA forbids non-embedded fonts, so do not use PDFKit's standard (Helvetica) fonts anywhere, including for the "Page 1 of 1" footer.
-  - [ ] 2.5 Record the glyph coverage you ship (for example the Latin subset) and the consequence for non-English locales later.
-- [ ] **Task 3: Tagged sample document (AC 2)**
-  - [ ] 3.1 Create the spike module in `src/report/pdf/` (layer `report`; public API through `src/report/index.ts` only). Shared layout tokens go in `src/report/layout/` (page size, margins, font sizes) as plain constants. The architecture says both renderers will share them, but build only what the sample needs.
-  - [ ] 3.2 Build the sample from a hard-coded Post-mortem-shaped model: title (`H`), 2 paragraphs (`P`), a list (`L` > `LI` > `Lbl` + `LBody`), a small table (`Table` > `TR` > `TH`/`TD`), and a decorative mark (stand-in for the Metis mark) drawn as an **artifact**. Include a `Figure` with `alt` only if cheap; the Post-mortem has no figure, the Metis mark is an artifact.
-  - [ ] 3.3 Options exactly as in D8: `tagged: true`, `subset: 'PDF/UA'`, `pdfVersion: '1.7'`, `lang: 'en-US'`, `displayTitle: true`, `info.Title` set. Use `doc.markStructureContent(tag)` / `doc.struct(tag, ...)` / `doc.addStructure(...)` / `doc.markContent('Artifact', ...)` per PDFKit's accessibility guide (see Dev Notes). Include word-separating spaces inside marked content, including line and paragraph ends.
-  - [ ] 3.4 Write objects in natural reading order; mark every non-structure drawing (rules, borders, the mark, the page footer if decorative) as an artifact.
-  - [ ] 3.5 Expose one function (for example `renderSamplePdf`) returning the bytes as a `Uint8Array` or `Blob`. Unexpected failures throw; expected ones (chunk or font fetch failure) return `Result` (shared `Result` does not exist until Story 1.2; if it still does not exist, keep the spike throwing and say so in the ADR rather than inventing a stand-in).
-  - [ ] 3.6 Keep Charter limits: functions <= 40 lines, files <= 300, complexity <= 10, <= 3 params, named exports only, no comments except a non-obvious why. Split the sample builder by structure element (heading, list, table) to stay under the limits.
-- [ ] **Task 4: A way to run it in the built app (AC 1, 2)**
-  - [ ] 4.1 The app has no UI for documents yet and this story must not add game UI. Provide a minimal, **non-linked** second Vite entry (for example `spike/pdf.html` in `build.rollupOptions.input`, with `<meta name="robots" content="noindex">`) that dynamically imports the report module and exposes a "generate" button plus a download link. It ships in the production build so it can run on the deployed Pages site. Story 6.5 removes it.
-  - [ ] 4.2 The page must satisfy the existing gates: no literal user-facing strings in JSX (use a plain-HTML page with a tiny script, or `t()`-free text outside JSX), no `console`, no `any`, relative URLs only. If a lint rule blocks the page, restructure; never suppress without a written reason.
-  - [ ] 4.3 Record the timing with `performance.now()` around generation in the page and expose it to the test, for the < 3 s check. Timing code lives in the spike page, not in `core/`.
-- [ ] **Task 5: Playwright e2e + veraPDF in CI (AC 1, 2)**
-  - [ ] 5.1 Add `tests/e2e/pdfSpike.spec.ts`: open the spike page, generate, capture the bytes (download event or a `blob:` read) and save them to a known path (for example `test-results/pdf-spike/sample.pdf`), assert generation time < 3000 ms, assert no console errors and **no request outside the site origin**, assert `crossOriginIsolated === false`. It runs on all three engines on `main` and on Chromium on PRs, like the smoke test. Reuse the smoke test's request-capture pattern; extract a shared helper only if the second copy would trip jscpd.
-  - [ ] 5.2 Add a CI job `verapdf` in `.github/workflows/ci.yml`, **on `main` only** (`if: github.event_name == 'push'`), that runs the e2e spec output through veraPDF with the PDF/UA-1 profile (`--flavour ua1`) and fails on any non-compliant result. Obtain veraPDF reproducibly (official Docker image `verapdf/cli`, or the pinned release installer; it needs a JRE). Pin the version, and record how in the ADR. Do **not** rename or touch the existing `gates`, `unit`, `e2e` jobs: they are required status checks on `main`.
-  - [ ] 5.3 Decide whether the generated PDF is produced against the deployed site or the local preview server. Default: the CI `verapdf` job generates the PDF with `vite preview` of the built `dist` (deterministic, no deploy race), **and** the existing post-deploy `smoke` job in `deploy.yml` additionally opens the spike page on `https://hitl-game.github.io/` and checks it generates a non-empty `%PDF` without errors (this covers "runs on the deployed Pages site"). Keep the deploy smoke small; veraPDF itself stays in `ci`.
-  - [ ] 5.4 Upload the sample PDF and the veraPDF report as workflow artifacts (`actions/upload-artifact@v7`) so a failure can be inspected.
-  - [ ] 5.5 Do not add `verapdf` as a required status check (it only runs on `main`). Tiziano decides later whether to wire it into branch protection; mention it in the PR.
-- [ ] **Task 6: ADR (AC 3)**
-  - [ ] 6.1 Create `docs/adr/` (it does not exist yet; `docs/` is empty) and write `docs/adr/0003-tagged-pdf-pdfkit-spike.md`, or the next free number, noting that it is the outcome of architecture ADR-003.
-  - [ ] 6.2 Record: **go or no-go** with the evidence (veraPDF result, timing numbers on the machine used, lazy chunk size, engines tested); font handling (source, weights, WOFF2 vs converted, subset, licence); build gotchas (Buffer/Node globals, standalone vs browser build, Vite config changes); PDFKit API gotchas found (trailing spaces, artifact marking, table structure, list structure); what Story 6.5 must reuse.
-  - [ ] 6.3 On **no-go**: stop, record the failing veraPDF rule IDs and the fallback options (for example post-process tagging, server-less alternatives, or shipping the HTML document plus PNG only), and **raise it with Tiziano before E6**. Do not start a fallback implementation in this story.
-- [ ] **Task 7: Housekeeping**
-  - [ ] 7.1 `knip.json` lists `pdfkit` under `ignoreDependencies` because nothing imported it. Once the spike imports it, remove that entry (knip reports stale ignores, as it did for `yaml` in Story 1.1). Add the spike HTML entry to knip `entry` if needed.
-  - [ ] 7.2 Run `npm run check` (all gates except e2e) and `npx playwright test` locally on Node 24; then the Agent Review Checklist and paste it, ticked, in the PR.
+- [x] **Task 1: Prove PDFKit builds and runs in the Vite app as a lazy chunk (AC 1)**
+  - [x] 1.1 Read `node_modules/pdfkit/package.json`: the `exports` map serves `./js/pdfkit.browser.mjs` to non-Node consumers, and `js/pdfkit.standalone.js` also ships. Decide which one Vite 8 bundles correctly (default: the `exports` browser build through a dynamic `import('pdfkit')`). Record the choice and why in the ADR.
+  - [x] 1.2 Resolve any Node-global fallout in the browser (`Buffer`, `process`, `fs`, streams). PDFKit 0.20 pulls `fontkit`, `linebreak`, `png-js`, `fflate`, `@noble/hashes`, `@noble/ciphers`. Fix with the smallest Vite config change; no polyfill package unless justified in the PR and the ADR.
+  - [x] 1.3 Keep PDFKit out of the main chunk: dynamic `import()` only. Prove it with a check that fails if `dist/assets/index-*.js` contains PDFKit code (extend `.size-limit.json` or add a build-output test). The existing `initial bundle` size-limit entry stays at 150 KB gzip and must not grow.
+  - [x] 1.4 Report the lazy chunk size (raw and gzip) in the ADR. No budget exists for it; record it so Story 8.8 can judge it.
+  - [x] 1.5 Confirm the generation path needs no `SharedArrayBuffer`, no workers with shared memory, and no COOP/COEP headers (assert `crossOriginIsolated === false` and `typeof SharedArrayBuffer` is irrelevant to the code path, in the e2e spec).
+- [x] **Task 2: Embed Inter (AC 2)**
+  - [x] 2.1 Add the used Inter weights to `assets/fonts/` named `inter-<weight>.woff2` (architecture naming: `inter-500.woff2`). Minimum for the sample: regular for body and bold or semibold for the heading. Only weights actually used (architecture D14).
+  - [x] 2.2 Add the Inter licence (SIL OFL 1.1) next to the fonts and state the source and version in the ADR. Do not add a runtime dependency to get the files; copy them once (a `devDependency` that is not used at runtime is not wanted either).
+  - [x] 2.3 Load font bytes through Vite asset URLs (`?url`) and `fetch` them lazily. URLs are relative to `base` (`/`); zero requests outside the site origin.
+  - [x] 2.4 Verify PDFKit/fontkit embeds WOFF2 directly. If it does not, convert to TTF/OTF and record that. Embedding must be a real subset embed: PDF/UA forbids non-embedded fonts, so do not use PDFKit's standard (Helvetica) fonts anywhere, including for the "Page 1 of 1" footer.
+  - [x] 2.5 Record the glyph coverage you ship (for example the Latin subset) and the consequence for non-English locales later.
+- [x] **Task 3: Tagged sample document (AC 2)**
+  - [x] 3.1 Create the spike module in `src/report/pdf/` (layer `report`; public API through `src/report/index.ts` only). Shared layout tokens go in `src/report/layout/` (page size, margins, font sizes) as plain constants. The architecture says both renderers will share them, but build only what the sample needs.
+  - [x] 3.2 Build the sample from a hard-coded Post-mortem-shaped model: title (`H`), 2 paragraphs (`P`), a list (`L` > `LI` > `Lbl` + `LBody`), a small table (`Table` > `TR` > `TH`/`TD`), and a decorative mark (stand-in for the Metis mark) drawn as an **artifact**. Include a `Figure` with `alt` only if cheap; the Post-mortem has no figure, the Metis mark is an artifact.
+  - [x] 3.3 Options exactly as in D8: `tagged: true`, `subset: 'PDF/UA'`, `pdfVersion: '1.7'`, `lang: 'en-US'`, `displayTitle: true`, `info.Title` set. Use `doc.markStructureContent(tag)` / `doc.struct(tag, ...)` / `doc.addStructure(...)` / `doc.markContent('Artifact', ...)` per PDFKit's accessibility guide (see Dev Notes). Include word-separating spaces inside marked content, including line and paragraph ends.
+  - [x] 3.4 Write objects in natural reading order; mark every non-structure drawing (rules, borders, the mark, the page footer if decorative) as an artifact.
+  - [x] 3.5 Expose one function (for example `renderSamplePdf`) returning the bytes as a `Uint8Array` or `Blob`. Unexpected failures throw; expected ones (chunk or font fetch failure) return `Result` (shared `Result` does not exist until Story 1.2; if it still does not exist, keep the spike throwing and say so in the ADR rather than inventing a stand-in).
+  - [x] 3.6 Keep Charter limits: functions <= 40 lines, files <= 300, complexity <= 10, <= 3 params, named exports only, no comments except a non-obvious why. Split the sample builder by structure element (heading, list, table) to stay under the limits.
+- [x] **Task 4: A way to run it in the built app (AC 1, 2)**
+  - [x] 4.1 The app has no UI for documents yet and this story must not add game UI. Provide a minimal, **non-linked** second Vite entry (for example `spike/pdf.html` in `build.rollupOptions.input`, with `<meta name="robots" content="noindex">`) that dynamically imports the report module and exposes a "generate" button plus a download link. It ships in the production build so it can run on the deployed Pages site. Story 6.5 removes it.
+  - [x] 4.2 The page must satisfy the existing gates: no literal user-facing strings in JSX (use a plain-HTML page with a tiny script, or `t()`-free text outside JSX), no `console`, no `any`, relative URLs only. If a lint rule blocks the page, restructure; never suppress without a written reason.
+  - [x] 4.3 Record the timing with `performance.now()` around generation in the page and expose it to the test, for the < 3 s check. Timing code lives in the spike page, not in `core/`.
+- [x] **Task 5: Playwright e2e + veraPDF in CI (AC 1, 2)**
+  - [x] 5.1 Add `tests/e2e/pdfSpike.spec.ts`: open the spike page, generate, capture the bytes (download event or a `blob:` read) and save them to a known path (for example `test-results/pdf-spike/sample.pdf`), assert generation time < 3000 ms, assert no console errors and **no request outside the site origin**, assert `crossOriginIsolated === false`. It runs on all three engines on `main` and on Chromium on PRs, like the smoke test. Reuse the smoke test's request-capture pattern; extract a shared helper only if the second copy would trip jscpd.
+  - [x] 5.2 Add a CI job `verapdf` in `.github/workflows/ci.yml`, **on `main` only** (`if: github.event_name == 'push'`), that runs the e2e spec output through veraPDF with the PDF/UA-1 profile (`--flavour ua1`) and fails on any non-compliant result. Obtain veraPDF reproducibly (official Docker image `verapdf/cli`, or the pinned release installer; it needs a JRE). Pin the version, and record how in the ADR. Do **not** rename or touch the existing `gates`, `unit`, `e2e` jobs: they are required status checks on `main`.
+  - [x] 5.3 Decide whether the generated PDF is produced against the deployed site or the local preview server. Default: the CI `verapdf` job generates the PDF with `vite preview` of the built `dist` (deterministic, no deploy race), **and** the existing post-deploy `smoke` job in `deploy.yml` additionally opens the spike page on `https://hitl-game.github.io/` and checks it generates a non-empty `%PDF` without errors (this covers "runs on the deployed Pages site"). Keep the deploy smoke small; veraPDF itself stays in `ci`.
+  - [x] 5.4 Upload the sample PDF and the veraPDF report as workflow artifacts (`actions/upload-artifact@v7`) so a failure can be inspected.
+  - [x] 5.5 Do not add `verapdf` as a required status check (it only runs on `main`). Tiziano decides later whether to wire it into branch protection; mention it in the PR.
+- [x] **Task 6: ADR (AC 3)**
+  - [x] 6.1 Create `docs/adr/` (it does not exist yet; `docs/` is empty) and write `docs/adr/0003-tagged-pdf-pdfkit-spike.md`, or the next free number, noting that it is the outcome of architecture ADR-003.
+  - [x] 6.2 Record: **go or no-go** with the evidence (veraPDF result, timing numbers on the machine used, lazy chunk size, engines tested); font handling (source, weights, WOFF2 vs converted, subset, licence); build gotchas (Buffer/Node globals, standalone vs browser build, Vite config changes); PDFKit API gotchas found (trailing spaces, artifact marking, table structure, list structure); what Story 6.5 must reuse.
+  - [x] 6.3 On **no-go**: stop, record the failing veraPDF rule IDs and the fallback options (for example post-process tagging, server-less alternatives, or shipping the HTML document plus PNG only), and **raise it with Tiziano before E6**. Do not start a fallback implementation in this story.
+- [x] **Task 7: Housekeeping**
+  - [x] 7.1 `knip.json` lists `pdfkit` under `ignoreDependencies` because nothing imported it. Once the spike imports it, remove that entry (knip reports stale ignores, as it did for `yaml` in Story 1.1). Add the spike HTML entry to knip `entry` if needed.
+  - [x] 7.2 Run `npm run check` (all gates except e2e) and `npx playwright test` locally on Node 24; then the Agent Review Checklist and paste it, ticked, in the PR.
 
 ## Dev Notes
 
@@ -184,12 +184,122 @@ Source: epics.md → Story 8.1; test-design PDF-01 and risk R8. This is a **spik
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+Claude Opus 5.5 (claude-opus-5-5[1m]), Claude Code, gds-dev-story workflow, run non-interactively.
 
 ### Debug Log References
 
+- **WOFF2 subsetting fails.** With the Fontsource `inter-latin-*-normal.woff2` files, `doc.end()` threw `RangeError: Offset is outside the bounds of the DataView` in fontkit `TTFSubset._addGlyph`. A per-glyph probe found every composite glyph fails (`,:;` `ij`, quotes, most accented letters). The same glyphs from the WOFF 1.0 file subset correctly.
+- **CIDSet bug.** With WOFF 1.0, veraPDF 1.30.3 (`--flavour ua1`) failed **7.21.4.2-2**: the CIDSet does not list every glyph in the subset.
+  - Cause: `subset: 'PDF/UA'` sets `doc.subset = 1`, so PDFKit writes the PDF/A-1 CIDSet from the glyphs used directly, while fontkit also copies the component glyphs.
+  - Reproduced with a single P containing "ink" (fails) against "Sample" (passes).
+- **Fix.** All composite glyphs were decomposed with fontTools 4.60.1 (304 glyphs per weight). The result: veraPDF passes.
+- **Invisible glyphs.** Decomposed **WOFF2** also passed veraPDF, but a `pdftoppm` render showed **no visible text**: fontkit's WOFF2 path embeds glyphs with no outlines, and veraPDF does not catch it.
+  - Decomposed **WOFF 1.0** renders correctly and passes veraPDF.
+  - Guard added: the unit test checks glyph data per glyph in each embedded subset. It fails on the decomposed WOFF2 files (about 30-35 bytes per glyph, against about 85-97 for real outlines). This was verified by swapping the files in temporarily.
+- **The gate has teeth (not committed).**
+  - With `tagged: false`, the browser-generated PDF fails veraPDF rule **6.2-1**, and the CI step script exits 1 (`compliant="0" nonCompliant="1"`).
+  - With a temporary static `import 'pdfkit'` in `src/main.tsx`, `size-limit` still **passed** (5 kB, because PDFKit landed in a separate eagerly loaded chunk). The new `tools/checkInitialBundle.ts` failed with "contains PDFKit" and "not counted by the initial bundle budget".
+- **Entry name.** Naming the main Vite input `main` renamed `index-*.js` to `main-*.js`, and `size-limit` reported "can't find files". The key is now `index`, and the ADR records why.
+- **Firefox (local only).** It does not launch locally: Playwright's Firefox exits with "Could not find profile folder" (the same environment limit as Story 1.1). Re-running outside the sandbox was not permitted. Chromium and WebKit pass locally; Firefox is left to the three-engine `e2e` job on `main`.
+- **Timings** on an Apple M4 Pro (12 cores, 24 GB), macOS 27.0.1, `vite preview`:
+  - Chromium: cold 133–142 ms, warm 82–90 ms;
+  - WebKit: cold 107–118 ms, warm 58–61 ms.
+- **Initial bundle before and after.** At the baseline commit (`6d5ac8d`) it was 4.86 kB gzip in one file. After the story it is 4.98 kB gzip: `index-*.js` 4.62 kB plus the shared `modulepreload-polyfill-*.js` 0.38 kB, which the multi-page build splits out.
+
 ### Completion Notes List
 
-- Ultimate context engine analysis completed - comprehensive developer guide created
+- **Outcome: GO.** PDFKit 0.20.2 (the `exports` browser build, `js/pdfkit.browser.mjs`, through a dynamic `import('pdfkit')`) builds in Vite 8.3.5 with **no** Node polyfills and no config change beyond the second HTML entry.
+  - It runs with `crossOriginIsolated === false`.
+  - Its output passes **veraPDF 1.30.3 PDF/UA-1** for the PDFs generated in both Chromium and WebKit.
+  - Generation takes about 0.1 s, against the 3 s budget.
+  - Full evidence: `docs/adr/0003-tagged-pdf-pdfkit-spike.md`.
+- **Renderer.** `src/report/pdf/` builds a hard-coded Post-mortem-shaped sample:
+  - `Document` > `H1`, 2 × `P`, `L` > `LI` > `Lbl` + `LBody`, `Table` > `TR` > `TH`/`TD` (scope column), and `P` (Run ID);
+  - the Metis mark (gradient circle), the table rules and "Page 1 of 1" are artifacts;
+  - options as in D8, with a trailing word separator on every string;
+  - the public API is `renderSamplePdf()` through `src/report/index.ts`, and the layout constants are in `src/report/layout/`.
+- **Fonts.** Inter 4.001, 400 and 700, from `@fontsource/inter@5.3.0` (latin subset), composites decomposed, shipped as WOFF 1.0 in `assets/fonts/` with `OFL.txt`. They are loaded lazily via `?url` and `fetch`.
+- **Spike page.** `spike/pdf.html` (noindex, not linked) is a second Vite `input` entry with the script `src/spike/pdfSpikePage.ts`. It times generation with `performance.now()` and exposes the result as `data-generation-duration-ms`. A new `spike` layer in `eslint.config.js` (allowed: `report`) keeps boundaries enforced. Story 6.5 removes all of it.
+- **Laziness gate.** `npm run size` now also runs `tools/checkInitialBundle.ts` (with unit tests). It follows `index.html` and its static imports, fails on PDFKit code in any eagerly loaded file, and fails if such a file falls outside the `initial bundle` budget. `.size-limit.json` now includes `modulepreload-polyfill-*.js`; the limit stays 150 KB.
+- **E2E.** `tests/e2e/pdfSpike.spec.ts` checks:
+  - cold and warm generation, both < 3000 ms;
+  - the download is saved to `test-results/pdf-spike/sample-<engine>.pdf`, with timing JSON;
+  - `%PDF-1.7`, `/Marked true`, `/StructTreeRoot` and `/Lang`;
+  - `crossOriginIsolated === false`;
+  - no console errors and no foreign requests.
+
+  The request and console capture from the smoke spec is now a shared helper, `tests/e2e/watchPageProblems.ts`. The smoke spec's behaviour is unchanged.
+- **CI.**
+  - New `verapdf` job in `ci.yml`, on `main` only. It uses the image pinned by tag and digest, `verapdf/cli:v1.30.3@sha256:d565095c…f9c`, and fails on a non-zero exit or on a summary other than `compliant="1" nonCompliant="0" failedJobs="0"`. It uploads the `pdf-spike` artifact with the PDF, timings and veraPDF report.
+  - The `gates`, `unit` and `e2e` jobs are untouched.
+  - The post-deploy `smoke` job in `deploy.yml` also runs `pdfSpike.spec.ts` against the live Pages URL.
+  - **For the PR:** `verapdf` is not a required status check. Tiziano decides whether to add it to branch protection. Because `deploy` waits for a successful `ci` run, a veraPDF failure on `main` also blocks deployment.
+- **Deviations from the story.** These are recorded here and in the ADR.
+  1. **Fonts are WOFF 1.0 (`inter-400.woff`, `inter-700.woff`) with decomposed composites, not WOFF2.** fontkit/PDFKit cannot subset WOFF2 correctly (task 2.4 allowed a conversion). Story 1.7 can still use WOFF2 for the UI.
+  2. **The title is tagged `H1`, not `H`.** PDF/UA-1 does not allow `H` and `Hn` to be mixed, and Story 6.5 needs section headings.
+  3. **No shared `Result` yet** (Story 1.2 has not landed). The spike throws on every failure, as task 3.5 directs; the ADR records it.
+  4. **Smoke spec refactor.** The request and console capture was extracted into a shared helper (Charter rule 1: extract at the second occurrence). jscpd ignores `tests/**`, so it would not have forced this.
+  5. **A new `tools/checkInitialBundle.ts` gate was added inside `npm run size`.** `size-limit` alone was shown to miss an eagerly loaded PDFKit chunk.
+- **Questions for Tiziano.** The defaults were adopted unchanged:
+  - Q1: the spike page ships to production and Story 6.5 deletes it;
+  - Q2: veraPDF runs on `main` only, against `vite preview`, plus the post-deploy check;
+  - Q3: the hardware is recorded above.
+- **Not verified locally:**
+  - Firefox (does not launch in this environment);
+  - the live Pages run of the spike page (needs a deploy from `main`);
+  - the `verapdf` job on GitHub Actions. Its exact step script was run locally against Docker with `DOCKER_DEFAULT_PLATFORM=linux/amd64`.
+
+### Agent Review Checklist
+
+- [x] I searched for an existing primitive, pattern or helper before creating one. `src/report` was an empty stub and `shared` is empty. The smoke spec's request capture is reused through `tests/e2e/watchPageProblems.ts`.
+- [x] No duplicated logic. Second occurrences are extracted where the concept is the same: `watchPageProblems`, `withWordSeparator`, `contentWidthPt`/`footerTopPt` and `pdfFontName`. jscpd reports 0 clones.
+- [x] Names use the GDD glossary, carry units (`marginPt`, `docTitleSizePt`, `generationDurationMs`, `coldDurationMs`) and need no comment.
+- [x] Every comment states a *why* that the code cannot: missing PDFKit types, the PDF/UA word-separator rule, the veraPDF blind spot, the spike layer and entry lifetime, and the sfnt tag variants.
+- [x] Core code is pure: no clocks, no `Math.random`, no I/O. `core/` is untouched; `performance.now()` lives only in the spike page.
+- [x] New content kinds or predicates have schema, implementation and test. N/A: this story adds none.
+- [x] Tests describe behaviour and use the shared builders. The test names state behaviour. No game-state builders apply, because there is no core state.
+- [x] Lint, jscpd, knip, Stylelint, size-limit and tests pass (`npm run check` exit 0; `npm run test:e2e` passes on Chromium and WebKit; Firefox cannot launch locally, see above).
 
 ### File List
+
+- `_bmad-output/implementation-artifacts/8-1-pdfkit-tagged-pdf-spike.md` (new; story file)
+- `_bmad-output/implementation-artifacts/sprint-status.yaml` (modified)
+- `assets/.gitkeep` (deleted)
+- `assets/fonts/inter-400.woff` (new)
+- `assets/fonts/inter-700.woff` (new)
+- `assets/fonts/OFL.txt` (new)
+- `src/report/index.ts` (modified)
+- `src/report/layout/documentLayout.ts` (new)
+- `src/report/layout/index.ts` (new)
+- `src/report/pdf/addReceiptTable.ts` (new)
+- `src/report/pdf/addStructureBlocks.ts` (new)
+- `src/report/pdf/buildSamplePdf.ts` (new)
+- `src/report/pdf/buildSamplePdf.test.ts` (new)
+- `src/report/pdf/drawArtifacts.ts` (new)
+- `src/report/pdf/index.ts` (new)
+- `src/report/pdf/pdfFonts.ts` (new)
+- `src/report/pdf/pdfkit.d.ts` (new)
+- `src/report/pdf/renderSamplePdf.ts` (new)
+- `src/report/pdf/samplePostMortem.ts` (new)
+- `src/spike/pdfSpikePage.ts` (new)
+- `spike/pdf.html` (new)
+- `vite.config.ts` (modified)
+- `eslint.config.js` (modified)
+- `knip.json` (modified)
+- `.size-limit.json` (modified)
+- `package.json` (modified)
+- `tools/checkInitialBundle.ts` (new)
+- `tools/findInitialChunks.ts` (new)
+- `tools/findInitialChunks.test.ts` (new)
+- `tests/e2e/pdfSpike.spec.ts` (new)
+- `tests/e2e/watchPageProblems.ts` (new)
+- `tests/e2e/smoke.spec.ts` (modified)
+- `.github/workflows/ci.yml` (modified)
+- `.github/workflows/deploy.yml` (modified)
+- `docs/adr/0003-tagged-pdf-pdfkit-spike.md` (new)
+
+## Change Log
+
+| Date       | Change                                                                                                                                                                                                                                       |
+| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-10-27 | Story 8.1 implemented: PDFKit tagged-PDF spike. **Outcome: GO.** It adds the PDF/UA sample renderer, the PDF fonts (decomposed Inter WOFF), the spike page, the initial-bundle laziness gate, the e2e spec, the `verapdf` CI job and ADR 0003. Status set to review. |
