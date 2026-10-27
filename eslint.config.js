@@ -69,7 +69,7 @@ const noDefaultExport = [
 ];
 
 const userFacingAttribute =
-  'JSXAttribute[name.name=/^(aria-label|aria-description|title|alt|placeholder)$/]';
+  'JSXAttribute[name.name=/^(aria-(label|description|valuetext|roledescription|placeholder)|title|alt|placeholder|label)$/]';
 const textLiteral =
   ':matches(Literal[value=/\\S/], TemplateLiteral:has(TemplateElement[value.raw=/\\S/]))';
 const textContainers = [
@@ -77,12 +77,23 @@ const textContainers = [
   `${userFacingAttribute} > JSXExpressionContainer`,
 ];
 
+const textWrappers = [
+  'ConditionalExpression',
+  'LogicalExpression',
+  "BinaryExpression[operator='+']",
+  'TSAsExpression',
+  'TSSatisfiesExpression',
+  'TSNonNullExpression',
+  'ArrayExpression',
+].join(', ');
+
+// Strings passed to a call stay allowed: that is how keys reach t('area.' + name).
 const userFacingTextSelectors = [
   'JSXText[value=/\\S/]',
   `${userFacingAttribute} > Literal`,
   ...textContainers.flatMap((container) => [
     `${container} > ${textLiteral}`,
-    `${container} > :matches(ConditionalExpression, LogicalExpression) > ${textLiteral}`,
+    `${container} :matches(${textWrappers}) > ${textLiteral}:not(${container} CallExpression *)`,
   ]),
 ];
 
@@ -114,6 +125,16 @@ const coreRestrictedGlobals = [
   'localStorage',
   'sessionStorage',
   'indexedDB',
+  'XMLHttpRequest',
+  'WebSocket',
+  'Worker',
+  'AudioContext',
+  'Notification',
+  'caches',
+  'location',
+  'process',
+  'self',
+  'globalThis',
 ].map((name) => ({
   name,
   message: 'core/ is pure: time, randomness and I/O arrive as arguments.',
@@ -211,8 +232,14 @@ export default defineConfig(
         'error',
         {
           paths: ['preact', '@preact/signals', 'idb'],
-          patterns: ['preact/*'],
+          patterns: ['preact/*', 'node:*'],
         },
+      ],
+      'no-restricted-syntax': [
+        'error',
+        ...noDefaultExport,
+        ...jsxRestrictions,
+        { selector: 'ImportExpression', message: 'core/ is synchronous: no dynamic import().' },
       ],
       '@typescript-eslint/no-magic-numbers': [
         'error',

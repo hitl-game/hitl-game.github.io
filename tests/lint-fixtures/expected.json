@@ -28,6 +28,21 @@
   "src/core/magicNumber.ts": [
     "@typescript-eslint/no-magic-numbers"
   ],
+  "src/core/importsPreact.ts": [
+    "no-restricted-imports"
+  ],
+  "src/core/importsNodeFs.ts": [
+    "no-restricted-imports"
+  ],
+  "src/core/dynamicImport.ts": [
+    "no-restricted-syntax"
+  ],
+  "src/core/webSocket.ts": [
+    "no-restricted-globals"
+  ],
+  "src/core/globalThisDate.ts": [
+    "no-restricted-globals"
+  ],
   "src/platform/index.ts": [],
   "src/app/index.ts": [],
   "src/app/allowedImports.ts": [],
@@ -63,6 +78,15 @@
     "no-restricted-syntax"
   ],
   "src/ui/JsxExpressionAriaLabel.tsx": [
+    "no-restricted-syntax"
+  ],
+  "src/ui/JsxConcatenatedText.tsx": [
+    "no-restricted-syntax"
+  ],
+  "src/ui/JsxAsText.tsx": [
+    "no-restricted-syntax"
+  ],
+  "src/ui/JsxAriaValueText.tsx": [
     "no-restricted-syntax"
   ],
   "src/ui/JsxAllowedExpressions.tsx": [],
@@ -128,6 +152,7 @@
     "scale-unlimited/declaration-strict-value"
   ],
   "css/rawFontShorthand.module.css": [
+    "declaration-property-value-allowed-list",
     "scale-unlimited/declaration-strict-value"
   ],
   "css/rawOutlineShorthand.module.css": [
@@ -135,6 +160,12 @@
   ],
   "css/rawInList.module.css": [
     "scale-unlimited/declaration-strict-value"
+  ],
+  "css/rawFontSlash.module.css": [
+    "declaration-property-value-allowed-list"
+  ],
+  "css/rawVarFallback.module.css": [
+    "declaration-property-value-disallowed-list"
   ],
   "css/tokensOnly.module.css": []
 }

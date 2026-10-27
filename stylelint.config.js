@@ -26,6 +26,16 @@ export default {
   plugins: ['stylelint-declaration-strict-value'],
   rules: {
     'declaration-no-important': true,
+    // expandShorthand cannot parse `font: 14px/1.4 serif`, so `font` must be tokens only.
+    'declaration-property-value-allowed-list': {
+      font: ['/^(inherit|initial|unset|(var\\(--[a-z0-9-]+\\)(\\s*\\/\\s*|\\s+)?)+)$/'],
+    },
+    'declaration-property-value-disallowed-list': [
+      { '/.*/': ['/var\\(\\s*--[^,)]+,/'] },
+      {
+        message: 'No fallback inside var(): the fallback is a raw value that bypasses the tokens.',
+      },
+    ],
     'selector-class-pattern': [
       '^[a-z][a-zA-Z0-9]*$',
       { message: 'CSS Module classes are camelCase; state goes in data- attributes.' },
