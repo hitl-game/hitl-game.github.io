@@ -12,12 +12,13 @@ export const drawMetisMark = (doc: PDFDocument): void => {
     centerXPt + radiusPt,
     centerYPt + radiusPt,
   );
-  const stopCount = documentLayout.markGradientColors.length - 1;
+  const intervalCount = documentLayout.markGradientColors.length - 1;
   documentLayout.markGradientColors.forEach((color, index) => {
-    gradient.stop(index / stopCount, color);
+    gradient.stop(index / intervalCount, color);
   });
   doc.markContent('Artifact');
-  doc.circle(centerXPt, centerYPt, radiusPt).fillColor(gradient).fill();
+  // The fill colour is set before the path: ISO 32000-1 allows only path operators inside a path object.
+  doc.fillColor(gradient).circle(centerXPt, centerYPt, radiusPt).fill();
   doc.endMarkedContent();
   doc.fillColor(documentLayout.inkColor);
 };

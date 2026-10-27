@@ -6,7 +6,7 @@ const htmlAssetPattern =
 const staticImportPattern =
   /\b(?:import|export)\s*(?:[\w$*{},\s]+from\s*)?["'](\.\.?\/[^"']+\.js)["']/g;
 
-export type ReadAsset = (assetPath: string) => Promise<string>;
+type ReadAsset = (assetPath: string) => Promise<string>;
 
 export const findHtmlAssets = (html: string): string[] =>
   [...html.matchAll(htmlAssetPattern)]

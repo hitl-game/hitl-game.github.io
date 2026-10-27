@@ -1,5 +1,3 @@
-import { renderSamplePdf } from '../report';
-
 const findElement = <T extends HTMLElement>(id: string, type: new () => T): T => {
   const element = document.getElementById(id);
   if (!(element instanceof type)) {
@@ -29,6 +27,8 @@ const generatePdf = async (): Promise<void> => {
   statusOutput.value = 'Generating…';
   try {
     const startMs = performance.now();
+    // Lazy like the app will load it: the cold timing includes the report chunk, PDFKit and the fonts.
+    const { renderSamplePdf } = await import('../report');
     const bytes = await renderSamplePdf();
     showPdf(bytes, Math.round(performance.now() - startMs));
   } catch (error: unknown) {

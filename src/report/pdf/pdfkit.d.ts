@@ -11,14 +11,14 @@ declare module 'pdfkit' {
     width?: number;
     lineGap?: number;
     paragraphGap?: number;
-    align?: 'left' | 'right';
+    align?: 'right';
     structParent?: PDFStructureElement;
   }
 
   export interface TableCell {
     text: string;
     type?: 'TH' | 'TD';
-    scope?: 'column' | 'row';
+    scope?: 'column';
     font?: { src: string };
   }
 
@@ -26,10 +26,6 @@ declare module 'pdfkit' {
     data: readonly (readonly TableCell[])[];
     structParent: PDFStructureElement;
     defaultStyle?: { border?: number; padding?: number; textColor?: string };
-  }
-
-  interface PDFTable {
-    readonly document: PDFDocument;
   }
 
   interface ArtifactOptions {
@@ -70,7 +66,8 @@ declare module 'pdfkit' {
     linearGradient(x1Pt: number, y1Pt: number, x2Pt: number, y2Pt: number): LinearGradient;
     text(text: string, options?: TextOptions): this;
     list(items: readonly string[], options?: TextOptions): this;
-    table(options: TableOptions): PDFTable;
+    // The renderer never uses the returned PDFTable; its data is drawn in the constructor.
+    table(options: TableOptions): object;
     struct(type: string, children?: StructureChild): PDFStructureElement;
     addStructure(element: PDFStructureElement): this;
     markContent(tag: 'Artifact', options?: ArtifactOptions): this;

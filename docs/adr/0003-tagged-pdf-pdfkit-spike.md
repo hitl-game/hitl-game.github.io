@@ -1,6 +1,6 @@
 # ADR 0003: Tagged PDF with PDFKit, spike outcome
 
-- **Status:** Accepted (go), 2026-10-27. Proven locally on Chromium and WebKit; the first `verapdf` job, the three-engine `e2e` job (Firefox) and the post-deploy smoke on `main` confirm it on CI and on Pages.
+- **Status:** Accepted (go), 2026-10-27. Proven locally on Chromium and WebKit. Still to confirm, by the first run on `main` after the merge: the `verapdf` job (CI), the three-engine `e2e` job (Firefox) and the post-deploy smoke (Pages).
 - **Story:** 8.1, PDFKit tagged-PDF spike
 - **Follows:** architecture ADR-003 (Tagged PDF via PDFKit) and D8 (End-of-run documents)
 - **Feeds:** Story 6.5 (Tagged PDF export), Story 1.7 (fonts), Story 8.8 (bundle budgets)
@@ -19,19 +19,19 @@ All numbers come from the sample in `src/report/pdf`, generated in the built app
 | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | veraPDF 1.30.3, PDF/UA-1 profile (`ua1`)  | **PASS** for the PDFs generated in Chromium and in WebKit (`compliant="1" nonCompliant="0"`).                                                                 |
 | The gate has teeth                        | With `tagged: false`, veraPDF fails rule **6.2-1** (`MarkInfo`/`Marked`). With unpatched fonts it fails **7.21.4.2-2** (CIDSet). Neither change is committed. |
-| Generation time, Chromium (cold / warm)   | 133–142 ms / 82–90 ms                                                                                                                                         |
-| Generation time, WebKit (cold / warm)     | 107–118 ms / 58–61 ms                                                                                                                                         |
+| Generation time, Chromium (cold / warm)   | 137–185 ms / 84–86 ms (three runs of the final build)                                                                                                         |
+| Generation time, WebKit (cold / warm)     | 104–118 ms / 52–61 ms (three runs of the final build)                                                                                                         |
 | Budget (NFR6, PRF-06)                     | < 3000 ms, asserted by the e2e spec on every engine it runs on                                                                                                |
 | `crossOriginIsolated`                     | `false` (asserted). No `SharedArrayBuffer`, no workers, no COOP/COEP.                                                                                         |
 | Requests outside the site origin          | none (asserted)                                                                                                                                               |
 | Initial bundle (`index.html`)             | 4.98 kB gzip, no PDFKit code (`tools/checkInitialBundle.ts`). It was 4.86 kB before the story (see Build gotchas).                                            |
 | Lazy PDFKit chunk (`pdfkit.browser-*.js`) | 527.6 kB raw, 212.8 kB gzip                                                                                                                                   |
-| Spike page chunk (renderer + page script) | 6.2 kB raw, 2.8 kB gzip                                                                                                                                       |
+| Lazy report chunk (`report-*.js`)         | 4.1 kB raw, 1.9 kB gzip (the renderer helpers; the spike page script `pdfSpike-*.js` is 2.5 kB raw, 1.3 kB gzip)                                              |
 | Fonts, fetched on first generation        | `inter-400.woff` 35.5 kB, `inter-700.woff` 36.1 kB (already compressed)                                                                                       |
 | Sample PDF                                | 17.1 kB, A4, one page                                                                                                                                         |
 
 - **Machine.** Apple M4 Pro, 12 cores, 24 GB, macOS 27.0.1, Playwright 1.64.1. The repository does not define a "reference laptop", so the timings are from this machine. They leave a margin of more than 20× under the 3 s budget.
-- **"Cold"** is the first click after page load: it includes the dynamic import of the PDFKit chunk and both font fetches. **"Warm"** is the second click.
+- **"Cold"** is the first click after page load: it includes the dynamic imports of the report chunk and of the PDFKit chunk, and both font fetches, in that order. **"Warm"** is the second click.
 - **Engines.** Chromium and WebKit were run locally. Firefox does not launch in the local environment ("Could not find profile folder"; the same limit as Story 1.1), so Firefox is covered by the three-engine `e2e` job on `main`.
 - **Deployed site.** The post-deploy `smoke` job runs the same spec against `https://hitl-game.github.io/spike/pdf.html`. That proof exists only after the first deploy from `main`.
 - **Rendering.** A page render (`pdftoppm`) of the browser output was checked by eye: heading, paragraphs, bullets, table, footer and mark are all visible.
@@ -110,20 +110,22 @@ Source SHA-256 values (Fontsource 5.3.0): `inter-latin-400-normal.woff` `e20fa0b
   - A static `import 'pdfkit'` in `main.tsx` puts PDFKit in a separate `pdfkit.browser-*.js` file that `index.html` loads eagerly. `size-limit` still reported 5 kB and passed. This was tested.
   - `tools/checkInitialBundle.ts` (run by `npm run size`, so by the `gates` job) follows `index.html` and its static imports. It fails if any eagerly loaded file contains PDFKit, or if it is not counted by the `initial bundle` budget.
 - **Multi-page input moves the module-preload polyfill.** With two HTML entries, Vite emits it as a shared `modulepreload-polyfill-*.js` instead of inlining it in `index-*.js`. The `initial bundle` budget now includes that file. This split adds 0.12 kB gzip to the initial bundle (4.86 → 4.98 kB). The budget stays at 150 KB.
-- **Entry name.** The main entry must keep the input key `index`. Renaming it renames the chunk and silently empties the `size-limit` glob.
+- **Entry name.** The main entry must keep the input key `index`. Renaming it renames the chunk, and the `index-*.js` glob matches nothing. `size-limit` only reports "can't find files" when every glob of the entry is empty (today there is no `index-*.css` either); with any other match it would silently measure the rest, and only `tools/checkInitialBundle.ts` would catch the unbudgeted file.
 - **Chunk-size warning.** Vite warns that the PDFKit chunk is over 500 kB. It is lazy and expected; the warning is informational.
 - **`fflate`** is now used by the renderer's unit test, so its `ignoreDependencies` entry was removed from `knip.json`, along with the `pdfkit` entry.
 
 ## PDFKit API gotchas
 
 - **Attach the root first.** `doc.addStructure(root)` must run before children are added. A closure child (`doc.struct('P', () => …)`) runs when its parent is attached. If the parent is not attached yet, the content is drawn later, out of reading order.
-- **Word separators.** PDF/UA needs the space between words inside the marked content, including at the end of a block. `withWordSeparator` appends it to every heading, paragraph, list item, cell and footer string.
+- **Word separators.** PDF/UA needs the space between words inside the marked content, including at the end of a block. `withWordSeparator` appends it to every structure string: heading, paragraphs, list items, cells and the Run ID line. The page label is an artifact and is drawn without it, so its right alignment stays exact.
 - **Artifacts.** Wrap decorative drawing in `doc.markContent('Artifact', { type })` and close it with `doc.endMarkedContent()`:
   - `Layout` for rules;
   - `Pagination` for "Page 1 of 1";
   - no type for the Metis mark (a gradient circle; the only Metis colour).
 
   Marking structure content closes an open artifact automatically, but the renderer closes it explicitly.
+
+- **Set the colour before the path.** `doc.circle(…).fillColor(gradient).fill()` writes `/Pattern cs /Sh1 scn` between the path construction and the painting operator, which ISO 32000-1 (8.5.2) does not allow inside a path object; `doc.fill(color)` has the same order. Readers and veraPDF's PDF/UA-1 profile tolerate it, a PDF/A preflight may not. `drawMetisMark` sets `fillColor` first and then builds the path.
 
 - **Lists.** `doc.list(items, { structParent: doc.struct('L') })` builds `LI` > `Lbl` + `LBody`. The bullet is drawn inside `Lbl`, which veraPDF accepts.
 - **Tables.** `doc.table({ structParent, data })` builds `Table` > `TR` > `TH`/`TD`, with `Scope` and `Headers` attributes when a header cell has `scope: 'column'`.
@@ -140,13 +142,13 @@ Source SHA-256 values (Fontsource 5.3.0): `inter-latin-400-normal.woff` `e20fa0b
 
 - `src/report/layout/documentLayout.ts`: page size (A4 in points), margins, type sizes, the derived geometry (`contentRightPt`, `contentWidthPt`, `footerTopPt`) and colours. Move the colours to the Story 1.7 tokens when those land.
 - The structure helpers in `src/report/pdf/`, one module each: `addHeading`, `addParagraphs`, `addList`, `addReceiptTable`, `addRunId`, `drawMetisMark`, `drawRule`, `drawPageLabel`, `withWordSeparator`.
-- The font pipeline: `loadPdfFonts` (Vite `?url` assets, fetched lazily) and `pdfFontName`, plus the decomposed `.woff` files and the outline guard test. `renderSamplePdf` fetches the fonts first and imports the PDFKit chunk after; Story 6.5 can start both at once to shorten the cold path.
+- The font pipeline: `loadPdfFonts` (Vite `?url` assets, fetched lazily) and `pdfFontName`, plus the decomposed `.woff` files and the outline guard test. The spike page imports the report chunk, then `renderSamplePdf` fetches the fonts and imports the PDFKit chunk after, three serial steps; Story 6.5 can start the fonts and PDFKit at once to shorten the cold path.
 - `tools/checkInitialBundle.ts` and the `verapdf` job. Point the job at the real document once it exists.
 - **Remove with 6.5:**
   - `spike/pdf.html` and its `input` entry in `vite.config.ts`;
   - `src/spike/` and the `spike` layer in `eslint.config.js`;
   - its knip entry;
-  - the `modulepreload-polyfill-*.js` glob in `.size-limit.json`: with one HTML entry Vite inlines the polyfill again, and `size-limit` fails on a glob that matches nothing;
+  - the `modulepreload-polyfill-*.js` glob in `.size-limit.json`: with one HTML entry Vite inlines the polyfill again. `size-limit` tolerates one empty glob (it fails only when the whole entry matches nothing), so this is hygiene, not a fix;
   - `samplePostMortem.ts`;
   - the `pdfSpike` e2e spec, or replace it with the real end-of-run flow.
 - **Errors.** Shared `Result` (Story 1.2) does not exist yet, so the spike throws on every failure, including a failed font fetch or chunk load. Story 6.5 must return `Result` for those expected failures.

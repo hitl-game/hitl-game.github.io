@@ -77,7 +77,7 @@ Code review run 1 (2026-10-27; Blind Hunter, Edge Case Hunter, Acceptance Audito
 - [x] [Review][Patch] ADR glyph coverage said 231 code points / 518 glyphs; the shipped fonts hold 230 / 515 (fontTools) [docs/adr/0003-tagged-pdf-pdfkit-spike.md:54] — corrected.
 - [x] [Review][Patch] ADR status read as a settled decision while AC 1 (deployed site) and AC 2 (veraPDF on `main`) can only be confirmed after merge [docs/adr/0003-tagged-pdf-pdfkit-spike.md:3] — status now states what is proven locally and what the first `main` run confirms.
 - [x] [Review][Patch] The outline-guard unit test runs PDFKit's `node` export, not the browser build the ADR describes [src/report/pdf/buildSamplePdf.test.ts, docs/adr/0003-tagged-pdf-pdfkit-spike.md:99] — documented in the test header and the ADR; the browser build stays covered by the e2e spec.
-- [x] [Review][Patch] Footer helpers assume a one-page body; Story 6.5 is told to reuse them [src/report/pdf/addStructureBlocks.ts:55, src/report/pdf/drawArtifacts.ts:46] — limitation and the 6.5 obligation (per-page footer, `bufferedPageRange()`) recorded in the ADR; no code change, by the scope fence.
+- [x] [Review][Patch] Footer helpers assume a one-page body; Story 6.5 is told to reuse them [src/report/pdf/addStructureBlocks.ts:55, src/report/pdf/drawArtifacts.ts:46; since run 2 `addRunId.ts` and `drawPageLabel.ts`] — limitation and the 6.5 obligation (per-page footer, `bufferedPageRange()`) recorded in the ADR; no code change, by the scope fence.
 - [x] [Review][Patch] `.size-limit.json` `modulepreload-polyfill-*.js` glob matches nothing once 6.5 removes the second entry [.size-limit.json:7] — added to the ADR's "Remove with 6.5" list.
 - [x] [Review][Patch] `AGENTS.md` and `CONTRIBUTING.md` still described `size` as size-limit only [AGENTS.md:31, CONTRIBUTING.md:19] — updated.
 
@@ -94,6 +94,20 @@ Code review run 2 (2026-10-27; Blind Hunter, Edge Case Hunter, Acceptance Audito
 - [x] [Review][Patch] ADR gotchas missed two PDFKit table behaviours seen in the generated file: `TH` cells list themselves in their own `/Headers` array, and the per-cell font rollback re-parses a bytes-registered font [docs/adr/0003-tagged-pdf-pdfkit-spike.md:129] — both recorded (veraPDF accepts the first; 6.5 keeps per-cell fonts to the header row), plus the serial font-then-chunk loading that 6.5 can parallelise.
 
 Dismissed after verification: top-level `input` in `vite.config.ts` and a "missing" `OFL.txt` were raised again on the diff alone (both verified in run 1; `OFL.txt` is in the branch); table `scope: 'column'` is lower-cased and mapped to `/Scope /Column` by PDFKit (`pdfkit.browser.mjs:6518`); the cold timing includes the chunk and font loads on purpose (PRF-06 measures cold and warm; on Pages the CDN latency is covered by a 20× margin and Playwright's retries); `readGlyfBytesPerGlyph` could return `Infinity` only for a non-empty `glyf` with zero `maxp` glyphs, which fontkit never writes.
+
+Code review run 3 (2026-10-27; Blind Hunter, Edge Case Hunter, Acceptance Auditor; 16 raw findings, 15 after merging, 9 patched, 0 deferred, 6 dismissed as verified non-issues). Run 1's two decisions above stay open for Tiziano.
+
+- [x] [Review][Patch] `drawMetisMark` set the gradient fill after building the path, so the content stream read `… h /Pattern cs /Sh1 scn f`: colour operators inside a path object, which ISO 32000-1 (8.5.2) does not allow. Readers and veraPDF's PDF/UA-1 profile tolerate it; a PDF/A preflight may not, and Story 6.5 would inherit the idiom [src/report/pdf/drawMetisMark.ts:20] — `fillColor(gradient)` now precedes `circle()`; verified in the regenerated content stream; both PDFs still pass veraPDF; gotcha recorded in the ADR.
+- [x] [Review][Patch] Task 4.1 asks the spike page to import the report module dynamically; it imported it statically and the deviation was not recorded [src/spike/pdfSpikePage.ts:1] — `import('../report')` inside `generatePdf`. Vite emits a separate `report-*.js` chunk (4.1 kB raw, 1.9 kB gzip) that does not collide with the `index-*.js` budget glob (checked on the build output), and the cold timing now covers it.
+- [x] [Review][Patch] ADR and Dev Record claimed a word separator on "every string" while the page label, an artifact, has none [docs/adr/0003-tagged-pdf-pdfkit-spike.md:120] — both now say structure strings only, and why the label is excluded.
+- [x] [Review][Patch] ADR evidence predated the run-2 refactor (6.2 kB spike chunk; Chromium 133–142 / 82–90 ms against 161 / 93 ms in the latest local run) [docs/adr/0003-tagged-pdf-pdfkit-spike.md:22-29] — re-measured on the final build over three runs (Chromium cold 137–185 ms / warm 84–86 ms, WebKit cold 104–118 ms / warm 52–61 ms); chunk sizes updated.
+- [x] [Review][Patch] ADR said `size-limit` "fails on a glob that matches nothing"; it only fails when the whole entry is empty (`get-config.js` filters on `check.files.length`; the current `dist/` has no `index-*.css` and `npm run size` passes) [docs/adr/0003-tagged-pdf-pdfkit-spike.md:113,149] — the "Entry name" gotcha and the 6.5 removal list now state the real behaviour.
+- [x] [Review][Patch] ADR status line read as if the CI and Pages confirmations had already happened, while the Evidence section says they have not [docs/adr/0003-tagged-pdf-pdfkit-spike.md:3] — reworded as still to confirm by the first run on `main`.
+- [x] [Review][Patch] Declaration leftovers: `PDFTable.document` existed only to avoid an empty interface, `align` and `scope` carried unused union members, `ReadAsset` was exported but never imported [src/report/pdf/pdfkit.d.ts:14,21,31, tools/findInitialChunks.ts:9] — `table()` returns `object` with a why, the unions are the values used, `ReadAsset` is module-private.
+- [x] [Review][Patch] `stopCount` in `drawMetisMark` counted intervals, not stops [src/report/pdf/drawMetisMark.ts:15] — `intervalCount`.
+- [x] [Review][Patch] Run-1 findings pointed at `addStructureBlocks.ts` and `drawArtifacts.ts`, removed in run 2 [story Review Findings, run 1] — the current file names are added to the pointer.
+
+Dismissed after verification: the `verapdf` build step, top-level `input`, the fonts "missing" from the patch and `push` being `main`-only were raised again on the diff alone (run 1 verified all four; the review diff excludes `assets/fonts`); the warm timing cannot read the cold value, because Playwright's `click()` returns after the handler has synchronously set "Generating…"; a string-valued `path` in `.size-limit.json` would stop `tools/checkInitialBundle.ts` with a TypeError instead of its own message, but the repo's config is an array and the script fails closed either way (defensive noise per the Charter).
 
 ## Dev Notes
 
@@ -234,8 +248,10 @@ Claude Opus 5.5 (claude-opus-5-5[1m]), Claude Code, gds-dev-story workflow, run 
 - **Entry name.** Naming the main Vite input `main` renamed `index-*.js` to `main-*.js`, and `size-limit` reported "can't find files". The key is now `index`, and the ADR records why.
 - **Firefox (local only).** It does not launch locally: Playwright's Firefox exits with "Could not find profile folder" (the same environment limit as Story 1.1). Re-running outside the sandbox was not permitted. Chromium and WebKit pass locally; Firefox is left to the three-engine `e2e` job on `main`.
 - **Timings** on an Apple M4 Pro (12 cores, 24 GB), macOS 27.0.1, `vite preview`:
-  - Chromium: cold 133–142 ms, warm 82–90 ms;
-  - WebKit: cold 107–118 ms, warm 58–61 ms.
+  - Chromium: cold 137–185 ms, warm 84–86 ms;
+  - WebKit: cold 104–118 ms, warm 52–61 ms.
+
+  Three runs of the final build (review run 3); the cold path includes the report chunk, the PDFKit chunk and both fonts.
 - **Initial bundle before and after.** At the baseline commit (`6d5ac8d`) it was 4.86 kB gzip in one file. After the story it is 4.98 kB gzip: `index-*.js` 4.62 kB plus the shared `modulepreload-polyfill-*.js` 0.38 kB, which the multi-page build splits out.
 
 ### Completion Notes List
@@ -248,10 +264,10 @@ Claude Opus 5.5 (claude-opus-5-5[1m]), Claude Code, gds-dev-story workflow, run 
 - **Renderer.** `src/report/pdf/` builds a hard-coded Post-mortem-shaped sample:
   - `Document` > `H1`, 2 × `P`, `L` > `LI` > `Lbl` + `LBody`, `Table` > `TR` > `TH`/`TD` (scope column), and `P` (Run ID);
   - the Metis mark (gradient circle), the table rules and "Page 1 of 1" are artifacts;
-  - options as in D8, with a trailing word separator on every string;
+  - options as in D8, with a trailing word separator on every structure string (the page label is an artifact and has none);
   - the public API is `renderSamplePdf()` through `src/report/index.ts`, and the layout constants are in `src/report/layout/`.
 - **Fonts.** Inter 4.001, 400 and 700, from `@fontsource/inter@5.3.0` (latin subset), composites decomposed, shipped as WOFF 1.0 in `assets/fonts/` with `OFL.txt`. They are loaded lazily via `?url` and `fetch`.
-- **Spike page.** `spike/pdf.html` (noindex, not linked) is a second Vite `input` entry with the script `src/spike/pdfSpikePage.ts`. It times generation with `performance.now()` and exposes the result as `data-generation-duration-ms`. A new `spike` layer in `eslint.config.js` (allowed: `report`) keeps boundaries enforced. Story 6.5 removes all of it.
+- **Spike page.** `spike/pdf.html` (noindex, not linked) is a second Vite `input` entry with the script `src/spike/pdfSpikePage.ts`. The script imports the report module lazily (`import('../report')`, task 4.1), so Vite emits a separate `report-*.js` chunk and the cold timing covers it. It times generation with `performance.now()` and exposes the result as `data-generation-duration-ms`. A new `spike` layer in `eslint.config.js` (allowed: `report`) keeps boundaries enforced. Story 6.5 removes all of it.
 - **Laziness gate.** `npm run size` now also runs `tools/checkInitialBundle.ts` (with unit tests). It follows `index.html` and its static imports, fails on PDFKit code in any eagerly loaded file, and fails if such a file falls outside the `initial bundle` budget. `.size-limit.json` now includes `modulepreload-polyfill-*.js`; the limit stays 150 KB.
 - **E2E.** `tests/e2e/pdfSpike.spec.ts` checks:
   - cold and warm generation, both < 3000 ms;
@@ -346,3 +362,4 @@ Claude Opus 5.5 (claude-opus-5-5[1m]), Claude Code, gds-dev-story workflow, run 
 | 2026-10-27 | Story 8.1 implemented: PDFKit tagged-PDF spike. **Outcome: GO.** It adds the PDF/UA sample renderer, the PDF fonts (decomposed Inter WOFF), the spike page, the initial-bundle laziness gate, the e2e spec, the `verapdf` CI job and ADR 0003. Status set to review. |
 | 2026-10-27 | Code review run 1: 11 findings patched (re-export detection in the laziness gate, spike page error reporting, PDFKit typings and the unused `error` listener, `verapdf` artifact upload, ADR accuracy, docs), 2 deferred to Tiziano (Firefox run, Docker Hub pull), 6 dismissed. See Review Findings. Status stays review. |
 | 2026-10-27 | Code review run 2: 7 findings patched (default-font double parse, one module per helper with geometry constants in `documentLayout`, `spike` layer in AGENTS.md, laziness gate simplified and following `../` imports, `verapdf` failed-rule log, ADR table gotchas), 0 deferred, 5 dismissed. See Review Findings. Status stays review. |
+| 2026-10-27 | Code review run 3: 9 findings patched (gradient colour set before the path in `drawMetisMark`, spike page imports the report module lazily as task 4.1 asks, ADR evidence re-measured and three ADR claims corrected, declaration leftovers, naming, stale pointers), 0 deferred, 6 dismissed. See Review Findings. Status stays review. |
