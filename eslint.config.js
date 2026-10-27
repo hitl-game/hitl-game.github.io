@@ -77,24 +77,27 @@ const textContainers = [
   `${userFacingAttribute} > JSXExpressionContainer`,
 ];
 
-const textWrappers = [
+const textWrapper = `:matches(${[
   'ConditionalExpression',
   'LogicalExpression',
   "BinaryExpression[operator='+']",
   'TSAsExpression',
   'TSSatisfiesExpression',
-  'TSNonNullExpression',
   'ArrayExpression',
-].join(', ');
+].join(', ')})`;
+const maxWrapperDepth = 4;
 
-// Strings passed to a call stay allowed: that is how keys reach t('area.' + name).
+// Only unbroken wrapper chains count, so a call such as t('area.' + name) stays allowed.
+const wrapperChains = Array.from({ length: maxWrapperDepth + 1 }, (_, depth) =>
+  Array.from({ length: depth }, () => `${textWrapper} > `).join(''),
+);
+
 const userFacingTextSelectors = [
   'JSXText[value=/\\S/]',
   `${userFacingAttribute} > Literal`,
-  ...textContainers.flatMap((container) => [
-    `${container} > ${textLiteral}`,
-    `${container} :matches(${textWrappers}) > ${textLiteral}:not(${container} CallExpression *)`,
-  ]),
+  ...textContainers.flatMap((container) =>
+    wrapperChains.map((chain) => `${container} > ${chain}${textLiteral}`),
+  ),
 ];
 
 const jsxRestrictions = [

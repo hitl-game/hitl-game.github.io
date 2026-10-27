@@ -1,0 +1,12 @@
+@font-face {
+  font-family: inter;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./inter-400.woff2') format('woff2');
+}
+
+:root {
+  --color-text: #111;
+  --space-2: 8px;
+  --font-body: inter, sans-serif;
+}

@@ -28,12 +28,12 @@
   "src/core/magicNumber.ts": [
     "@typescript-eslint/no-magic-numbers"
   ],
-  "src/core/importsPreact.ts": [
-    "no-restricted-imports"
-  ],
-  "src/core/importsNodeFs.ts": [
-    "no-restricted-imports"
-  ],
+  "src/core/restrictedImports.ts": {
+    "no-restricted-imports": 5
+  },
+  "src/core/restrictedGlobals.ts": {
+    "no-restricted-globals": 26
+  },
   "src/core/dynamicImport.ts": [
     "no-restricted-syntax"
   ],
@@ -89,6 +89,15 @@
   "src/ui/JsxAriaValueText.tsx": [
     "no-restricted-syntax"
   ],
+  "src/ui/JsxWrappedText.tsx": {
+    "no-restricted-syntax": 6
+  },
+  "src/ui/JsxMappedConditionalText.tsx": {
+    "no-restricted-syntax": 2
+  },
+  "src/ui/JsxUserFacingAttributes.tsx": {
+    "no-restricted-syntax": 10
+  },
   "src/ui/JsxAllowedExpressions.tsx": [],
   "src/ui/consoleLog.ts": [
     "no-console"
@@ -167,5 +176,12 @@
   "css/rawVarFallback.module.css": [
     "declaration-property-value-disallowed-list"
   ],
+  "css/rawCustomProperty.module.css": [
+    "declaration-property-value-disallowed-list"
+  ],
+  "css/rawTextShadow.module.css": [
+    "scale-unlimited/declaration-strict-value"
+  ],
+  "css/src/ui/theme/fonts.css": [],
   "css/tokensOnly.module.css": []
 }
