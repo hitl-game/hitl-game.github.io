@@ -18,9 +18,11 @@ const indexHtml = `<!doctype html><html><head>
 const assets: Readonly<Record<string, string>> = {
   'assets/index-a1.js':
     'import"./shared-b2.js";import{a as b}from"./vendor-d4.js";const c=()=>import("./pdfkit-e5.js");',
-  'assets/shared-b2.js': 'export const s=1;',
+  'assets/shared-b2.js': 'export{f as g}from"./facade-f6.js";export*from"./facade-g7.js";',
   'assets/vendor-d4.js': 'export const a=2;',
   'assets/pdfkit-e5.js': 'Producer:"PDFKit"',
+  'assets/facade-f6.js': 'export const f=3;',
+  'assets/facade-g7.js': 'export const h=4;',
 };
 
 const readAsset = (assetPath: string): Promise<string> => {
@@ -45,11 +47,20 @@ describe('findStaticImports', () => {
       'vendor-d4.js',
     ]);
   });
+
+  it('follows re-exports, which the browser loads up front like imports', () => {
+    expect(findStaticImports(assets['assets/shared-b2.js'] ?? '')).toEqual([
+      'facade-f6.js',
+      'facade-g7.js',
+    ]);
+  });
 });
 
 describe('findInitialChunks', () => {
   it('collects every file the page loads up front, but not lazy chunks', async () => {
     await expect(findInitialChunks(indexHtml, readAsset)).resolves.toEqual([
+      'assets/facade-f6.js',
+      'assets/facade-g7.js',
       'assets/index-a1.js',
       'assets/index-c3.css',
       'assets/shared-b2.js',

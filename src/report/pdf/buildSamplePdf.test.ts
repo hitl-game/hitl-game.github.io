@@ -6,6 +6,7 @@ import interRegularDataUrl from '../../../assets/fonts/inter-400.woff?inline';
 
 import { buildSamplePdf } from './buildSamplePdf';
 
+// Vitest resolves PDFKit's `node` export, so this runs the Node build; the e2e spec covers the browser build.
 // fontkit writes the 'true' sfnt tag; other tools write 0x00010000.
 const trueTypeVersions = new Set([0x00010000, 0x74727565]);
 const tableRecordStartByte = 12;

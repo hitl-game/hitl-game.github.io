@@ -11,6 +11,8 @@ const outputDir = path.join('test-results', 'pdf-spike');
 const generateSamplePdf = async (page: Page): Promise<number> => {
   await page.getByRole('button', { name: 'Generate sample PDF' }).click();
   const status = page.getByRole('status');
+  // On failure the status carries the error message, which this assertion then reports.
+  await expect(status).toHaveText(/^Generated /);
   await expect(status).toHaveAttribute('data-generation-duration-ms', /^\d+$/);
   return Number(await status.getAttribute('data-generation-duration-ms'));
 };

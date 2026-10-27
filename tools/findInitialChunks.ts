@@ -1,7 +1,8 @@
 const htmlAssetPattern =
   /<(?:script[^>]*\ssrc|link[^>]*\srel="(?:modulepreload|stylesheet)"[^>]*\shref)="([^"]+)"/g;
-// Static imports only: a dynamic import("./x.js") is a lazy chunk and stays out of the initial bundle.
-const staticImportPattern = /\bimport\s*(?:[\w$*{},\s]+from\s*)?["']\.\/([^"']+\.js)["']/g;
+// Static imports and re-exports only: a dynamic import("./x.js") is a lazy chunk and stays out of the initial bundle.
+const staticImportPattern =
+  /\b(?:import|export)\s*(?:[\w$*{},\s]+from\s*)?["']\.\/([^"']+\.js)["']/g;
 
 export type ReadAsset = (assetPath: string) => Promise<string>;
 

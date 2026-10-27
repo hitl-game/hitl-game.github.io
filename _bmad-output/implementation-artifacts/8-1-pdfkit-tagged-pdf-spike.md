@@ -63,6 +63,26 @@ Source: epics.md → Story 8.1; test-design PDF-01 and risk R8. This is a **spik
   - [x] 7.1 `knip.json` lists `pdfkit` under `ignoreDependencies` because nothing imported it. Once the spike imports it, remove that entry (knip reports stale ignores, as it did for `yaml` in Story 1.1). Add the spike HTML entry to knip `entry` if needed.
   - [x] 7.2 Run `npm run check` (all gates except e2e) and `npx playwright test` locally on Node 24; then the Agent Review Checklist and paste it, ticked, in the PR.
 
+### Review Findings
+
+Code review run 1 (2026-10-27; Blind Hunter, Edge Case Hunter, Acceptance Auditor; 19 raw findings, 11 patched, 2 deferred to Tiziano, 6 dismissed as verified non-issues).
+
+- [ ] [Review][Decision] Firefox has never run `pdfSpike.spec.ts` — Playwright's Firefox fails to launch in the sandbox ("Could not find profile folder", also on this run). The first push to `main` runs the spec on Firefox in the three-engine `e2e` job; a Firefox-only failure there would block the Pages deploy. Options: run `npx playwright test --project=firefox tests/e2e/pdfSpike.spec.ts` once outside the sandbox before merging, or accept the first-run risk (the job can be re-run after a fix).
+- [ ] [Review][Decision] The `verapdf` job pulls `verapdf/cli` anonymously from Docker Hub [.github/workflows/ci.yml:79]. A registry rate limit or outage fails `ci` on `main` and therefore the deploy. Options: accept (re-run), or mirror the image (GHCR) later. Low likelihood; no code change made.
+- [x] [Review][Patch] `findStaticImports` missed `export … from` re-exports, so an eagerly loaded facade chunk could carry PDFKit unnoticed [tools/findInitialChunks.ts:4] — regex now matches `import` and `export` forms; test added.
+- [x] [Review][Patch] Spike page left the status at "Generating…" on failure and the e2e surfaced only a 5 s attribute timeout [src/spike/pdfSpikePage.ts:30, tests/e2e/pdfSpike.spec.ts:14] — the page writes `Failed: <message>` and rethrows; the spec asserts the status text first, so the message is in the failure report.
+- [x] [Review][Patch] `doc.on('error', reject)` listened for an event PDFKit never emits [src/report/pdf/buildSamplePdf.ts:14, src/report/pdf/pdfkit.d.ts:86] — listener and overload removed; failures throw from the drawing call.
+- [x] [Review][Patch] `pdfkit.d.ts` declared `table()` as returning `this` (runtime returns a `PDFTable`) and members the renderer does not use (`bulletRadius`, artifact types `Page`/`Background`) [src/report/pdf/pdfkit.d.ts:18-37,79] — return type fixed, unused members removed.
+- [x] [Review][Patch] `verapdf` artifact upload used `if: always()` with `if-no-files-found: error`, adding a second red step when the test step fails early, and kept no Playwright report [.github/workflows/ci.yml:100-106] — now `!cancelled()`, `warn`, and `playwright-report` included.
+- [x] [Review][Patch] ADR glyph coverage said 231 code points / 518 glyphs; the shipped fonts hold 230 / 515 (fontTools) [docs/adr/0003-tagged-pdf-pdfkit-spike.md:54] — corrected.
+- [x] [Review][Patch] ADR status read as a settled decision while AC 1 (deployed site) and AC 2 (veraPDF on `main`) can only be confirmed after merge [docs/adr/0003-tagged-pdf-pdfkit-spike.md:3] — status now states what is proven locally and what the first `main` run confirms.
+- [x] [Review][Patch] The outline-guard unit test runs PDFKit's `node` export, not the browser build the ADR describes [src/report/pdf/buildSamplePdf.test.ts, docs/adr/0003-tagged-pdf-pdfkit-spike.md:99] — documented in the test header and the ADR; the browser build stays covered by the e2e spec.
+- [x] [Review][Patch] Footer helpers assume a one-page body; Story 6.5 is told to reuse them [src/report/pdf/addStructureBlocks.ts:55, src/report/pdf/drawArtifacts.ts:46] — limitation and the 6.5 obligation (per-page footer, `bufferedPageRange()`) recorded in the ADR; no code change, by the scope fence.
+- [x] [Review][Patch] `.size-limit.json` `modulepreload-polyfill-*.js` glob matches nothing once 6.5 removes the second entry [.size-limit.json:7] — added to the ADR's "Remove with 6.5" list.
+- [x] [Review][Patch] `AGENTS.md` and `CONTRIBUTING.md` still described `size` as size-limit only [AGENTS.md:31, CONTRIBUTING.md:19] — updated.
+
+Dismissed after verification: top-level `input` in `vite.config.ts` is a valid Vite 8 option (`SharedEnvironmentOptions.input`, `dist/spike/pdf.html` is built); the `verapdf` job builds through Playwright's `webServer` (`npm run build && npm run preview`); `if: github.event_name == 'push'` is `main`-only because `on.push.branches` is `[main]`; `tools/checkInitialBundle.ts` with a non-root `base` is out of scope (`base` is `/` by NFR19, and `size-limit` fails first without `dist/`); task 1.5's `SharedArrayBuffer` clause is proven by generation succeeding with `crossOriginIsolated === false` (no chunk contains the identifier); `struct(type, fn)` matches PDFKit's runtime, which accepts a child as the second argument.
+
 ## Dev Notes
 
 ### Current repository state (read before touching anything)
@@ -297,9 +317,13 @@ Claude Opus 5.5 (claude-opus-5-5[1m]), Claude Code, gds-dev-story workflow, run 
 - `.github/workflows/ci.yml` (modified)
 - `.github/workflows/deploy.yml` (modified)
 - `docs/adr/0003-tagged-pdf-pdfkit-spike.md` (new)
+- `_bmad-output/implementation-artifacts/deferred-work.md` (new; review run 1)
+- `AGENTS.md` (modified; review run 1)
+- `CONTRIBUTING.md` (modified; review run 1)
 
 ## Change Log
 
 | Date       | Change                                                                                                                                                                                                                                       |
 | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 2026-10-27 | Story 8.1 implemented: PDFKit tagged-PDF spike. **Outcome: GO.** It adds the PDF/UA sample renderer, the PDF fonts (decomposed Inter WOFF), the spike page, the initial-bundle laziness gate, the e2e spec, the `verapdf` CI job and ADR 0003. Status set to review. |
+| 2026-10-27 | Code review run 1: 11 findings patched (re-export detection in the laziness gate, spike page error reporting, PDFKit typings and the unused `error` listener, `verapdf` artifact upload, ADR accuracy, docs), 2 deferred to Tiziano (Firefox run, Docker Hub pull), 6 dismissed. See Review Findings. Status stays review. |

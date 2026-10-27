@@ -31,6 +31,9 @@ const generatePdf = async (): Promise<void> => {
     const startMs = performance.now();
     const bytes = await renderSamplePdf();
     showPdf(bytes, Math.round(performance.now() - startMs));
+  } catch (error: unknown) {
+    statusOutput.value = `Failed: ${error instanceof Error ? error.message : String(error)}`;
+    throw error;
   } finally {
     generateButton.disabled = false;
   }

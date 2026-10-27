@@ -97,10 +97,12 @@ jobs:
           # veraPDF exits 0 only when every file is compliant; the summary also guards against a run that validated nothing.
           test "$status" -eq 0
           grep -q 'compliant="1" nonCompliant="0" failedJobs="0"' test-results/pdf-spike/verapdf-report.xml
-      - if: always()
+      - if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v7
         with:
           name: pdf-spike
-          path: test-results/pdf-spike
-          if-no-files-found: error
+          path: |
+            test-results/pdf-spike
+            playwright-report
+          if-no-files-found: warn
           retention-days: 14

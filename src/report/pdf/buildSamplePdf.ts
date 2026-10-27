@@ -7,11 +7,11 @@ import { drawMetisMark, drawPageLabel } from './drawArtifacts';
 import { pdfFontName, type PdfFonts } from './pdfFonts';
 import { samplePostMortem } from './samplePostMortem';
 
+// PDFKit never emits 'error': a rendering failure throws from the drawing call itself.
 const collectPdfBytes = (doc: PDFDocument): Promise<Uint8Array<ArrayBuffer>> =>
-  new Promise((resolve, reject) => {
+  new Promise((resolve) => {
     const chunks: Uint8Array[] = [];
     doc.on('data', (chunk) => chunks.push(chunk));
-    doc.on('error', reject);
     doc.on('end', () => {
       const bytes = new Uint8Array(chunks.reduce((total, chunk) => total + chunk.byteLength, 0));
       chunks.reduce((offset, chunk) => {

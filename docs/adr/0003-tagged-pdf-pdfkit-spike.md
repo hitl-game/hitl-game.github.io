@@ -1,6 +1,6 @@
 # ADR 0003: Tagged PDF with PDFKit, spike outcome
 
-- **Status:** Accepted (go), 2026-10-27
+- **Status:** Accepted (go), 2026-10-27. Proven locally on Chromium and WebKit; the first `verapdf` job, the three-engine `e2e` job (Firefox) and the post-deploy smoke on `main` confirm it on CI and on Pages.
 - **Story:** 8.1, PDFKit tagged-PDF spike
 - **Follows:** architecture ADR-003 (Tagged PDF via PDFKit) and D8 (End-of-run documents)
 - **Feeds:** Story 6.5 (Tagged PDF export), Story 1.7 (fonts), Story 8.8 (bundle budgets)
@@ -42,7 +42,7 @@ All numbers come from the sample in `src/report/pdf`, generated in the built app
   - It builds the app, runs `pdfSpike.spec.ts` on Chromium against `vite preview`, and validates `test-results/pdf-spike/sample-chromium.pdf`.
   - The veraPDF image is pinned by tag and digest: `verapdf/cli:v1.30.3@sha256:d565095c67a083e693aebf7d1a15784007370571053fc1aa5b502665b9a78f9c`. That image bundles its own JRE, so the job needs no Java setup.
   - The job fails if veraPDF exits non-zero or if the report summary is not exactly `compliant="1" nonCompliant="0" failedJobs="0"`. The second check stops a run that validated nothing from passing.
-  - It uploads the PDF, the timing JSON and the veraPDF report as the `pdf-spike` artifact (14 days), pass or fail.
+  - It uploads the PDF, the timing JSON, the veraPDF report and the Playwright report as the `pdf-spike` artifact (14 days), pass or fail.
 - **Deploy.** `deploy.yml` runs after a successful `ci` run, so a veraPDF failure on `main` also blocks the Pages deploy.
 - **Post-deploy smoke.** It runs `smoke.spec.ts` and `pdfSpike.spec.ts` on Chromium against the live URL.
 
@@ -51,7 +51,7 @@ All numbers come from the sample in `src/report/pdf`, generated in the built app
 - **Source.** Inter **4.001** (`Version 4.001;git-66647c0bb`), taken from the npm package `@fontsource/inter@5.3.0` (Google Fonts build `v20`). The files are `files/inter-latin-400-normal.woff` and `files/inter-latin-700-normal.woff`. They were copied once with `npm pack`; the package is not a dependency.
 - **Weights.** 400 (body, footer, table cells) and 700 (document title, table headers). These are the only weights the sample uses (D14).
 - **Licence.** SIL OFL 1.1, in `assets/fonts/OFL.txt` (copied from the package). The licence declares no Reserved Font Name, so the modified files keep the name Inter.
-- **Glyph coverage.** The Fontsource `latin` subset: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD. That is 231 code points and 518 glyphs. It covers English and most Western European text.
+- **Glyph coverage.** The Fontsource `latin` subset: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD. That is 230 mapped code points and 515 glyphs per weight (fontTools `cmap` and `maxp`). It covers English and most Western European text.
   - **Consequence for later locales.** A locale that needs Latin Extended, Cyrillic, Greek or Vietnamese needs the matching Fontsource subset, merged into the file or added as a second font. PDFKit has no font fallback: a missing glyph renders as `.notdef`, and veraPDF does not flag it. Each locale's PDF test must contain that locale's characters.
 - **PDFKit embeds a real subset.** The PDF holds `CIDFontType2` fonts with a `FontFile2` program, named `XXXXXX+Inter-Regular` and `XXXXXX+Inter-Bold`. The standard 14 fonts are never used:
   - the document is created with `font: <Inter bytes>`, so PDFKit never loads its default Helvetica;
@@ -96,7 +96,7 @@ Source SHA-256 values (Fontsource 5.3.0): `inter-latin-400-normal.woff` `e20fa0b
 
 **For Story 1.7:** the UI can keep WOFF2 (`inter-<weight>.woff2`, D14). The PDF renderer needs these `.woff` files next to them. Do not point the PDF renderer at the UI's WOFF2 files.
 
-**Guard:** `src/report/pdf/buildSamplePdf.test.ts` measures the glyph data per embedded glyph. It fails if someone swaps in a WOFF2 file (about 30 bytes per glyph, against about 90 for real outlines), because veraPDF would not catch that.
+**Guard:** `src/report/pdf/buildSamplePdf.test.ts` measures the glyph data per embedded glyph. It fails if someone swaps in a WOFF2 file (about 30 bytes per glyph, against about 90 for real outlines), because veraPDF would not catch that. Under Vitest the test runs PDFKit's `node` export (`pdfkit.node.mjs`) and fontkit's Node build, where the WOFF2 failure reproduces; the browser build is exercised by the e2e spec only.
 
 ## Build gotchas
 
@@ -130,7 +130,7 @@ Source SHA-256 values (Fontsource 5.3.0): `inter-latin-400-normal.woff` `e20fa0b
   - Cell borders are drawn inside the cell's marked content, not as artifacts. The sample sets `border: 0` and draws the table rules as `Layout` artifacts.
   - Header cells take a font per cell: `font: { src: 'inter-700' }`, a name registered with `doc.registerFont`.
 - **Heading tag.** The title is tagged `H1`, not `H`. Story 6.5 needs section headings, and PDF/UA-1 does not allow strongly structured `H` to be mixed with numbered headings, so numbered headings are used from the start.
-- **Footer placement.** Text placed below the bottom margin starts a new page. The footer sits just inside the margin (`footerTopPt`).
+- **Footer placement.** Text placed below the bottom margin starts a new page. The footer sits just inside the margin (`footerTopPt`). `addRunId` and `drawPageLabel` assume the body ends above it, which holds for the one-page sample; a longer body overprints the footer or pushes it to a new page with a wrong "Page 1 of 1". Story 6.5 must draw the footer per page and take the label from `doc.bufferedPageRange()`.
 - **Output.** The renderer collects the document's `data` events into one `Uint8Array`. PDFKit also ships `toBytes` and `toBlob` in `pdfkit/output`, but they are marked experimental, so the spike does not use them.
 - **`subset: 'PDF/UA'`** also writes the XMP `pdfuaid:part 1`, `/MarkInfo << /Marked true >>`, `/Lang` and `/ViewerPreferences << /DisplayDocTitle true >>` (with `displayTitle: true`).
 
@@ -144,6 +144,7 @@ Source SHA-256 values (Fontsource 5.3.0): `inter-latin-400-normal.woff` `e20fa0b
   - `spike/pdf.html` and its `input` entry in `vite.config.ts`;
   - `src/spike/` and the `spike` layer in `eslint.config.js`;
   - its knip entry;
+  - the `modulepreload-polyfill-*.js` glob in `.size-limit.json`: with one HTML entry Vite inlines the polyfill again, and `size-limit` fails on a glob that matches nothing;
   - `samplePostMortem.ts`;
   - the `pdfSpike` e2e spec, or replace it with the real end-of-run flow.
 - **Errors.** Shared `Result` (Story 1.2) does not exist yet, so the spike throws on every failure, including a failed font fetch or chunk load. Story 6.5 must return `Result` for those expected failures.

@@ -15,10 +15,6 @@ declare module 'pdfkit' {
     structParent?: PDFStructureElement;
   }
 
-  interface ListOptions extends TextOptions {
-    bulletRadius?: number;
-  }
-
   export interface TableCell {
     text: string;
     type?: 'TH' | 'TD';
@@ -32,8 +28,12 @@ declare module 'pdfkit' {
     defaultStyle?: { border?: number; padding?: number; textColor?: string };
   }
 
+  interface PDFTable {
+    readonly document: PDFDocument;
+  }
+
   interface ArtifactOptions {
-    type?: 'Pagination' | 'Layout' | 'Page' | 'Background';
+    type?: 'Pagination' | 'Layout';
   }
 
   interface DocumentOptions {
@@ -75,15 +75,14 @@ declare module 'pdfkit' {
     fill(): this;
     linearGradient(x1Pt: number, y1Pt: number, x2Pt: number, y2Pt: number): LinearGradient;
     text(text: string, options?: TextOptions): this;
-    list(items: readonly string[], options?: ListOptions): this;
-    table(options: TableOptions): this;
+    list(items: readonly string[], options?: TextOptions): this;
+    table(options: TableOptions): PDFTable;
     struct(type: string, children?: StructureChild): PDFStructureElement;
     addStructure(element: PDFStructureElement): this;
     markContent(tag: 'Artifact', options?: ArtifactOptions): this;
     endMarkedContent(): this;
     on(event: 'data', listener: (chunk: Uint8Array) => void): this;
     on(event: 'end', listener: () => void): this;
-    on(event: 'error', listener: (error: Error) => void): this;
     end(): void;
   }
 }
