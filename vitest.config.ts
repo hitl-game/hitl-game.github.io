@@ -1,5 +1,7 @@
 import preact from '@preact/preset-vite';
-import { defineConfig } from 'vitest/config';
+import { configDefaults, defineConfig } from 'vitest/config';
+
+const nodeOnlyTests = ['src/{core,shared}/**/*.test.{ts,tsx}'];
 
 export default defineConfig({
   plugins: [preact()],
@@ -12,7 +14,7 @@ export default defineConfig({
         test: {
           name: 'core',
           environment: 'node',
-          include: ['src/core/**/*.test.ts', 'src/shared/**/*.test.ts', 'tools/**/*.test.ts'],
+          include: [...nodeOnlyTests, 'tools/**/*.test.{ts,tsx}', 'tests/**/*.test.{ts,tsx}'],
         },
       },
       {
@@ -20,7 +22,8 @@ export default defineConfig({
         test: {
           name: 'dom',
           environment: 'happy-dom',
-          include: ['src/{ui,app,i18n,platform,debug,report}/**/*.test.{ts,tsx}'],
+          include: ['src/**/*.test.{ts,tsx}'],
+          exclude: [...configDefaults.exclude, ...nodeOnlyTests],
         },
       },
     ],

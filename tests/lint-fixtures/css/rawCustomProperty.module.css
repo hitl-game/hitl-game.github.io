@@ -1,0 +1,5 @@
+.card {
+  --card-padding: 12px;
+
+  padding: var(--card-padding);
+}

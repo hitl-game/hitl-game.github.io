@@ -58,8 +58,12 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps $BROWSERS
-      - run: npx playwright test $(printf -- '--project=%s ' $BROWSERS)
+      - run: |
+          read -ra browsers <<< "$BROWSERS"
+          npx playwright install --with-deps "${browsers[@]}"
+      - run: |
+          read -ra browsers <<< "$BROWSERS"
+          npx playwright test "${browsers[@]/#/--project=}"
       - if: failure()
         uses: actions/upload-artifact@v7
         with:

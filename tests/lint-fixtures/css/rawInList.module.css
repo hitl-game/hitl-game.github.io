@@ -1,0 +1,3 @@
+.card {
+  box-shadow: var(--shadow-sm), 0 0 2px #000;
+}

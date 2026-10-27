@@ -1,5 +1,4 @@
 import { configureGlobal } from 'fast-check';
+import { readNumRuns } from './readNumRuns.ts';
 
-const defaultNumRuns = 100;
-
-configureGlobal({ numRuns: Number(process.env['FC_NUM_RUNS'] ?? defaultNumRuns) });
+configureGlobal({ numRuns: readNumRuns(process.env['FC_NUM_RUNS']) });

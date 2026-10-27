@@ -68,17 +68,47 @@ const noDefaultExport = [
   },
 ];
 
+const userFacingAttribute =
+  'JSXAttribute[name.name=/^(aria-(label|description|valuetext|roledescription|placeholder)|title|alt|placeholder|label)$/]';
+const textLiteral =
+  ':matches(Literal[value=/\\S/], TemplateLiteral:has(TemplateElement[value.raw=/\\S/]))';
+const textContainers = [
+  ':matches(JSXElement, JSXFragment) > JSXExpressionContainer',
+  `${userFacingAttribute} > JSXExpressionContainer`,
+];
+
+const textWrapper = `:matches(${[
+  'ConditionalExpression',
+  'LogicalExpression',
+  "BinaryExpression[operator='+']",
+  'TSAsExpression',
+  'TSSatisfiesExpression',
+  'ArrayExpression',
+].join(', ')})`;
+const maxWrapperDepth = 4;
+
+// Only unbroken wrapper chains count, so a call such as t('area.' + name) stays allowed.
+const wrapperChains = Array.from({ length: maxWrapperDepth + 1 }, (_, depth) =>
+  Array.from({ length: depth }, () => `${textWrapper} > `).join(''),
+);
+
+const userFacingTextSelectors = [
+  'JSXText[value=/\\S/]',
+  `${userFacingAttribute} > Literal`,
+  ...textContainers.flatMap((container) =>
+    wrapperChains.map((chain) => `${container} > ${chain}${textLiteral}`),
+  ),
+];
+
 const jsxRestrictions = [
   {
     selector: "JSXAttribute[name.name='dangerouslySetInnerHTML']",
     message: 'Render content text through ui/patterns/RichText, never as HTML.',
   },
-  { selector: 'JSXText[value=/\\S/]', message: 'Use t() for user-facing strings.' },
-  {
-    selector:
-      'JSXAttribute[name.name=/^(aria-label|aria-description|title|alt|placeholder)$/] > Literal',
+  ...userFacingTextSelectors.map((selector) => ({
+    selector,
     message: 'Use t() for user-facing strings.',
-  },
+  })),
 ];
 
 const coreRestrictedGlobals = [
@@ -98,6 +128,16 @@ const coreRestrictedGlobals = [
   'localStorage',
   'sessionStorage',
   'indexedDB',
+  'XMLHttpRequest',
+  'WebSocket',
+  'Worker',
+  'AudioContext',
+  'Notification',
+  'caches',
+  'location',
+  'process',
+  'self',
+  'globalThis',
 ].map((name) => ({
   name,
   message: 'core/ is pure: time, randomness and I/O arrive as arguments.',
@@ -195,8 +235,14 @@ export default defineConfig(
         'error',
         {
           paths: ['preact', '@preact/signals', 'idb'],
-          patterns: ['preact/*'],
+          patterns: ['preact/*', 'node:*'],
         },
+      ],
+      'no-restricted-syntax': [
+        'error',
+        ...noDefaultExport,
+        ...jsxRestrictions,
+        { selector: 'ImportExpression', message: 'core/ is synchronous: no dynamic import().' },
       ],
       '@typescript-eslint/no-magic-numbers': [
         'error',
