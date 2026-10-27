@@ -19,8 +19,30 @@ env:
   SKIP_INSTALL_SIMPLE_GIT_HOOKS: 1
 
 jobs:
-  deploy:
+  # CI runs can finish out of order; only the current tip of main may deploy,
+  # so an older commit never overwrites a newer one.
+  freshness:
     if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push'
+    runs-on: ubuntu-latest
+    outputs:
+      is_latest: ${{ steps.check.outputs.is_latest }}
+    steps:
+      - id: check
+        run: |
+          main_sha=$(gh api "repos/$GITHUB_REPOSITORY/commits/main" --jq .sha)
+          if [ "$main_sha" = "$HEAD_SHA" ]; then
+            echo "is_latest=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "is_latest=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Skipping deploy: $HEAD_SHA is no longer the tip of main ($main_sha)."
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+
+  deploy:
+    needs: freshness
+    if: needs.freshness.outputs.is_latest == 'true'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
@@ -59,7 +81,7 @@ jobs:
       - run: npx playwright install --with-deps chromium
       # A fresh Pages deployment can 404 for a while; Playwright retries cover the rest.
       - run: |
-          for attempt in $(seq 1 30); do
+          for _ in $(seq 1 30); do
             curl --silent --fail --output /dev/null "$BASE_URL" && exit 0
             sleep 10
           done

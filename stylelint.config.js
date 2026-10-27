@@ -8,7 +8,8 @@ const tokenOnlyProperties = [
   'box-shadow',
   '/^margin/',
   '/^padding/',
-  'gap',
+  '/gap$/',
+  'text-shadow',
   '/^inset/',
   'top',
   'right',
@@ -36,6 +37,8 @@ export default {
       {
         // Off so raw values cannot hide inside rgb(), calc() and friends.
         ignoreFunctions: false,
+        // Checks the longhands inside `border`, `font`, `outline`… against the list above.
+        expandShorthand: true,
         ignoreValues: [
           '0',
           'inherit',

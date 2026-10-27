@@ -3,44 +3,119 @@
   "src/core/index.ts": [],
   "src/core/run/index.ts": [],
   "src/core/run/advance.ts": [],
-  "src/core/time/deepSiblingImport.ts": ["boundaries/dependencies"],
-  "src/core/importsPlatform.ts": ["boundaries/dependencies"],
-  "src/core/mathRandom.ts": ["no-restricted-properties"],
-  "src/core/date.ts": ["no-restricted-globals"],
-  "src/core/performance.ts": ["no-restricted-globals"],
-  "src/core/setTimeout.ts": ["no-restricted-globals"],
-  "src/core/consoleLog.ts": ["no-console", "no-restricted-globals"],
-  "src/core/magicNumber.ts": ["@typescript-eslint/no-magic-numbers"],
+  "src/core/time/deepSiblingImport.ts": [
+    "boundaries/dependencies"
+  ],
+  "src/core/importsPlatform.ts": [
+    "boundaries/dependencies"
+  ],
+  "src/core/mathRandom.ts": [
+    "no-restricted-properties"
+  ],
+  "src/core/date.ts": [
+    "no-restricted-globals"
+  ],
+  "src/core/performance.ts": [
+    "no-restricted-globals"
+  ],
+  "src/core/setTimeout.ts": [
+    "no-restricted-globals"
+  ],
+  "src/core/consoleLog.ts": [
+    "no-console",
+    "no-restricted-globals"
+  ],
+  "src/core/magicNumber.ts": [
+    "@typescript-eslint/no-magic-numbers"
+  ],
   "src/platform/index.ts": [],
   "src/app/index.ts": [],
   "src/app/allowedImports.ts": [],
-  "src/app/deepImport.ts": ["boundaries/dependencies"],
+  "src/app/deepImport.ts": [
+    "boundaries/dependencies"
+  ],
   "src/ui/index.ts": [],
-  "src/ui/importsCore.ts": ["boundaries/dependencies"],
-  "src/ui/importsPlatform.ts": ["boundaries/dependencies"],
-  "src/ui/JsxLiteralText.tsx": ["no-restricted-syntax"],
-  "src/ui/JsxLiteralAriaLabel.tsx": ["no-restricted-syntax"],
-  "src/ui/DangerousHtml.tsx": ["no-restricted-syntax"],
-  "src/ui/consoleLog.ts": ["no-console"],
+  "src/ui/importsCore.ts": [
+    "boundaries/dependencies"
+  ],
+  "src/ui/importsPlatform.ts": [
+    "boundaries/dependencies"
+  ],
+  "src/ui/JsxLiteralText.tsx": [
+    "no-restricted-syntax"
+  ],
+  "src/ui/JsxLiteralAriaLabel.tsx": [
+    "no-restricted-syntax"
+  ],
+  "src/ui/DangerousHtml.tsx": [
+    "no-restricted-syntax"
+  ],
+  "src/ui/consoleLog.ts": [
+    "no-console"
+  ],
   "src/ui/features/alpha/index.ts": [],
   "src/ui/features/alpha/allowedImports.ts": [],
-  "src/ui/features/alpha/importsBeta.ts": ["boundaries/dependencies"],
+  "src/ui/features/alpha/importsBeta.ts": [
+    "boundaries/dependencies"
+  ],
   "src/ui/features/beta/index.ts": [],
   "src/shared/index.ts": [],
-  "src/shared/todoComment.ts": ["no-warning-comments"],
-  "src/shared/commentedOutCode.ts": ["sonarjs/no-commented-code"],
-  "src/shared/undescribedDisable.ts": ["@eslint-community/eslint-comments/require-description"],
-  "src/shared/exportDefault.ts": ["no-restricted-syntax"],
-  "src/shared/explicitAny.ts": ["@typescript-eslint/no-explicit-any"],
-  "src/shared/nonNullAssertion.ts": ["@typescript-eslint/no-non-null-assertion"],
-  "src/shared/longFunction.ts": ["max-lines-per-function"],
-  "src/shared/longFile.ts": ["max-lines"],
-  "src/shared/complexity.ts": ["complexity"],
-  "src/shared/tooManyParams.ts": ["max-params"],
-  "src/shared/nestedTernary.ts": ["no-nested-ternary"],
-  "css/rawColour.module.css": ["scale-unlimited/declaration-strict-value"],
-  "css/rawSpacing.module.css": ["scale-unlimited/declaration-strict-value"],
-  "css/rawFont.module.css": ["scale-unlimited/declaration-strict-value"],
-  "css/important.module.css": ["declaration-no-important"],
+  "src/shared/todoComment.ts": [
+    "no-warning-comments"
+  ],
+  "src/shared/commentedOutCode.ts": [
+    "sonarjs/no-commented-code"
+  ],
+  "src/shared/undescribedDisable.ts": [
+    "@eslint-community/eslint-comments/require-description"
+  ],
+  "src/shared/exportDefault.ts": [
+    "no-restricted-syntax"
+  ],
+  "src/shared/explicitAny.ts": [
+    "@typescript-eslint/no-explicit-any"
+  ],
+  "src/shared/nonNullAssertion.ts": [
+    "@typescript-eslint/no-non-null-assertion"
+  ],
+  "src/shared/longFunction.ts": [
+    "max-lines-per-function"
+  ],
+  "src/shared/longFile.ts": [
+    "max-lines"
+  ],
+  "src/shared/complexity.ts": [
+    "complexity"
+  ],
+  "src/shared/tooManyParams.ts": [
+    "max-params"
+  ],
+  "src/shared/nestedTernary.ts": [
+    "no-nested-ternary"
+  ],
+  "css/rawColour.module.css": [
+    "scale-unlimited/declaration-strict-value"
+  ],
+  "css/rawSpacing.module.css": [
+    "scale-unlimited/declaration-strict-value"
+  ],
+  "css/rawFont.module.css": [
+    "scale-unlimited/declaration-strict-value"
+  ],
+  "css/important.module.css": [
+    "declaration-no-important"
+  ],
+  "css/rawGap.module.css": [
+    "scale-unlimited/declaration-strict-value"
+  ],
+  "css/rawBorderShorthand.module.css": [
+    "scale-unlimited/declaration-strict-value"
+  ],
+  "css/rawFontShorthand.module.css": [
+    "scale-unlimited/declaration-strict-value"
+  ],
+  "css/rawOutlineShorthand.module.css": [
+    "scale-unlimited/declaration-strict-value"
+  ],
   "css/tokensOnly.module.css": []
 }
