@@ -48,6 +48,8 @@ export default {
           'none',
           'initial',
           'unset',
+          // The plugin splits lists on spaces, so each item of `var(--a), var(--b)` keeps its comma.
+          '/^var\\(--[a-z0-9-]+\\),$/',
         ],
       },
     ],

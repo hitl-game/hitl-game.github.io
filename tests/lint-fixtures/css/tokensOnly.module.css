@@ -7,6 +7,8 @@
   background: transparent;
   border: var(--border-width) solid var(--color-border);
   font: var(--font-size-body) / var(--line-height-body) var(--font-body);
+  font-family: var(--font-ui), var(--font-mono);
+  box-shadow: var(--shadow-sm), var(--shadow-ring);
 }
 
 .card[data-urgency='urgent'] :global(.focusRing) {

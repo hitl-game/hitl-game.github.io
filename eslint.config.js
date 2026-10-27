@@ -68,17 +68,33 @@ const noDefaultExport = [
   },
 ];
 
+const userFacingAttribute =
+  'JSXAttribute[name.name=/^(aria-label|aria-description|title|alt|placeholder)$/]';
+const textLiteral =
+  ':matches(Literal[value=/\\S/], TemplateLiteral:has(TemplateElement[value.raw=/\\S/]))';
+const textContainers = [
+  ':matches(JSXElement, JSXFragment) > JSXExpressionContainer',
+  `${userFacingAttribute} > JSXExpressionContainer`,
+];
+
+const userFacingTextSelectors = [
+  'JSXText[value=/\\S/]',
+  `${userFacingAttribute} > Literal`,
+  ...textContainers.flatMap((container) => [
+    `${container} > ${textLiteral}`,
+    `${container} > :matches(ConditionalExpression, LogicalExpression) > ${textLiteral}`,
+  ]),
+];
+
 const jsxRestrictions = [
   {
     selector: "JSXAttribute[name.name='dangerouslySetInnerHTML']",
     message: 'Render content text through ui/patterns/RichText, never as HTML.',
   },
-  { selector: 'JSXText[value=/\\S/]', message: 'Use t() for user-facing strings.' },
-  {
-    selector:
-      'JSXAttribute[name.name=/^(aria-label|aria-description|title|alt|placeholder)$/] > Literal',
+  ...userFacingTextSelectors.map((selector) => ({
+    selector,
     message: 'Use t() for user-facing strings.',
-  },
+  })),
 ];
 
 const coreRestrictedGlobals = [

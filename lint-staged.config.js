@@ -13,7 +13,7 @@ const runOnIncluded = (commands) => (files) => {
 };
 
 export default {
-  '*.{ts,tsx,js}': runOnIncluded(['eslint --max-warnings=0', 'prettier --write']),
+  '*.{ts,tsx,js}': runOnIncluded(['eslint --max-warnings=0 --no-warn-ignored', 'prettier --write']),
   '*.css': runOnIncluded(['stylelint', 'prettier --write']),
   '*.{json,md,yml,yaml}': runOnIncluded(['prettier --write']),
 };

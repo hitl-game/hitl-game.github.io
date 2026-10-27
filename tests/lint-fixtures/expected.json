@@ -50,6 +50,22 @@
   "src/ui/DangerousHtml.tsx": [
     "no-restricted-syntax"
   ],
+  "src/ui/JsxExpressionText.tsx": [
+    "no-restricted-syntax"
+  ],
+  "src/ui/JsxTemplateText.tsx": [
+    "no-restricted-syntax"
+  ],
+  "src/ui/JsxConditionalText.tsx": [
+    "no-restricted-syntax"
+  ],
+  "src/ui/JsxFallbackText.tsx": [
+    "no-restricted-syntax"
+  ],
+  "src/ui/JsxExpressionAriaLabel.tsx": [
+    "no-restricted-syntax"
+  ],
+  "src/ui/JsxAllowedExpressions.tsx": [],
   "src/ui/consoleLog.ts": [
     "no-console"
   ],
@@ -115,6 +131,9 @@
     "scale-unlimited/declaration-strict-value"
   ],
   "css/rawOutlineShorthand.module.css": [
+    "scale-unlimited/declaration-strict-value"
+  ],
+  "css/rawInList.module.css": [
     "scale-unlimited/declaration-strict-value"
   ],
   "css/tokensOnly.module.css": []
