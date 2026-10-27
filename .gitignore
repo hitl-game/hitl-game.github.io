@@ -13,3 +13,11 @@ _bmad/
 .agents/skills/gds-*/
 .github/agents/bmad-*.agent.md
 .github/agents/gds-*.agent.md
+
+# Tooling output
+playwright-report/
+test-results/
+blob-report/
+.vite/
+dev-dist/
+*.tsbuildinfo
