@@ -1,0 +1,9 @@
+[
+  {
+    "name": "initial bundle",
+    "path": ["dist/assets/index-*.js", "dist/assets/index-*.css"],
+    "limit": "150 KB",
+    "gzip": true,
+    "running": false
+  }
+]

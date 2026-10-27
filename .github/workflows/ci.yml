@@ -1,0 +1,68 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  SKIP_INSTALL_SIMPLE_GIT_HOOKS: 1
+
+jobs:
+  gates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm run lint:fixtures
+      - run: npm run lint:css
+      - run: npm run format:check
+      - run: npm run dup
+      - run: npm run knip
+      - run: npm run build
+      - run: npm run size
+
+  unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm test
+
+  e2e:
+    runs-on: ubuntu-latest
+    env:
+      # Pull requests run Chromium only; main runs every engine.
+      BROWSERS: ${{ github.event_name == 'push' && 'chromium firefox webkit' || 'chromium' }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps $BROWSERS
+      - run: npx playwright test $(printf -- '--project=%s ' $BROWSERS)
+      - if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-report
+          path: playwright-report
+          retention-days: 14

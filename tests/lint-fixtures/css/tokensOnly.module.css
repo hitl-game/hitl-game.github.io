@@ -1,0 +1,12 @@
+.card {
+  composes: surface from global;
+  margin: var(--space-2) var(--space-3);
+  padding: 0;
+  color: var(--color-text);
+  background: transparent;
+  font-family: var(--font-body);
+}
+
+.card[data-urgency='urgent'] :global(.focusRing) {
+  outline-color: currentcolor;
+}

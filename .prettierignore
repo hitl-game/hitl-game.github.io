@@ -1,0 +1,12 @@
+dist
+coverage
+_bmad
+_bmad-output
+.claude
+.agents
+.github/agents
+playwright-report
+test-results
+blob-report
+tests/lint-fixtures
+package-lock.json
