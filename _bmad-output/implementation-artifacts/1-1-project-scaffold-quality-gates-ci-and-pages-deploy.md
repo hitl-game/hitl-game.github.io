@@ -4,7 +4,7 @@ baseline_commit: 72f046336e8fec1bf7a318552a4e792ca1c3ed09
 
 # Story 1.1: Project scaffold, quality gates, CI and Pages deploy
 
-Status: in-progress
+Status: review
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -274,7 +274,7 @@ Source: epics.md → Story 1.1. The two **clarifications** come from the epics.m
   - `README.md`: what the game is (one paragraph from the GDD overview), the live URL `https://hitl-game.github.io/`, dev quickstart.
   - `LICENSE`: see Question 1 at the end. Default to **MIT** unless Tiziano says otherwise.
   - `.vscode/extensions.json`: ESLint, Stylelint, Prettier, YAML (Red Hat).
-- [ ] **C8. First push and verification.**
+- [x] **C8. First push and verification.**
   - Push on a branch, then open a PR. CI must be green on the PR (Chromium e2e).
   - Merge to `main`. Per Tiziano's branch protection, he uses an admin bypass **only after CI is green**.
   - Verify the three-engine run on `main`, then the `deploy` and `smoke` jobs, and that `https://hitl-game.github.io/` serves the empty `<main>`.
@@ -444,6 +444,8 @@ Claude Opus 5.5 (claude-opus-5-5[1m]) via Claude Code, gds-dev-story workflow.
 - **Smoke test (PLT-01, NFR13):** one `main` landmark, no console errors or page errors, no request outside the site origin (`data:`/`blob:` ignored), axe WCAG 2.0/2.1/2.2 A+AA with zero violations.
 - **Agent files (AC 6):** `.mcp.json` verbatim from the architecture; `AGENTS.md` (+ `CLAUDE.md` → `@AGENTS.md`) with layers, rules, scripts, Node 24, Voice Style Guide and the mockups rule; PR template with the Agent Review Checklist verbatim; `CONTRIBUTING.md`, `README.md`, MIT `LICENSE` (default, Question 1), `.vscode/extensions.json`.
 - **Not split:** kept as one story (Question 2 default).
+- **C8 verification (2026-10-27):** PR #1 CI green (`gates`, `unit`, `e2e` Chromium); merged by Tiziano with admin bypass as `46078d7`. `ci` on `main` green with e2e 3/3 (Chromium, Firefox, WebKit), so Firefox works on Ubuntu. `deploy` + `smoke` green (smoke 1/1 against `https://hitl-game.github.io/`); the live page serves the built shell with `<div id="app">`. Required status checks `gates`, `unit`, `e2e` added to `main` branch protection, other protection settings unchanged.
+- **Follow-up (not done):** on PRs, `npx playwright install --with-deps` took ~9 min of apt; the run on `main` took ~1 min. The official Playwright container would make this consistently fast if it recurs.
 - **New dependencies beyond the architecture list** (to justify in the PR): `eslint-import-resolver-typescript` (boundaries resolves TS imports), `@types/node` (Node configs and tools under TS 6 explicit `types`), `eslint-plugin-sonarjs` (only `no-commented-code`).
 
 ### File List
@@ -494,3 +496,4 @@ Claude Opus 5.5 (claude-opus-5-5[1m]) via Claude Code, gds-dev-story workflow.
 | Date | Change |
 |---|---|
 | 2026-10-27 | Story 1.1 implemented: scaffold, Charter lint + fixtures, Stylelint, jscpd, knip, size-limit, Vitest, Playwright smoke, pre-commit hook, CI/nightly/deploy workflows, agent and repo files. |
+| 2026-10-27 | First push, PR #1 merged, three-engine CI, Pages deploy and post-deploy smoke verified; required status checks set. Status → review. |
