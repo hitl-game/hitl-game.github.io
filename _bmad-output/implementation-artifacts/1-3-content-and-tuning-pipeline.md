@@ -398,3 +398,14 @@ Review run 1 (no code defects found):
 - Bundle figures reconciled: 4.98 KB gzip is the real initial chunk (`main.tsx` does not import `loadContentIndex` yet, so no pack, Zod or yaml is in it; verified with `npm run build`, grep of every dist chunk). 6.84 KB was the temporary C3 probe with `loadContentIndex()` imported (pack included, still no Zod/yaml).
 - Deferred: dev server does not react to added/removed content files (see deferred-work.md).
 - Dismissed: schema JSON out of date (regenerated, no diff).
+
+Review run 1 (full workflow: Blind Hunter, Edge Case Hunter, Acceptance Auditor):
+
+- [x] [Review][Patch] Overlapping dev compiles could let an older one overwrite `latest`/`lastGood` [tools/content/contentPlugin.ts] — compiles now run serially
+- [x] [Review][Patch] A rejected pipeline load was cached forever [tools/content/contentPlugin.ts] — cache cleared on failure
+- [x] [Review][Patch] Unresolved YAML alias (`a: *x`) made `toJS()` throw out of the Result pipeline [tools/content/compileContentPack.ts] — now a `file: : reason` error, tested
+- [x] [Review][Patch] Missing `content/` or a file vanishing mid-read rejected instead of returning an error [tools/content/compileContentDir.ts] — now an author-facing error, tested
+- [x] [Review][Patch] `ContentIndex` only shallow-frozen over a shared mutable pack literal [src/core/content/createContentIndex.ts] — tuning is deep-frozen, tested
+- [x] [Review][Defer] Tuning values have no range checks (zero divisors, probabilities over 100, low/high ordering) [src/core/contentSchema] — deferred, product decision on bounds
+- [x] [Review][Defer] Duplicate ids in a `many` kind, symlinked content files, `vite build --watch` not watching content, dev runner caches edited Zod schemas — deferred until a `many` kind or those workflows exist
+- Dismissed: hidden files ignored (intentional), `content/schema/*.json` triggering a reload (harmless), missing unit suffixes in YAML keys (within C-3), brittle hard-coded values in tests, bundle growth (budgeted), locale text outside the pack hash (design), sort comparator never returns 0 (paths are unique).

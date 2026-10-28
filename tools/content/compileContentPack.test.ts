@@ -167,6 +167,13 @@ describe('compileContentPack', () => {
     expect(error?.reason).toMatch(/^Map keys must be unique at line \d+, column \d+$/);
   });
 
+  it('reports an unresolved YAML alias instead of throwing', () => {
+    const [error] = errorsOf([{ path: tuningSourcePath, text: 'start: *missing\n' }]);
+
+    expect(error?.path).toBe(tuningSourcePath);
+    expect(error?.reason).toMatch(/Unresolved alias/);
+  });
+
   it('reports a YAML syntax error with its line', () => {
     const [error] = errorsOf([{ path: tuningSourcePath, text: 'start: [unclosed\n' }]);
 

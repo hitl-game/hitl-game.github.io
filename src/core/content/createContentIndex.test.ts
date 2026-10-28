@@ -17,6 +17,14 @@ describe('createContentIndex', () => {
     expect(content.templatesFor('general', phase)).toEqual([]);
   });
 
+  it('deep-freezes tuning of an unfrozen pack so a shared pack cannot be mutated', () => {
+    const unfrozen = structuredClone(pack);
+    const index = createContentIndex(unfrozen);
+
+    expect(Object.isFrozen(unfrozen.tuning.phases.garage)).toBe(true);
+    expect(Object.isFrozen(index.tuning)).toBe(true);
+  });
+
   it('is frozen plain data', () => {
     expect(Object.isFrozen(content)).toBe(true);
     expect(Object.getPrototypeOf(content)).toBe(Object.prototype);

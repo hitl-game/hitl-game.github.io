@@ -60,7 +60,14 @@ function compileSource(source: ContentSource, kinds: readonly ContentKind[]): It
       document.errors.map((error) => ({ path, field: '', reason: firstLine(error.message) })),
     );
   }
-  const parsed = kind.schema.safeParse(document.toJS());
+  // toJS throws (rather than recording an error) for an unresolved alias.
+  let data: unknown;
+  try {
+    data = document.toJS();
+  } catch (error) {
+    return err([{ path, field: '', reason: firstLine(String(error)) }]);
+  }
+  const parsed = kind.schema.safeParse(data);
   if (!parsed.success) return err(toSchemaErrors(path, parsed.error.issues));
   return ok({ kind, item: stripAuthoringMetadata(parsed.data) });
 }

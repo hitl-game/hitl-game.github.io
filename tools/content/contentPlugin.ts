@@ -38,11 +38,26 @@ function createContentCompiler(rootDir: string): ContentCompiler {
   let lastGood: CompiledContent | null = null;
   let latest: Compilation | null = null;
   let loading: Promise<typeof pipeline> | null = null;
+  let queue: Promise<void> = Promise.resolve();
   const compile = async (): Promise<Compilation> => {
-    loading ??= loadPipeline();
-    latest = await (await loading).compileContentDir(rootDir);
-    if (latest.ok) lastGood = latest.value;
-    return latest;
+    // A failed pipeline load must not be cached, or every later compile would fail the same way.
+    loading ??= loadPipeline().catch((error: unknown) => {
+      loading = null;
+      throw error;
+    });
+    const pipelineModule = await loading;
+    // Compiles run one after another so an older, slower one cannot overwrite a newer result.
+    const run = queue.then(async () => {
+      const result = await pipelineModule.compileContentDir(rootDir);
+      latest = result;
+      if (result.ok) lastGood = result.value;
+      return result;
+    });
+    queue = run.then(
+      () => undefined,
+      () => undefined,
+    );
+    return run;
   };
   return {
     compile,
