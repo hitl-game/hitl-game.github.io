@@ -5,7 +5,7 @@ import { defineFieldGroup, range } from '../fieldGroup';
 export const investorsTuning = z.strictObject({
   cashOfRoundTop: defineFieldGroup({
     growthFund: 'multiplier',
-    ethicalVc: 'multiplier',
+    ethicalVentureCapital: 'multiplier',
     billionaire: 'multiplier',
   }),
   growthFundClause: defineFieldGroup({
@@ -31,7 +31,7 @@ export const roundsTuning = z.strictObject({
   seriesA: fundingRound,
   // Series A+ growth target state machine; later rounds use the same ARR multiple.
   growthTarget: defineFieldGroup({
-    arr: 'multiplier',
+    annualRecurringRevenue: 'multiplier',
     window: 'days',
     downRoundAfterMisses: 'count',
     downRoundCashCut: 'percent',

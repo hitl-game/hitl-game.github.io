@@ -700,7 +700,7 @@
             "growthFundMultiplier": {
               "type": "number"
             },
-            "ethicalVcMultiplier": {
+            "ethicalVentureCapitalMultiplier": {
               "type": "number"
             },
             "billionaireMultiplier": {
@@ -709,7 +709,7 @@
           },
           "required": [
             "growthFundMultiplier",
-            "ethicalVcMultiplier",
+            "ethicalVentureCapitalMultiplier",
             "billionaireMultiplier"
           ],
           "additionalProperties": false
@@ -860,7 +860,7 @@
         "growthTarget": {
           "type": "object",
           "properties": {
-            "arrMultiplier": {
+            "annualRecurringRevenueMultiplier": {
               "type": "number"
             },
             "windowDays": {
@@ -879,7 +879,7 @@
             }
           },
           "required": [
-            "arrMultiplier",
+            "annualRecurringRevenueMultiplier",
             "windowDays",
             "downRoundAfterMisses",
             "downRoundCashCutPercent",

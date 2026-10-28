@@ -409,3 +409,10 @@ Review run 1 (full workflow: Blind Hunter, Edge Case Hunter, Acceptance Auditor)
 - [x] [Review][Defer] Tuning values have no range checks (zero divisors, probabilities over 100, low/high ordering) [src/core/contentSchema] — deferred, product decision on bounds
 - [x] [Review][Defer] Duplicate ids in a `many` kind, symlinked content files, `vite build --watch` not watching content, dev runner caches edited Zod schemas — deferred until a `many` kind or those workflows exist
 - Dismissed: hidden files ignored (intentional), `content/schema/*.json` triggering a reload (harmless), missing unit suffixes in YAML keys (within C-3), brittle hard-coded values in tests, bundle growth (budgeted), locale text outside the pack hash (design), sort comparator never returns 0 (paths are unique).
+
+Review run 2 (full workflow: Blind Hunter, Edge Case Hunter, Acceptance Auditor):
+
+- [x] [Review][Patch] Tuning keys `arrMultiplier` and `ethicalVcMultiplier` used abbreviations outside the allowed list [src/core/contentSchema/tuningSchema/investorsAndRounds.ts, content/tuning.yaml] - renamed to `annualRecurringRevenueMultiplier` and `ethicalVentureCapitalMultiplier`, schema JSON regenerated
+- [x] [Review][Defer] `compileContentDir` does not wrap `compileContentPack`, so a future non-converted float would throw out of the Result pipeline; editor/OS junk files (`foo.yaml~`, `Thumbs.db`) in `content/` fail the build as "no content kind"; `content/schema/*.json` writes trigger a dev full-reload - not reachable or harmless today
+- [x] [Review][Defer] `phases.*.messageArrivalIntervalGameSeconds` compiles to GameMs; the GDD is ambiguous whether arrivals are game or real time - confirm with the owner before Story 2.x
+- Dismissed: `deepFreeze` skipping children of a shallow-frozen input (unreachable from the compiled pack), `stripAuthoringMetadata` applied to every kind (latent, no current victim), `computeContentPackVersion.test.ts` named differently (documented deviation).

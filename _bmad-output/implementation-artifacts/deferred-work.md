@@ -30,3 +30,9 @@ Items a code review found real but not actionable in the story under review. Eac
 - **Symlinked content files are skipped** (`tools/content/readContentSources.ts`). `Dirent.isFile()` is false for symlinks, so they are dropped without the "no content kind" error. Rare; decide whether to follow or reject.
 - **`vite build --watch` does not watch content** (`tools/content/contentPlugin.ts`). No `this.addWatchFile`; unused workflow today.
 - **Dev runner caches the Zod schemas** (`tools/content/contentPlugin.ts`). Editing `src/core/contentSchema` while the dev server runs validates against the stale schema until restart.
+
+## Deferred from: code review of story-1-3 (2026-10-28, run 2)
+
+- **`compileContentDir` only guards the read step** (`tools/content/compileContentDir.ts`). `compileContentPack` can still throw (for example `computeContentPackVersion` on a non-safe-integer) if a future kind skips the unit converters; dev then shows no overlay. Wrap it when Story 7.1 adds the first non-tuning kind.
+- **Junk files in `content/` fail the build** (`tools/content/readContentSources.ts`). Only dot-files are skipped; `Thumbs.db`, `foo.yaml~` or vim probe files give "no content kind". Decide whether to ignore by pattern. Also `content/schema/*.json` writes trigger a pointless dev full-reload.
+- **Message arrival interval is game time by assumption** (`phases.*.messageArrivalIntervalGameSeconds`). The GDD says "10-15 s" without saying game or real time; confirm with the owner before Epic 2 consumes it.
