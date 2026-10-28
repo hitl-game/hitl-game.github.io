@@ -454,7 +454,7 @@ RunRecord ──▶ buildReportModel() ──▶ ReportModel ─┬─▶ render
 
 ### Background Tab and Notifications (D9)
 
-- **Hidden tab.** While the tab is hidden, a ~60 s timer runs `advance(copy, now, 'away')` **incrementally from the previous preview** (valid by chunk invariance) on a throwaway copy. It derives the backlog count and blocking events, and updates `document.title` (`(4) Human in the Loop`, following the title corruption stages) and notifications.
+- **Hidden tab.** While the tab is hidden, a ~60 s timer runs `advance(copy, now, { mode: 'away', tuning })` **incrementally from the previous preview** (valid by chunk invariance) on a throwaway copy. It derives the backlog count and blocking events, and updates `document.title` (`(4) Human in the Loop`, following the title corruption stages) and notifications.
 - **The preview is never persisted.** On return, the real `advance` runs from the saved state, so a corrupted preview cannot reach a save.
 - **Notifications.**
   - The tab-title counter works without notification permission.

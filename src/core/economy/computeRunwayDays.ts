@@ -2,8 +2,8 @@ import { computeDailyBurnCents } from './computeDailyBurnCents';
 import type { EconomyState } from './economyState';
 import type { EconomyTuning } from './economyTuning';
 
-// `noBurn` rather than Infinity: a runway is persisted and formatted, and Infinity is neither
-// a safe integer nor a number the formatters accept.
+// `noBurn` rather than Infinity: a runway is shown to the player, and Infinity is neither a
+// safe integer nor a number the formatters accept.
 export type Runway = { readonly kind: 'days'; readonly days: number } | { readonly kind: 'noBurn' };
 
 export function computeRunwayDays(state: EconomyState, tuning: EconomyTuning): Runway {

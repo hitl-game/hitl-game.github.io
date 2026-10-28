@@ -1,7 +1,7 @@
 // Ties at the same gameMs run in ascending priority; a blocking kind stops advance right
 // after it is processed. Later stories extend this table (and only this table).
-// economyStep sits between the two: a day starts before its cash settles, and a heavy
-// decision never opens before that day's cash is applied.
+// economyStep sits between the two: at k × GAME_DAY_MS the next day starts, then the day that
+// just ended settles, so a heavy decision due then never opens before that cash is applied.
 export const eventKinds = {
   dayBoundary: { priority: 10, blocking: false },
   economyStep: { priority: 15, blocking: false },

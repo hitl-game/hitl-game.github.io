@@ -29,6 +29,13 @@ describe('computeDailyBurnCents', () => {
     expect(computeDailyBurnCents(makeState({ phase: 'seed' }), tuning)).toBe(150_000 + 5_000);
   });
 
+  it('treats a burn past the safe-integer range as a bug, so the runway never reads it', () => {
+    const state = makeState({ gpuCapacityUnits: 2 ** 50 });
+    const dearCompute = makeEconomyTuning({ 'phases.garage.gpuUnitCostPerDayUsd': 1_000 });
+
+    expect(() => computeDailyBurnCents(state, dearCompute)).toThrow(/daily burn is a safe integer/);
+  });
+
   it('comes from tuning, not from code', () => {
     const dearer = makeEconomyTuning({
       'phases.garage.baseCostsPerDayUsd': 500,

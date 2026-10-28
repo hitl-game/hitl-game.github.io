@@ -105,7 +105,6 @@ const unitOf = (spec: FieldSpec): UnitName => {
   return 'range' in spec ? spec.range : spec.unit;
 };
 
-// The authored number: whole for counts and `wholeAtLeast` fields, bounded below when asked.
 function defineHumanNumber(spec: FieldSpec, isCount: boolean): z.ZodNumber {
   const bounds = typeof spec !== 'string' && 'min' in spec ? spec : null;
   const number =
