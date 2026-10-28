@@ -53,7 +53,15 @@ export interface RangeSpec<Unit extends UnitName = UnitName> {
   readonly range: Unit;
 }
 
-type FieldSpec = UnitName | RangeSpec;
+// Bounds in human units, checked at build time so no story divides by a zero month or
+// reverses the sign of a cost. `whole` also rejects fractions of the human unit.
+export interface BoundedSpec<Unit extends UnitName = UnitName> {
+  readonly unit: Unit;
+  readonly min: number;
+  readonly whole: boolean;
+}
+
+type FieldSpec = UnitName | RangeSpec | BoundedSpec;
 export type FieldTable = Readonly<Record<string, FieldSpec>>;
 
 export interface IntegerRange {
@@ -61,12 +69,13 @@ export interface IntegerRange {
   readonly max: number;
 }
 
-type UnitOf<Spec extends FieldSpec> = Spec extends RangeSpec<infer Unit> ? Unit : Spec;
+type UnitOf<Spec extends FieldSpec> =
+  Spec extends RangeSpec<infer Unit> ? Unit : Spec extends BoundedSpec<infer Unit> ? Unit : Spec;
 type CompiledKey<
   Name extends string,
   Spec extends FieldSpec,
 > = `${Name}${FieldUnits[UnitOf<Spec>]['integerSuffix']}`;
-type CompiledValue<Spec extends FieldSpec> = Spec extends UnitName ? number : IntegerRange;
+type CompiledValue<Spec extends FieldSpec> = Spec extends RangeSpec ? IntegerRange : number;
 
 export type CompiledFields<Table extends FieldTable> = {
   readonly [Name in keyof Table & string as CompiledKey<Name, Table[Name]>]: CompiledValue<
@@ -76,12 +85,40 @@ export type CompiledFields<Table extends FieldTable> = {
 
 export const range = <Unit extends UnitName>(unit: Unit): RangeSpec<Unit> => ({ range: unit });
 
-function defineValueSchema(unit: FieldUnit): z.ZodType<number> {
-  const { convert } = unit;
-  if (convert === null) {
-    return z.int({ error: 'must be a whole number' }).transform(withoutNegativeZero);
-  }
-  return z.number().transform((value, context) => {
+export const atLeast = <Unit extends UnitName>(unit: Unit, min: number): BoundedSpec<Unit> => ({
+  unit,
+  min,
+  whole: false,
+});
+
+export const wholeAtLeast = <Unit extends UnitName>(
+  unit: Unit,
+  min: number,
+): BoundedSpec<Unit> => ({
+  unit,
+  min,
+  whole: true,
+});
+
+const unitOf = (spec: FieldSpec): UnitName => {
+  if (typeof spec === 'string') return spec;
+  return 'range' in spec ? spec.range : spec.unit;
+};
+
+// The authored number: whole for counts and `wholeAtLeast` fields, bounded below when asked.
+function defineHumanNumber(spec: FieldSpec, isCount: boolean): z.ZodNumber {
+  const bounds = typeof spec !== 'string' && 'min' in spec ? spec : null;
+  const number =
+    isCount || bounds?.whole === true ? z.int({ error: 'must be a whole number' }) : z.number();
+  if (bounds === null) return number;
+  return number.min(bounds.min, { error: `must be at least ${String(bounds.min)}` });
+}
+
+function defineValueSchema(spec: FieldSpec): z.ZodType<number> {
+  const { convert } = fieldUnits[unitOf(spec)];
+  const number = defineHumanNumber(spec, convert === null);
+  if (convert === null) return number.transform(withoutNegativeZero);
+  return number.transform((value, context) => {
     const conversion = convert(value);
     if (conversion.ok) return conversion.value;
     context.addIssue({ code: 'custom', message: conversion.error.reason, input: value });
@@ -90,8 +127,8 @@ function defineValueSchema(unit: FieldUnit): z.ZodType<number> {
 }
 
 function defineFieldSchema(spec: FieldSpec): z.ZodType {
-  if (typeof spec === 'string') return defineValueSchema(fieldUnits[spec]);
-  const value = defineValueSchema(fieldUnits[spec.range]);
+  if (typeof spec === 'string' || !('range' in spec)) return defineValueSchema(spec);
+  const value = defineValueSchema(spec.range);
   return z
     .strictObject({ min: value, max: value })
     .refine((bounds) => bounds.min <= bounds.max, { message: 'min must not exceed max' });
@@ -101,7 +138,7 @@ export function defineFieldGroup<const Table extends FieldTable>(
   table: Table,
 ): z.ZodType<CompiledFields<Table>> {
   const fields = Object.entries(table).map(([name, spec]) => {
-    const unit = fieldUnits[typeof spec === 'string' ? spec : spec.range];
+    const unit = fieldUnits[unitOf(spec)];
     return {
       humanKey: `${name}${unit.humanSuffix}`,
       compiledKey: `${name}${unit.integerSuffix}`,

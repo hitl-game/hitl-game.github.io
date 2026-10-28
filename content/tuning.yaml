@@ -3,7 +3,7 @@
 # Source: gdd.md → Initial tuning table, plus each inline [tuning] tag.
 
 start:
-  cashUsd: 12400 # Story 1.5: $400/day Garage burn gives a 31-day runway
+  cashUsd: 12400 # $400/day Garage burn gives a 31-day runway
   hypeIndex: 20 # Daily simulation
   alignmentPoints: 100 # M7
   gpuCapacityUnits: 1 # GPU unit cost/day

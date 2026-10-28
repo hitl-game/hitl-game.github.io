@@ -1,5 +1,5 @@
 import { assertInvariant } from '../../shared';
-import { ID_SEQUENCE_WIDTH, rngStreamNames } from '../constants';
+import { ID_SEQUENCE_WIDTH, phases, rngStreamNames } from '../constants';
 import { isRngStreamState, type RngStreams } from '../rng';
 import { compareQueuedEvents, eventKinds, formatEventId, type QueuedEvent } from '../time';
 import { canonicalize } from './canonicalize';
@@ -18,6 +18,21 @@ const gameStateKeys = [
   'rngStreams',
   'counters',
   'inputLog',
+  'phase',
+  'cashCents',
+  'mrrCents',
+  'customerCount',
+  'hypeBp',
+  'alignmentMilli',
+  'gpuCapacityUnits',
+] as const satisfies readonly (keyof GameState)[];
+// Non-negative by their own rules: these are fields this story keeps at or above zero.
+const countKeys = [
+  'mrrCents',
+  'customerCount',
+  'hypeBp',
+  'alignmentMilli',
+  'gpuCapacityUnits',
 ] as const satisfies readonly (keyof GameState)[];
 const settingsKeys = ['gameSpeed', 'timing'] as const satisfies readonly (keyof Settings)[];
 const queuedEventKeys = ['id', 'gameMs', 'kind'] as const satisfies readonly (keyof QueuedEvent)[];
@@ -34,9 +49,9 @@ function assertHasExactKeys(value: object, keys: readonly string[], message: str
   );
 }
 
-// canonicalize lets null, booleans and strings through, and `>=` coerces them, so time and
-// counter fields are type-checked before any comparison.
-const isGameMs = (value: unknown): value is number =>
+// canonicalize lets null, booleans and strings through, and `>=` coerces them, so time,
+// counter and economy fields are type-checked before any comparison.
+const isNonNegativeInteger = (value: unknown): value is number =>
   typeof value === 'number' && Number.isSafeInteger(value) && value >= 0;
 
 // The counter must be ahead of every queued id, or the next scheduleEvent mints a duplicate.
@@ -47,7 +62,7 @@ function assertEventIsWellFormed(event: QueuedEvent, eventCounter: number): void
     `unknown event kind ${event.kind}`,
   );
   assertInvariant(typeof event.id === 'string', 'an event id is a string');
-  assertInvariant(isGameMs(event.gameMs), 'an event gameMs is a non-negative integer');
+  assertInvariant(isNonNegativeInteger(event.gameMs), 'an event gameMs is a non-negative integer');
   const sequence = Number(event.id.slice(-ID_SEQUENCE_WIDTH));
   assertInvariant(
     Number.isSafeInteger(sequence) &&
@@ -100,13 +115,25 @@ function assertInputLogIsValid(state: GameState): void {
       'an input log entry holds atGameMs and command only',
     );
     assertInvariant(
-      isGameMs(entry.atGameMs) &&
+      isNonNegativeInteger(entry.atGameMs) &&
         entry.atGameMs >= previousGameMs &&
         entry.atGameMs <= state.nowGameMs,
       `input log entry at ${String(entry.atGameMs)} is in order and not after nowGameMs`,
     );
     return entry.atGameMs;
   }, 0);
+}
+
+// Cash may be negative (overdraft is Story 5.8); everything else counts from zero.
+function assertEconomyIsValid(state: GameState): void {
+  assertInvariant(phases.includes(state.phase), `unknown phase ${state.phase}`);
+  assertInvariant(
+    typeof state.cashCents === 'number' && Number.isSafeInteger(state.cashCents),
+    'cashCents is a safe integer',
+  );
+  for (const key of countKeys) {
+    assertInvariant(isNonNegativeInteger(state[key]), `${key} is a non-negative integer`);
+  }
 }
 
 // Full walk: only at run start, after a replay and in tests. advance and applyCommand keep
@@ -123,9 +150,13 @@ export function assertStateIsValid(state: GameState): void {
   );
   assertInvariant(typeof state.contentPackVersion === 'string', 'contentPackVersion is a string');
   assertStartIsValid(state.settings, state.rngStreams);
-  assertInvariant(isGameMs(state.nowGameMs), 'nowGameMs is a non-negative integer');
+  assertInvariant(isNonNegativeInteger(state.nowGameMs), 'nowGameMs is a non-negative integer');
   assertHasExactKeys(state.counters, ['event'], 'counters holds the event counter only');
-  assertInvariant(isGameMs(state.counters.event), 'the event counter is a non-negative integer');
+  assertInvariant(
+    isNonNegativeInteger(state.counters.event),
+    'the event counter is a non-negative integer',
+  );
+  assertEconomyIsValid(state);
   assertQueueIsValid(state);
   assertInputLogIsValid(state);
 }

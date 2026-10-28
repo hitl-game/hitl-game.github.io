@@ -13,8 +13,8 @@ describe('scheduleEvent', () => {
 
     expect(next).not.toBe(state);
     expect(next.counters.event).toBe(state.counters.event + 1);
-    expect(next.queue.map((event) => event.id)).toEqual(['evt-000002', 'evt-000001']);
-    expect(state.queue).toHaveLength(1);
+    expect(next.queue.map((event) => event.id)).toEqual(['evt-000003', 'evt-000001', 'evt-000002']);
+    expect(state.queue).toHaveLength(2);
   });
 
   it('stores a negative-zero time as 0', () => {

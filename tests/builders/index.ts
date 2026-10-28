@@ -14,6 +14,7 @@ export {
   tuningSourcePath,
   type TuningOverrides,
 } from './makeContentPack';
+export { makeAdvanceContext, makeEconomyTuning } from './makeEconomyTuning';
 export { makeEvent } from './makeEvent';
 export { makeRunStart } from './makeRunStart';
 export { makeState, makeStateWithEvents } from './makeState';

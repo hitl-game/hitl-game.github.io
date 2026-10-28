@@ -1,9 +1,9 @@
 import * as z from 'zod';
 
-import { defineFieldGroup, range } from '../fieldGroup';
+import { atLeast, defineFieldGroup, range } from '../fieldGroup';
 
 export const startTuning = defineFieldGroup({
-  cash: 'usd',
+  cash: atLeast('usd', 0),
   hype: 'hypeIndex',
   alignment: 'alignmentPoints',
   gpuCapacityUnits: 'count',
@@ -11,9 +11,9 @@ export const startTuning = defineFieldGroup({
 
 // Per-phase numbers, so a reader writes `tuning.phases[phase].baseCostsPerDayCents`.
 const phaseTuning = defineFieldGroup({
-  baseCostsPerDay: 'usd',
+  baseCostsPerDay: atLeast('usd', 0),
   salaryPerHirePerDay: 'usd',
-  gpuUnitCostPerDay: 'usd',
+  gpuUnitCostPerDay: atLeast('usd', 0),
   newCustomersPhase: 'multiplier',
   alignmentDriftPhase: 'multiplier',
   messageArrivalInterval: range('gameSeconds'),
