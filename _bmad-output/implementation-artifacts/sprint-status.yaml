@@ -1,5 +1,5 @@
 # generated: 2026-10-27
-# last_updated: 2026-10-27
+# last_updated: 2026-10-28
 # project: browser-game (Human in the Loop)
 # project_key: NOKEY
 # tracking_system: file-system
@@ -56,7 +56,7 @@
 #   plus code-owner review. Optional: start docs/kernel-bank.md.
 
 generated: 2026-10-27
-last_updated: 2026-10-27
+last_updated: 2026-10-28
 project: browser-game
 project_key: NOKEY
 tracking_system: file-system
@@ -65,11 +65,11 @@ story_location: _bmad-output/implementation-artifacts
 development_status:
   # ── Epic 1: Foundations ────────────────────────────────────────────────
   epic-1: in-progress
-  1-1-project-scaffold-quality-gates-ci-and-pages-deploy: review # first; may split into 1.1a (scaffold+gates) / 1.1b (CI, deploy, agent files). Required status checks set on main 2026-10-27
+  1-1-project-scaffold-quality-gates-ci-and-pages-deploy: done # first; may split into 1.1a (scaffold+gates) / 1.1b (CI, deploy, agent files). Required status checks set on main 2026-10-27
 
   # ── Epic 8 opens early: PDFKit spike, parallel right after 1.1 (de-risks D8 before 6.5) ──
   epic-8: in-progress
-  8-1-pdfkit-tagged-pdf-spike: review # parallel lane; brings its own font if 1.7 has not landed
+  8-1-pdfkit-tagged-pdf-spike: done # parallel lane; brings its own font if 1.7 has not landed
 
   1-2-deterministic-core-skeleton: backlog
   1-3-content-and-tuning-pipeline: backlog
