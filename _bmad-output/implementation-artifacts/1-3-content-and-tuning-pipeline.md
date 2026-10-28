@@ -390,10 +390,11 @@ Deleted:
 
 - 2026-10-28: story file created (status ready-for-dev).
 - 2026-10-28: implemented content and tuning pipeline (tuning.yaml, exact unit conversion, Zod schemas, compiler, Vite plugin with virtual:content-pack, JSON Schema generation, ContentIndex); schemas split into core/contentSchema to keep Zod out of the runtime bundle; status → review.
+- 2026-10-28: code review loop (3 runs, sonnet; implementation on opus). A first skim pass (bundle check, 1 deferral) did not run the workflow and was redone. Run 1: 5 patched, 2 deferred, 7 dismissed. Run 2: 1 patched, 3 deferred, 3 dismissed. Run 3: nothing actionable (about 14 dismissed, mostly re-raises), so the loop stopped. `npm run check` and chromium e2e green.
 
 ### Review Findings
 
-Review run 1 (no code defects found):
+Pre-review skim (workflow not run; superseded by run 1 below):
 
 - Bundle figures reconciled: 4.98 KB gzip is the real initial chunk (`main.tsx` does not import `loadContentIndex` yet, so no pack, Zod or yaml is in it; verified with `npm run build`, grep of every dist chunk). 6.84 KB was the temporary C3 probe with `loadContentIndex()` imported (pack included, still no Zod/yaml).
 - Deferred: dev server does not react to added/removed content files (see deferred-work.md).
@@ -416,3 +417,5 @@ Review run 2 (full workflow: Blind Hunter, Edge Case Hunter, Acceptance Auditor)
 - [x] [Review][Defer] `compileContentDir` does not wrap `compileContentPack`, so a future non-converted float would throw out of the Result pipeline; editor/OS junk files (`foo.yaml~`, `Thumbs.db`) in `content/` fail the build as "no content kind"; `content/schema/*.json` writes trigger a dev full-reload - not reachable or harmless today
 - [x] [Review][Defer] `phases.*.messageArrivalIntervalGameSeconds` compiles to GameMs; the GDD is ambiguous whether arrivals are game or real time - confirm with the owner before Story 2.x
 - Dismissed: `deepFreeze` skipping children of a shallow-frozen input (unreachable from the compiled pack), `stripAuthoringMetadata` applied to every kind (latent, no current victim), `computeContentPackVersion.test.ts` named differently (documented deviation).
+
+Review run 3 (full workflow: Blind Hunter, Edge Case Hunter, Acceptance Auditor): nothing actionable. The run-2 key rename is consistent across `tuning.yaml`, the generated schema and `investorsAndRounds.ts`. About 14 findings dismissed: re-raises of deferred or dismissed items, design choices (last-good pack fallback in dev, Node types in `tsconfig.tests.json`, single-kind path match, GDD trait names), and speculative ones (dropped YAML warnings, exponent error wording, Windows drive-letter case).
