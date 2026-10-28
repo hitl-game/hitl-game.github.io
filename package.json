@@ -21,6 +21,7 @@
     "size": "size-limit && node tools/checkInitialBundle.ts",
     "test": "vitest run",
     "test:e2e": "playwright test",
+    "content:schema": "node tools/content/writeContentSchemas.ts",
     "check": "npm run typecheck && npm run lint && npm run lint:fixtures && npm run lint:css && npm run format:check && npm run dup && npm run knip && npm run build && npm run size && npm test",
     "prepare": "simple-git-hooks"
   },

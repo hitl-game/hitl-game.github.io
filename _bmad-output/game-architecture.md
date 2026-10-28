@@ -394,8 +394,9 @@ Replay depends on the core code and the content pack, so a run is pinned to the 
 | Word list | `wordlist.<name>` | `content/wordlists/<name>.yaml` |
 
 `system` is a reserved sender with no file.
-- **Tuning.** All GDD `[tuning]` values live in `content/tuning.yaml`, validated the same way. No tuning constants in code.
-- **Build.** A Vite plugin compiles YAML into one JSON content pack. `contentPackVersion` is the hash of that compiled pack and is stored in every save.
+- **Tuning.** All GDD `[tuning]` values live in `content/tuning.yaml`, validated the same way. No tuning constants in code. A YAML key ends in its human unit and compiles to the integer unit: `cashUsd` → `cashCents`, `…Percent` → `…Bp`, `…Multiplier` → `…MultiplierBp`, `hypeIndex` → `hypeBp`, `…Points` → `…Milli` (Alignment), `…Seconds` → `…RealMs` (response windows), `…GameSeconds` / `…Days` / `…ActiveMinutes` → `…GameMs` (cadences). Conversion is exact decimal arithmetic; a value that is not a whole number of the integer unit fails the build. One field table per group drives the YAML key, the compiled key and the JSON Schema.
+- **Build.** A Vite plugin (`tools/content/contentPlugin.ts`) compiles YAML into one JSON content pack served as the virtual module `virtual:content-pack`, imported only by `app/content` (`loadContentIndex()`); `core/` is lint-banned from `virtual:*` imports and receives the `ContentIndex` as an argument. `contentPackVersion` is the full 64-character lowercase SHA-256 hex of `canonicalize(pack)` and is stored in every save. In dev, a content edit rebuilds the pack and reloads the page; a content error shows in the Vite overlay as `file: field: reason`.
+- **Where the code lives.** `core/contentSchema` holds the Zod schemas, unit fields and the content-kind registry; only `tools/` (and tests) import it, so Zod never enters the runtime bundle. `core/content` holds the runtime surface: `ContentPack`, `createContentIndex` (`tuning`, `templatesFor(channel, phase)`), `computeContentPackVersion`, `stripAuthoringMetadata`. `npm run content:schema` regenerates the committed `content/schema/*.schema.json` (a test fails on drift).
 - **Scaffolding.** `npm run content:new -- <kind> <id>` generates a skeleton file at the path matching the ID.
 
 ### Internationalisation (D7)
@@ -773,7 +774,8 @@ human-in-the-loop/
 │   │   ├── chronicle/           company timeline, headline selection               (M13)
 │   │   ├── ending/              deaths, Surpassed, clue-replay analysis            (M8)
 │   │   ├── report/              buildReportModel, ReportModel, recap payload shape (D8)
-│   │   ├── content/             Zod schemas and types for content and tuning       (D6)
+│   │   ├── content/             ContentPack, ContentIndex, contentPackVersion      (D6)
+│   │   ├── contentSchema/       Zod schemas, unit fields, content kinds (build)    (D6)
 │   │   ├── save/                save schema, migrations vN→vN+1                    (D4)
 │   │   ├── meta/                loop number, personal best, archive rules          (E6)
 │   │   └── constants.ts
@@ -815,7 +817,7 @@ human-in-the-loop/
 │   ├── shared/                  Result, Brand, assertInvariant, sha256Hex
 │   └── debug/                   dev panel, scenario loader                         (C5)
 ├── content/                     events/, characters/, templates/ (incl. documents/), headlines/,
-│                                scripts/, tuning.yaml
+│                                scripts/, tuning.yaml, schema/ (generated JSON Schemas)
 ├── locales/<lang>/              ui.json, content/*.yaml (en/ui.json is the source catalog)
 ├── assets/                      fonts (WOFF2), audio
 ├── public/                      favicon, PWA icons, robots.txt
@@ -824,7 +826,7 @@ human-in-the-loop/
 │   ├── golden/                  recorded runs + expected fingerprints
 │   ├── fixtures/                scenarios (shared with debug panel), past-version saves
 │   └── builders/                makeState(), makeMessage()…
-├── tools/                       content Vite plugin, content:new, JSON Schema generator,
+├── tools/                       content/ (Vite plugin, compiler, JSON Schema generator), content:new,
 │                                golden updater
 ├── docs/                        architecture, content guide, style guide, ADRs
 ├── .github/                     workflows (ci, deploy, nightly), PR and issue templates
@@ -864,7 +866,7 @@ human-in-the-loop/
 | End-of-run documents | `core/report`, `report/`, `ui/features/endOfRun` | Spoiler-safe model, PNG/PDF renderers |
 | Persistence | `platform/storage`, `platform/tabLock`, `core/save` | IDB, lock, migrations |
 | Export/import | `platform/codec`, `core/save` | Codec; schema and replay verification |
-| Content pipeline | `content/`, `core/content`, `tools/` | YAML, schemas, build plugin |
+| Content pipeline | `content/`, `core/content`, `core/contentSchema`, `tools/content`, `app/content` | YAML, schemas, build plugin, `virtual:content-pack` |
 | i18n | `i18n/`, `locales/` | `t()`, catalogs |
 | Notifications and tab title | `app/reactors`, `app/backgroundPreview`, `platform/notifications` | Counter, preview, permission |
 | Accessibility layer | `ui/a11y`, `ui/primitives` | Announcer, focus, shortcuts |
@@ -1032,8 +1034,8 @@ export const titleStage = computed(() => signalsFor(session.state.value.signalSt
 
 **Components:**
 
-- `core/content/conditions.ts`: Zod schema plus `evaluateConditions(conditions, context)`.
-- `core/content/effects.ts`: Zod schema plus `applyEffects(state, effects)`.
+- `core/contentSchema/conditions.ts` (Zod schema) and `core/content/evaluateConditions.ts` (`evaluateConditions(conditions, context)`); the schema stays out of the runtime bundle (D6).
+- `core/contentSchema/effects.ts` (Zod schema) and `core/content/applyEffects.ts` (`applyEffects(state, effects)`).
 - `ConditionContext`: a read-only projection of the state, built once per draw.
 
 **Rules:**

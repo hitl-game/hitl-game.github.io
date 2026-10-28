@@ -4,10 +4,11 @@
     "target": "es2023",
     "module": "esnext",
     "lib": ["ES2023", "DOM", "DOM.Iterable"],
-    "types": ["vite/client"],
+    "types": ["vite/client", "node"],
     "skipLibCheck": true,
 
     "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",
     "noEmit": true,
@@ -22,5 +23,13 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["tests/builders", "tests/fixtures", "tests/golden", "src"]
+  "include": [
+    "tests/builders",
+    "tests/fixtures",
+    "tests/golden",
+    "src",
+    "tools/content",
+    "vite.config.ts",
+    "vitest.config.ts"
+  ]
 }

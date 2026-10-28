@@ -67,6 +67,9 @@
   "src/core/restrictedImports.ts": {
     "no-restricted-imports": 5
   },
+  "src/core/importsVirtualModule.ts": [
+    "no-restricted-imports"
+  ],
   "src/core/restrictedGlobals.ts": {
     "no-restricted-globals": 26
   },

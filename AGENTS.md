@@ -30,4 +30,5 @@ Human in the Loop is a browser game built with Preact, TypeScript and Vite, depl
 | `format` / `format:check`   | Prettier                                                                                                         |
 | `dup` / `knip` / `size`     | Duplication, dead code and dependencies, bundle budget plus the lazy-chunk check (`tools/checkInitialBundle.ts`) |
 | `test` / `test:e2e`         | Vitest / Playwright                                                                                              |
+| `content:schema`            | Regenerates `content/schema/*.schema.json` from the Zod content schemas (commit the result)                      |
 | `check`                     | Every PR gate except e2e, in sequence                                                                            |

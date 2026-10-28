@@ -1,0 +1,195 @@
+# yaml-language-server: $schema=./schema/tuning.schema.json
+# Every [tuning] value of the GDD, in human units. Key suffixes name the unit.
+# Source: gdd.md → Initial tuning table, plus each inline [tuning] tag.
+
+start:
+  cashUsd: 12400 # Story 1.5: $400/day Garage burn gives a 31-day runway
+  hypeIndex: 20 # Daily simulation
+  alignmentPoints: 100 # M7
+  gpuCapacityUnits: 1 # GPU unit cost/day
+
+phases:
+  garage:
+    baseCostsPerDayUsd: 350
+    salaryPerHirePerDayUsd: 250
+    gpuUnitCostPerDayUsd: 50
+    newCustomersPhaseMultiplier: 1 # the Garage formula carries no factor
+    alignmentDriftPhaseMultiplier: 0.5 # M7
+    messageArrivalIntervalGameSeconds: { min: 10, max: 15 } # M2 Cadence by phase
+    eventIntervalActiveMinutes: { min: 3, max: 4 } # Pacing inside a phase
+  seed:
+    baseCostsPerDayUsd: 1500
+    salaryPerHirePerDayUsd: 350
+    gpuUnitCostPerDayUsd: 50
+    newCustomersPhaseMultiplier: 3
+    alignmentDriftPhaseMultiplier: 1
+    messageArrivalIntervalGameSeconds: { min: 6, max: 10 }
+    eventIntervalActiveMinutes: { min: 6, max: 8 }
+  seriesA:
+    baseCostsPerDayUsd: 6000
+    salaryPerHirePerDayUsd: 450
+    gpuUnitCostPerDayUsd: 45 # volume discount
+    newCustomersPhaseMultiplier: 10
+    alignmentDriftPhaseMultiplier: 1.5
+    messageArrivalIntervalGameSeconds: { min: 5, max: 5 } # 12/min at Series A entry
+    eventIntervalActiveMinutes: { min: 5, max: 8 }
+
+economy:
+  billingMonthDays: 30 # Cash += MRR / 30
+  overdraftInterestPerDayPercent: 0.5 # Debt tolerance
+  belowZeroLimitDays: 14 # death after 14 consecutive game days below $0
+  garageOverdraftFloorUsd: -5000
+  overdraftFloorOfLastRoundPercent: 15 # Seed and later: −15% of the last round
+  headcountBurnExponent: 1.2 # salary × headcount^1.2
+
+compute:
+  gpuUnitLoad: 100
+  selfServeCustomerLoad: 1
+  teamCustomerLoad: 5
+  enterpriseCustomerLoad: 50
+  metisAnswerLoad: 0.5 # for the game day it happens
+  churnUtilizationThresholdPercent: 90
+  extraChurnPerDayPerUtilizationPointPercent: 0.1
+  capacityOfferTargetUtilizationPercent: 70
+  capacityOfferMinGpuUnits: 1
+  capacityOfferRepeatDays: 5 # Compute exhausted
+
+hype:
+  changes:
+    launchHypeIndex: { min: 5, max: 15 }
+    boldPostHypeIndex: 3
+    viralHypeIndex: 20
+    flopHypeIndex: -10
+    scandalHypeIndex: -20
+    decayPerDayPercent: 2 # from Seed
+  valuationMultiple:
+    low: { hypeIndex: 20, valuationMultiplier: 10 }
+    high: { hypeIndex: 90, valuationMultiplier: 60 }
+
+customers:
+  baseNewCustomersPerDay: 2 # new/day = 2 + 0.1 × Hype
+  newCustomersPerDayPerHypePoint: 0.1
+  teamSharePerHypePointPercent: 0.5 # Hype / 200
+  teamShareMaxPercent: 45
+  baselineChurnPerDayPercent: 0.1
+  selfServePricePerMonthUsd: 49
+  teamPricePerMonthUsd: 499
+  enterprisePricePerMonthUsd: { min: 5000, max: 50000 }
+
+staff:
+  messageIntervalGameSeconds: 30 # throughput (M9)
+  contentMinMorale: 60
+  strainedMinMorale: 30
+  leavingResignAfterDays: 3
+  overloadedAboveQueuedMessages: 5
+  overloadedMoraleDriftPerDay: -5
+  normalMoraleDriftPerDay: 2
+  eventMoraleSwing: { min: 10, max: 30 }
+  exFaangSalaryMultiplier: 1.5
+  safetyResearcherSalaryMultiplier: 2
+
+traits: # drafts, traits 5–12
+  peterPan:
+    throughputMultiplier: 1.5
+  notionArchitect:
+    throughputMultiplier: 0.8
+    teammateMorale: 5
+  rewriteItInRust:
+    blockedTaskSharePercent: 10
+    blockedForDays: 2
+  thumbsUp:
+    defaultAnswerSharePercent: 50
+  vibeCoder:
+    throughputMultiplier: 2
+    incidentTaskSharePercent: 5
+    incidentHypeIndex: -3
+  exFounder:
+    moraleSwing: 10
+    moraleSwingIntervalDays: 7
+    leaveChancePerDayPercent: 2
+    leaveEligibleAfterDays: 60
+  meetingMaximalist:
+    teamThroughputChangePercent: -10
+  promptWhisperer:
+    metisLoadChangePercent: -20
+  aiMaximalist:
+    policyProposalIntervalDays: 15
+
+investors:
+  cashOfRoundTop:
+    growthFundMultiplier: 1
+    ethicalVentureCapitalMultiplier: 0.6
+    billionaireMultiplier: 1.5
+  growthFundClause:
+    mrrGrowthTargetPercent: 15
+    periodDays: 30
+    missHypeIndex: -10
+  responsibleVenturesClause:
+    graceDays: 10
+    penaltyHypeIndex: -10
+    penaltyIntervalDays: 10
+
+rounds: # In-run progression
+  seed:
+    triggerMrrUsd: 5000
+    raiseUsd: { min: 1500000, max: 3000000 }
+    postMoneyUsd: { min: 10000000, max: 20000000 }
+  seriesA:
+    triggerMrrUsd: 100000
+    raiseUsd: { min: 10000000, max: 25000000 }
+    postMoneyUsd: { min: 60000000, max: 150000000 }
+  growthTarget:
+    annualRecurringRevenueMultiplier: 3
+    windowDays: 120
+    downRoundAfterMisses: 2
+    downRoundCashCutPercent: 50
+    downRoundHypeIndex: -30
+
+heavyDecisions:
+  riskyReleaseSuccessPercent: 70
+  crisisFixSuccessPercent: 60
+  capabilityGrantSuccessPercent: 100
+  minGapDays: 5
+  failureDownsideMultiplier: 2
+
+messages:
+  backlogCapMessages: { min: 15, max: 20 } # M3
+  backlogTopItemWindowSeconds: { min: 10, max: 15 } # real seconds
+  noRepeatWindowMaxMessages: 10 # min(10, pool size − 5)
+  noRepeatPoolMarginMessages: 5
+  tradeOffCapPercent: 10
+  tradeOffCashFloorUsd: 500
+  heavyTradeOffCapPercent: 50
+  routineInferenceLineIntervalGameSeconds: 20
+  seriesARoundExtraArrivalsPerMinute: 2 # +2/min per round after Series A
+  maxArrivalsPerMinute: 40
+
+pacing:
+  tickerHeadlineIntervalDays: 2
+
+alignment:
+  drift:
+    lowStakesPoints: -0.02
+    mediumStakesPoints: -0.05
+    highStakesPoints: -0.1
+    capabilityGrantPoints: { min: -15, max: -5 }
+  auditPause:
+    policiesOffDays: 3
+    penaltyHypeIndex: -10
+    recoveryPoints: 5
+    cooldownDays: 30
+  researcherTrend:
+    windowDays: 7
+    risingAtPoints: 1
+    fallingAtPoints: -1
+
+spine:
+  roundCooldownDays: 5
+  minBeatGapDays: 3
+
+meta:
+  aegisVersionOffset: 3 # Aegis-N, N = loop number + 3
+
+clueReplay:
+  staffMessageGameSeconds: 30
+  marginalHeadcountExponent: 0.2
