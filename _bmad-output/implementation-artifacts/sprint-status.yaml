@@ -72,7 +72,7 @@ development_status:
   8-1-pdfkit-tagged-pdf-spike: done # parallel lane; brings its own font if 1.7 has not landed
 
   1-2-deterministic-core-skeleton: review
-  1-3-content-and-tuning-pipeline: backlog
+  1-3-content-and-tuning-pipeline: review
   1-4-i18n-catalogs-and-number-formatters: backlog
   1-5-daily-economy-step: backlog
   1-6-game-clock-presence-and-clock-states: backlog
