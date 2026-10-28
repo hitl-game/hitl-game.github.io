@@ -4,7 +4,7 @@ baseline_commit: 44a023f0331e1018a47f43c1f6f52b95b1a9ecd2
 
 # Story 1.4: i18n catalogs and number formatters
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -301,3 +301,4 @@ Dismissed (one line each): a non-object lazy catalog default export is not guard
 - 2026-10-28: Code review run 3: 1 patch applied (own-key locale lookup).
 - 2026-10-28: Code review run 4: 1 patch applied (empty translation counts as missing in `i18n:missing`).
 - 2026-10-28: Code review run 5 (final): 1 patch applied (unused `wholeNumber` preset removed); review loop complete, E3 ticked.
+- 2026-10-28: Closed. PR #10 merged (`60d6168`). The CI run on `main` passed every job, including the three-engine `e2e` job (Firefox verified there) and `verapdf`. The Pages deploy and the post-deploy smoke passed. Status → done.
