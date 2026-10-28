@@ -314,3 +314,5 @@ Run 1 (3 layers: Blind Hunter, Edge Case Hunter, Acceptance Auditor): 0 decision
 - [x] [Review][Defer] Calls after `dispose` still mutate — deferred to 1.8 lifecycle
 - [x] [Review][Defer] Long visible gap (sleep) simulated in one frame — deferred to 3.5
 
+
+Run 2 (3 layers: Blind Hunter, Edge Case Hunter, Acceptance Auditor): 0 decision_needed, 0 patch, 0 new defer. Checked the run 1 fix (try/finally in `runFrame`), the effect re-anchoring on speed change and stop, the stop-then-dispatch path, pause/hidden frame-tail loss (under one frame, dropped by design, C-9) and the boundary and knip changes; all correct. Nothing new found; `npm run check` green.
