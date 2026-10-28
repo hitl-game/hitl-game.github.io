@@ -4,7 +4,7 @@ baseline_commit: 8932ca4146bf6e6bbf30b9acc18c1973d836a965
 
 # Story 1.3: Content and tuning pipeline
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -391,6 +391,7 @@ Deleted:
 - 2026-10-28: story file created (status ready-for-dev).
 - 2026-10-28: implemented content and tuning pipeline (tuning.yaml, exact unit conversion, Zod schemas, compiler, Vite plugin with virtual:content-pack, JSON Schema generation, ContentIndex); schemas split into core/contentSchema to keep Zod out of the runtime bundle; status → review.
 - 2026-10-28: code review loop (3 runs, sonnet; implementation on opus). A first skim pass (bundle check, 1 deferral) did not run the workflow and was redone. Run 1: 5 patched, 2 deferred, 7 dismissed. Run 2: 1 patched, 3 deferred, 3 dismissed. Run 3: nothing actionable (about 14 dismissed, mostly re-raises), so the loop stopped. `npm run check` and chromium e2e green.
+- 2026-10-28: Closed. PR #8 merged (`372f49a`). The CI run on `main` passed every job, including the three-engine `e2e` job, so Firefox is now verified. The Pages deploy and the post-deploy smoke passed. Status → done.
 
 ### Review Findings
 
