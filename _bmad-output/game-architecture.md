@@ -303,7 +303,7 @@ Versions verified on npm on 2026-10-27.
   - `applyCommand(state, command, atGameMs)`: validates, appends to the input log, returns the new state;
   - `advance(state, untilGameMs, mode)`: time progression (D1).
 - **Layers.** `app` owns the live state, calls the two entry points and publishes the state through signals. Views read derived `computed` selectors. Components contain no game rules.
-- **Replay.** `replay(seed, inputLog)` folds the same two entry points. It is the same code, not a parallel implementation.
+- **Replay.** `replay(start, inputLog)` folds the same two entry points (`replay(start, log)` = `replayFrom(newRun(start), log)`; snapshot + tail uses `replayFrom`). It is the same code, not a parallel implementation.
 
 ### Data Persistence (D4)
 
@@ -317,7 +317,7 @@ Versions verified on npm on 2026-10-27.
 - **Single live tab.** Web Locks API (`navigator.locks.request('hitl:live', { ifAvailable: true })`). Other tabs show "Huddlr is open in another tab · Use here"; the hand-over is coordinated with `BroadcastChannel`.
 - **Migrations.** A chain of pure functions `vN → vN+1`, each covered by fixture saves.
 - **Bounded state.** Resolved (answered or expired) messages stay in state for a bounded window (`tuning.resolvedMessagesPerChannel`, ~200), then are dropped. Chronicle entries keep their own quotes, and the clue replay re-derives older data by replay (N5). Snapshots, saves and memory stay flat over multi-hour runs.
-- **Run start parameters.** `newRun(seed, loopNumber, contentPackVersion, settings)`. They are stored in the save, so replay never depends on the profile.
+- **Run start parameters.** `newRun(start: RunStart)` with `RunStart = { seed, loopNumber, contentPackVersion, settings }` (one options object: `max-params` is 3). They are stored in the save, so replay never depends on the profile.
 
 #### Meta-progression (profile)
 
@@ -328,7 +328,7 @@ Versions verified on npm on 2026-10-27.
 
 #### Replay Consistency (mandatory)
 
-**Invariant:** `replay(seed, inputLog)` reproduces the saved state exactly.
+**Invariant:** `replay(start, inputLog)` reproduces the saved state exactly.
 
 **State fingerprint.** States are compared by fingerprint: canonical serialisation (sorted keys, integers only) hashed with SHA-256.
 
@@ -757,6 +757,7 @@ human-in-the-loop/
 │   │   │                        replay, fingerprint, invariants
 │   │   ├── time/                event queue, advance, clock-state pause rules      (M1)
 │   │   ├── rng/                 per-subsystem streams                              (D2)
+│   │   ├── numerics/            divideRounded, the only rounding path               (D2)
 │   │   ├── messages/            lifecycle, windows, expiry, template instancing    (M2)
 │   │   ├── economy/             cash, burn, MRR, customers, Hype, compute          (M4)
 │   │   ├── delegation/          policies, Ask Metis, Auto-triage, capacity, audit  (M4, M5)
@@ -810,7 +811,7 @@ human-in-the-loop/
 │   │   ├── png/                 Canvas 2D renderer
 │   │   └── pdf/                 PDFKit renderer, PDF/UA structure tree
 │   ├── i18n/                    t(), Intl formatters, generated key types          (D7)
-│   ├── shared/                  Result, branded IDs
+│   ├── shared/                  Result, Brand, assertInvariant, sha256Hex
 │   └── debug/                   dev panel, scenario loader                         (C5)
 ├── content/                     events/, characters/, templates/ (incl. documents/), headlines/,
 │                                scripts/, tuning.yaml
@@ -847,7 +848,7 @@ human-in-the-loop/
 | Time and clock states | `core/time`, `platform/clock` | Event queue and `advance`; real → game time conversion |
 | Unified simulation step | `core/time`, `core/run` | `advance`, `applyCommand` |
 | Absence and backlog | `core/absence` | Away rules, cap, stop conditions, backlog ranking |
-| Seed determinism, replay | `core/rng`, `core/run`, `app/replayCheck` | Streams, replay, fingerprint, desync detection |
+| Seed determinism, replay | `core/rng`, `core/numerics`, `core/run`, `app/replayCheck` | Streams, rounding, replay, fingerprint, desync detection |
 | Triage and message lifecycle | `core/messages`, `ui/features/channel`, `ui/patterns/MessageCard` | Windows, expiry, outcomes; message UI |
 | Delegation, Ask Metis, Auto-triage, compute | `core/delegation`, `core/economy`, `ui/features/automations`, `ui/features/metisDm` | Policies, capacity, audit |
 | Hidden Alignment | `core/alignment` | Drift and thresholds; never exposed as events |
