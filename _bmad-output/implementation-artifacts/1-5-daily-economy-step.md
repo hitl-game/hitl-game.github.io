@@ -4,7 +4,7 @@ baseline_commit: 5cc114a3f82b592b63562fc566b7f7545dfbee8f
 
 # Story 1.5: Daily economy step
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -347,3 +347,4 @@ Dismissed (one line each): the queue-shape invariant for `economyStep` and repla
 - 2026-10-28: Code review run 3 (full workflow): 2 cosmetic patches applied (naming, test title), nothing deferred.
 - 2026-10-28: Code review run 4 (full workflow): 2 test-only patches applied, 1 item deferred (net-burn runway, Story 2.4).
 - 2026-10-28: Code review run 5 (full workflow): 1 comment-only patch applied, nothing deferred.
+- 2026-10-28: Closed. PR #12 merged (`c095892`). The CI run on `main` passed every job, including the three-engine `e2e` job (Firefox verified there) and `verapdf`. The Pages deploy and the post-deploy smoke passed. Status → done.
