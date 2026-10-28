@@ -3,14 +3,37 @@
   "src/core/index.ts": [],
   "src/core/run/index.ts": [],
   "src/core/run/advance.ts": [],
+  "src/core/run/fingerprint.ts": [],
+  "src/core/run/applyCommand.ts": [
+    "no-restricted-imports"
+  ],
   "src/core/time/deepSiblingImport.ts": [
-    "boundaries/dependencies"
+    "boundaries/dependencies",
+    "no-restricted-imports"
+  ],
+  "src/core/time/importsRun.ts": [
+    "no-restricted-imports"
   ],
   "src/core/importsPlatform.ts": [
     "boundaries/dependencies"
   ],
   "src/core/mathRandom.ts": [
     "no-restricted-properties"
+  ],
+  "src/core/mathRound.ts": [
+    "no-restricted-properties"
+  ],
+  "src/core/toFixed.ts": [
+    "no-restricted-properties"
+  ],
+  "src/core/localeCompare.ts": [
+    "no-restricted-properties"
+  ],
+  "src/core/toLocaleString.ts": [
+    "no-restricted-properties"
+  ],
+  "src/core/intl.ts": [
+    "no-restricted-globals"
   ],
   "src/core/date.ts": [
     "no-restricted-globals"
