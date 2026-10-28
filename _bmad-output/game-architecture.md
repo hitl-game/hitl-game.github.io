@@ -304,7 +304,7 @@ Versions verified on npm on 2026-10-27.
   - `advance(state, untilGameMs, mode)`: time progression (D1).
 - **Layers.** `app` owns the live state, calls the two entry points and publishes the state through signals. Views read derived `computed` selectors. Components contain no game rules.
 - **Replay.** `replay(start, inputLog)` folds the same two entry points (`replay(start, log)` = `replayFrom(newRun(start), log)`; snapshot + tail uses `replayFrom`). It is the same code, not a parallel implementation.
-- **Replay contract (callers of `advance`/`applyCommand`, Story 1.6 `app/session`).** Replay does exactly one `advance(state, entry.atGameMs)` before each logged command, so live play must too: call `advance` up to `nowGameMs` before every command (a zero-length advance can still process another event due at that time), except right after a blocking stop, and never advance past a blocking stop until a command has been logged there. Two commands back to back with no `advance` between them replay differently.
+- **Replay contract (callers of `advance`/`applyCommand`, Story 1.6 `app/session`).** Replay does exactly one `advance(state, entry.atGameMs)` before each logged command, so live play must too: call `advance` up to `nowGameMs` before every command (a zero-length advance can still process another event due at that time), except right after a blocking stop: from a blocking stop until a command has been logged there, make no `advance` call of any length, not even a zero-length one (it would process a second blocking event due at the same `gameMs` that replay leaves queued). Two commands back to back with no `advance` between them replay differently.
 
 ### Data Persistence (D4)
 
@@ -1166,7 +1166,7 @@ beats:
 
 **Components:**
 
-- **`replay(seed, inputLog, { probe })`.** `probe` is a pure reducer over read-only steps (`before`, `after`, `cause`). A test asserts that the final fingerprint is identical with and without a probe.
+- **`replay(start, inputLog, { probe })`.** `probe` is a pure reducer over read-only steps (`before`, `after`, `cause`). A test asserts that the final fingerprint is identical with and without a probe.
 - **`core/ending/clueProbe.ts`.**
   - It samples `alignmentMilli` and implied valuation (from ARR and Hype) once per game day.
   - It groups drift by cause: one player command (capability grant), one auto-triage click (batch), one absence with active policies (delegated night).
@@ -1175,8 +1175,8 @@ beats:
 - **`app/simulationWorker`.** A module Web Worker running pure core code. It is shared by the clue probe, the runtime desync detector (D4 level 5) and import verification (D5). The clue probe starts when the Surpassed sequence begins.
 
 ```
-seed + inputLog ──▶ replay(…, { probe: clueProbe }) ──▶ ProbeResult ──▶ buildClueReplay() ──▶ ui/features/clueReplay
-                     (in simulationWorker)
+start + inputLog ──▶ replay(…, { probe: clueProbe }) ──▶ ProbeResult ──▶ buildClueReplay() ──▶ ui/features/clueReplay
+                      (in simulationWorker)
 ```
 
 ### Communication Patterns

@@ -170,6 +170,16 @@ describe('replay', () => {
     expect(() => replayFrom(makeState(), corrupt)).toThrow(/corrupt/);
   });
 
+  it('rejects a corrupt snapshot even when replay would consume the corruption', () => {
+    // The stale counter would let the day boundary reschedule as evt-000001 and look valid.
+    const staleCounter: GameState = { ...makeState(), counters: { event: 0 } };
+    const log = [
+      { atGameMs: 60_000, command: { type: 'changeGameSpeed', speed: 'half' } },
+    ] as const;
+
+    expect(() => replayFrom(staleCounter, log)).toThrow(/already counted/);
+  });
+
   it('treats a log entry after an unresolved blocking stop as a corrupt log', () => {
     const blockedAt100 = makeStateWithEvents([{ gameMs: 100, kind: 'heavyDecisionDue' }]);
     const log = [{ atGameMs: 200, command: { type: 'changeGameSpeed', speed: 'half' } }] as const;

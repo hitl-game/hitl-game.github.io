@@ -2251,7 +2251,7 @@ So that the proof needs nothing recorded during play.
 
 **Acceptance Criteria:**
 
-**Given** `replay(seed, inputLog, { probe })`
+**Given** `replay(start, inputLog, { probe })`
 **When** run with and without the probe
 **Then** the final fingerprints are identical (test).
 

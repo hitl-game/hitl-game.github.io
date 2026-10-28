@@ -4,12 +4,50 @@ import { isRngStreamState, type RngStreams } from '../rng';
 import { compareQueuedEvents, eventKinds, formatEventId, type QueuedEvent } from '../time';
 import { canonicalize } from './canonicalize';
 import type { GameState } from './gameState';
+import type { InputLogEntry } from './inputLogEntry';
 import { toRunSeed } from './runSeed';
 import { gameSpeeds, timings, type Settings } from './settings';
 
+const gameStateKeys = [
+  'seed',
+  'loopNumber',
+  'contentPackVersion',
+  'settings',
+  'nowGameMs',
+  'queue',
+  'rngStreams',
+  'counters',
+  'inputLog',
+] as const satisfies readonly (keyof GameState)[];
+const settingsKeys = ['gameSpeed', 'timing'] as const satisfies readonly (keyof Settings)[];
+const queuedEventKeys = ['id', 'gameMs', 'kind'] as const satisfies readonly (keyof QueuedEvent)[];
+const inputLogEntryKeys = [
+  'atGameMs',
+  'command',
+] as const satisfies readonly (keyof InputLogEntry)[];
+
+// A stray key changes the fingerprint without changing the run, so every record is exact.
+function assertHasExactKeys(value: object, keys: readonly string[], message: string): void {
+  assertInvariant(
+    Object.keys(value).length === keys.length && keys.every((key) => Object.hasOwn(value, key)),
+    message,
+  );
+}
+
+// canonicalize lets null, booleans and strings through, and `>=` coerces them, so time and
+// counter fields are type-checked before any comparison.
+const isGameMs = (value: unknown): value is number =>
+  typeof value === 'number' && Number.isSafeInteger(value) && value >= 0;
+
 // The counter must be ahead of every queued id, or the next scheduleEvent mints a duplicate.
 function assertEventIsWellFormed(event: QueuedEvent, eventCounter: number): void {
-  assertInvariant(Object.hasOwn(eventKinds, event.kind), `unknown event kind ${event.kind}`);
+  assertHasExactKeys(event, queuedEventKeys, 'a queued event holds id, gameMs and kind only');
+  assertInvariant(
+    typeof event.kind === 'string' && Object.hasOwn(eventKinds, event.kind),
+    `unknown event kind ${event.kind}`,
+  );
+  assertInvariant(typeof event.id === 'string', 'an event id is a string');
+  assertInvariant(isGameMs(event.gameMs), 'an event gameMs is a non-negative integer');
   const sequence = Number(event.id.slice(-ID_SEQUENCE_WIDTH));
   assertInvariant(
     Number.isSafeInteger(sequence) &&
@@ -23,6 +61,8 @@ function assertEventIsWellFormed(event: QueuedEvent, eventCounter: number): void
 function assertQueueIsValid(state: GameState): void {
   const { queue, nowGameMs } = state;
   queue.forEach((event, index) => {
+    // Kind and id first: the comparator below reads both.
+    assertEventIsWellFormed(event, state.counters.event);
     assertInvariant(event.gameMs >= nowGameMs, 'queued events are never before nowGameMs');
     const previous = queue[index - 1];
     if (previous !== undefined) {
@@ -31,7 +71,6 @@ function assertQueueIsValid(state: GameState): void {
         'the queue is sorted by (gameMs, kind priority, id)',
       );
     }
-    assertEventIsWellFormed(event, state.counters.event);
   });
   assertInvariant(
     new Set(queue.map((event) => event.id)).size === queue.length,
@@ -40,6 +79,7 @@ function assertQueueIsValid(state: GameState): void {
 }
 
 function assertStartIsValid(settings: Settings, rngStreams: RngStreams): void {
+  assertHasExactKeys(settings, settingsKeys, 'settings holds gameSpeed and timing only');
   assertInvariant(gameSpeeds.includes(settings.gameSpeed), 'gameSpeed is a known value');
   assertInvariant(timings.includes(settings.timing), 'timing is a known value');
   assertInvariant(
@@ -48,17 +88,21 @@ function assertStartIsValid(settings: Settings, rngStreams: RngStreams): void {
     ),
     'every released stream is four int32 words, not all zero',
   );
-  assertInvariant(
-    Object.keys(rngStreams).length === rngStreamNames.length,
-    'rngStreams holds the released streams only',
-  );
+  assertHasExactKeys(rngStreams, rngStreamNames, 'rngStreams holds the released streams only');
 }
 
 // Replay advances to each entry in turn (C-4), so log times never decrease and never pass now.
 function assertInputLogIsValid(state: GameState): void {
   state.inputLog.reduce((previousGameMs, entry) => {
+    assertHasExactKeys(
+      entry,
+      inputLogEntryKeys,
+      'an input log entry holds atGameMs and command only',
+    );
     assertInvariant(
-      entry.atGameMs >= previousGameMs && entry.atGameMs <= state.nowGameMs,
+      isGameMs(entry.atGameMs) &&
+        entry.atGameMs >= previousGameMs &&
+        entry.atGameMs <= state.nowGameMs,
       `input log entry at ${String(entry.atGameMs)} is in order and not after nowGameMs`,
     );
     return entry.atGameMs;
@@ -70,14 +114,12 @@ function assertInputLogIsValid(state: GameState): void {
 export function assertStateIsValid(state: GameState): void {
   // canonicalize is the one walker: it rejects classes, Map, Set, undefined, floats and cycles.
   canonicalize(state);
+  assertHasExactKeys(state, gameStateKeys, 'the state holds the known top-level fields only');
   toRunSeed(state.seed);
   assertStartIsValid(state.settings, state.rngStreams);
-  assertInvariant(state.nowGameMs >= 0, 'nowGameMs is never negative');
-  assertInvariant(state.counters.event >= 0, 'counters never go negative');
-  assertInvariant(
-    Object.keys(state.counters).length === 1,
-    'counters holds the event counter only',
-  );
+  assertInvariant(isGameMs(state.nowGameMs), 'nowGameMs is a non-negative integer');
+  assertHasExactKeys(state.counters, ['event'], 'counters holds the event counter only');
+  assertInvariant(isGameMs(state.counters.event), 'the event counter is a non-negative integer');
   assertQueueIsValid(state);
   assertInputLogIsValid(state);
 }

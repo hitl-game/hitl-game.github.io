@@ -18,6 +18,7 @@ describe('assertStateIsValid', () => {
   it('rejects an unsorted queue', () => {
     const state: GameState = {
       ...makeState(),
+      counters: { event: 2 },
       queue: [
         makeEvent({ id: formatEventId(1), gameMs: 20 }),
         makeEvent({ id: formatEventId(2), gameMs: 10 }),
@@ -95,6 +96,45 @@ describe('assertStateIsValid', () => {
       /released streams only/,
     ],
     ['an unknown counter', { counters: { event: 1, bogus: 0 } }, /event counter only/],
+    ['a null nowGameMs', { nowGameMs: null }, /nowGameMs is a non-negative integer/],
+    ['a string event counter', { counters: { event: '1' } }, /event counter is/],
+    [
+      'a string event gameMs',
+      { queue: [{ ...makeState().queue[0], gameMs: '60000' }] },
+      /event gameMs/,
+    ],
+    [
+      'a null input log time',
+      { nowGameMs: 100, inputLog: [{ atGameMs: null, command: halfSpeed }] },
+      /input log/,
+    ],
+    [
+      'an unknown event kind tied with the event before it',
+      {
+        counters: { event: 2 },
+        queue: [
+          makeEvent({ id: formatEventId(1), gameMs: 10 }),
+          makeEvent({ id: formatEventId(2), gameMs: 10, kind: 'bogus' as EventKind }),
+        ],
+      },
+      /unknown event kind/,
+    ],
+    [
+      'a stray settings key',
+      { settings: { timing: 'standard', gameSpeed: 'full', bogus: 0 } },
+      /settings holds/,
+    ],
+    ['a stray top-level key', { bogus: 0 }, /top-level fields only/],
+    [
+      'a stray queued event key',
+      { queue: [{ ...makeState().queue[0], bogus: 0 }] },
+      /queued event holds/,
+    ],
+    [
+      'a stray input log entry key',
+      { nowGameMs: 100, inputLog: [{ atGameMs: 50, command: halfSpeed, bogus: 0 }] },
+      /input log entry holds/,
+    ],
     [
       'an input log entry after nowGameMs',
       { nowGameMs: 100, inputLog: [{ atGameMs: 200, command: halfSpeed }] },

@@ -25,6 +25,9 @@ function replayEntry(state: GameState, entry: InputLogEntry): CoreStep {
 }
 
 export function replayFrom(state: GameState, inputLog: readonly InputLogEntry[]): CoreStep {
+  // A snapshot can be corrupt in a way replay consumes (a stale counter, a misordered event),
+  // so it is checked before the fold as well as after.
+  assertStateIsValid(state);
   let current = state;
   const events: DomainEvent[] = [];
   for (const entry of inputLog) {
