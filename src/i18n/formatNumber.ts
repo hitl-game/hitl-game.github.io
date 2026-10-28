@@ -10,7 +10,6 @@ const numberFormatOptions = {
     minimumFractionDigits: 0,
   },
   percent: { style: 'percent', maximumFractionDigits: 2 },
-  wholeNumber: { maximumFractionDigits: 0 },
   minutes: { maximumFractionDigits: 0, useGrouping: false },
   seconds: { minimumIntegerDigits: 2, maximumFractionDigits: 0 },
 } as const satisfies Readonly<Record<string, Intl.NumberFormatOptions>>;

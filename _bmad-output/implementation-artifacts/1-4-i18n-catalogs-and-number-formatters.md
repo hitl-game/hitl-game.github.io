@@ -80,7 +80,7 @@ These are decisions taken by the story author (no human was available); see "Def
 
 - [x] E1. Update `knip.json` (remove `intl-messageformat` from `ignoreDependencies`, add the generated file if flagged), `AGENTS.md` scripts table (`i18n:types`, `i18n:missing`), and `_bmad-output/implementation-artifacts/deferred-work.md` (C-13).
 - [x] E2. Run `npm run check`; run `npm run test:e2e` if the app shell changed (it should not).
-- [ ] E3. Run the Agent Review Checklist (game-architecture.md → Implementation Patterns) and paste it ticked in the PR. Run the code-review loop (max 5 runs, stop on a clean run) before opening the PR.
+- [x] E3. Run the Agent Review Checklist (game-architecture.md → Implementation Patterns) and paste it ticked in the PR. Run the code-review loop (max 5 runs, stop on a clean run) before opening the PR.
 
 ## Dev Notes
 
@@ -286,6 +286,12 @@ Code review run 4 (2026-10-28, full workflow: Blind Hunter, Edge Case Hunter and
 
 Dismissed (one line each): `.yml` ignored and locale folders not cross-checked against `supportedLocales` repeat earlier dismissals/defer; duplicate content keys across files need a content kind that does not exist yet (C-10 stub); a failed later `loadLocale` superseding an earlier success repeats run 2; no ICU validation of runtime catalogs (they are the files CI validates; repeats run 2); the lost error for a duplicated non-string key is cosmetic (the duplicate itself is still reported); Acceptance Auditor's `loadLocale` returning a `Result` rather than the catalog is a harmless unlisted deviation.
 
+Code review run 5 (2026-10-28, final run, full workflow: Blind Hunter, Edge Case Hunter and Acceptance Auditor as parallel subagents). 1 patch, 0 deferred, 9 dismissed. Blind Hunter found nothing blocking. The review loop is complete.
+
+- [x] [Review][Patch] The `wholeNumber` number-format preset had no consumer (speculative option, Charter); removed [src/i18n/formatNumber.ts]
+
+Dismissed (one line each): a non-object lazy catalog default export is not guarded at runtime (the files are the ones CI lints; repeats run 4's runtime-catalog dismissal); whitespace-only translations count as present (no concrete failing input beyond the already-fixed empty string; speculative); `.yml`/`.YAML` ignored (repeats earlier dismissals); plain `{x}` vs select and reordered repeated select options (repeats run 2; no real catalog uses either); missing English catalog gives a raw stack from the CLI (repeats run 1); a failed latest `loadLocale` superseding an earlier success (repeats run 2); concurrent same-locale loads fetch twice (repeats run 3); `time.day` text `Day {day, number}` differs from C-5's `Day {day}` (deliberate digit grouping, covered by earlier dismissals); documented spec deviations are in the Dev Agent Record.
+
 ## Change Log
 
 - 2026-10-28: Story created (status: ready-for-dev).
@@ -294,3 +300,4 @@ Dismissed (one line each): `.yml` ignored and locale folders not cross-checked a
 - 2026-10-28: Code review run 2: 1 patch applied (select options compare as subset).
 - 2026-10-28: Code review run 3: 1 patch applied (own-key locale lookup).
 - 2026-10-28: Code review run 4: 1 patch applied (empty translation counts as missing in `i18n:missing`).
+- 2026-10-28: Code review run 5 (final): 1 patch applied (unused `wholeNumber` preset removed); review loop complete, E3 ticked.
