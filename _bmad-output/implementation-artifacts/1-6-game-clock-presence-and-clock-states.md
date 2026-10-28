@@ -4,7 +4,7 @@ baseline_commit: 13f16980defc4e598f8969fe07f46d04a850849f
 
 # Story 1.6: Game clock, presence and clock states
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -300,6 +300,10 @@ Modified:
 
 - 2026-10-28: Story created (status ready-for-dev) by gds-create-story, unattended.
 - 2026-10-28: Implemented by gds-dev-story (unattended): `core/time` game speeds, pause reasons and real-window helper; `platform/clock` anchor-based clock and frame loop; `platform/visibility`; `app/session` with signals, pause set, awaiting-Deploy seam, present loop and replay-contract `dispatch`; CLK-01/02/03, DET-01/09 and edge-case tests; architecture and deferred-work updates. Status → review.
+- 2026-10-28: Code review run 1 (full workflow): 3 patches applied, 5 items deferred.
+- 2026-10-28: Code review run 2 (single pass): nothing found; not counted as a clean stop.
+- 2026-10-28: Code review run 3 (full workflow): no patches, 1 item deferred (stop state on load, Story 1.9).
+- 2026-10-28: Closed. PR #14 merged (`563ce0f`). The CI run on `main` passed every job, including the three-engine `e2e` job (Firefox verified there) and `verapdf`. The Pages deploy and the post-deploy smoke passed. Status → done.
 
 ### Review Findings
 
