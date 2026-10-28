@@ -90,6 +90,10 @@ describe('assertStateIsValid', () => {
       /stream/,
     ],
     ['a seed outside the Run ID range', { seed: -5 }, /run seed/],
+    ['a string loop number', { loopNumber: '1' }, /loopNumber/],
+    ['a zero loop number', { loopNumber: 0 }, /loopNumber/],
+    ['a null loop number', { loopNumber: null }, /loopNumber/],
+    ['a numeric content pack version', { contentPackVersion: 1 }, /contentPackVersion/],
     [
       'an unreleased rng stream',
       { rngStreams: { ...makeState().rngStreams, bogus: [1, 2, 3, 4] } },

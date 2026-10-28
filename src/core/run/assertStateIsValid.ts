@@ -116,6 +116,12 @@ export function assertStateIsValid(state: GameState): void {
   canonicalize(state);
   assertHasExactKeys(state, gameStateKeys, 'the state holds the known top-level fields only');
   toRunSeed(state.seed);
+  // Loops count from 1 (scripts key on "from loop 2"); "1" and 1 would fingerprint apart.
+  assertInvariant(
+    Number.isSafeInteger(state.loopNumber) && state.loopNumber >= 1,
+    'loopNumber is a positive integer',
+  );
+  assertInvariant(typeof state.contentPackVersion === 'string', 'contentPackVersion is a string');
   assertStartIsValid(state.settings, state.rngStreams);
   assertInvariant(isGameMs(state.nowGameMs), 'nowGameMs is a non-negative integer');
   assertHasExactKeys(state.counters, ['event'], 'counters holds the event counter only');

@@ -758,7 +758,7 @@ human-in-the-loop/
 │   │   │                        replay, fingerprint, invariants
 │   │   ├── time/                event queue, advance, clock-state pause rules      (M1)
 │   │   ├── rng/                 per-subsystem streams                              (D2)
-│   │   ├── numerics/            divideRounded, the only rounding path               (D2)
+│   │   ├── numerics/            divideRounded (only rounding path), withoutNegativeZero (D2)
 │   │   ├── messages/            lifecycle, windows, expiry, template instancing    (M2)
 │   │   ├── economy/             cash, burn, MRR, customers, Hype, compute          (M4)
 │   │   ├── delegation/          policies, Ask Metis, Auto-triage, capacity, audit  (M4, M5)
