@@ -25,3 +25,17 @@ export const ID_SEQUENCE_LIMIT = 10 ** ID_SEQUENCE_WIDTH;
 
 export const SORT_BEFORE = -1;
 export const SORT_AFTER = 1;
+
+// Phase order is the funding order; Series A+ covers every later round (GDD Level Types).
+export const phases = ['garage', 'seed', 'seriesA'] as const;
+export type Phase = (typeof phases)[number];
+
+// Integer unit factors: tuning is authored in human units and compiled once to these.
+export const CENTS_PER_DOLLAR = 100;
+export const BP_PER_PERCENT = 100;
+export const BP_PER_MULTIPLIER = 10_000;
+export const BP_PER_HYPE_POINT = 100;
+export const MILLI_PER_POINT = 1_000;
+export const MS_PER_SECOND = 1_000;
+export const SECONDS_PER_MINUTE = 60;
+export const DECIMAL_BASE = 10;

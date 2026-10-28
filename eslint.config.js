@@ -4,6 +4,12 @@ import sonarjs from 'eslint-plugin-sonarjs';
 import { defineConfig } from 'eslint/config';
 import tseslint from 'typescript-eslint';
 
+import {
+  coreRestrictedGlobals,
+  coreRestrictedImports,
+  coreRestrictedProperties,
+} from './eslint/coreRestrictions.js';
+
 // The lint fixtures mirror src/ so the same scoped rules apply to them.
 const inSrc = (glob) => [`src/${glob}`, `tests/lint-fixtures/src/${glob}`];
 
@@ -112,65 +118,6 @@ const jsxRestrictions = [
     message: 'Use t() for user-facing strings.',
   })),
 ];
-
-const coreRestrictedGlobals = [
-  'Date',
-  'performance',
-  'setTimeout',
-  'setInterval',
-  'setImmediate',
-  'requestAnimationFrame',
-  'queueMicrotask',
-  'crypto',
-  'fetch',
-  'console',
-  'window',
-  'document',
-  'navigator',
-  'localStorage',
-  'sessionStorage',
-  'indexedDB',
-  'XMLHttpRequest',
-  'WebSocket',
-  'Worker',
-  'AudioContext',
-  'Notification',
-  'caches',
-  'location',
-  'process',
-  'self',
-  'globalThis',
-  'Intl',
-].map((name) => ({
-  name,
-  message: 'core/ is pure: time, randomness and I/O arrive as arguments.',
-}));
-
-const roundingMessage = 'Divide through core/numerics divideRounded, the only rounding path.';
-const localeMessage = 'Locale-dependent results break cross-engine determinism (DET-08).';
-const coreRestrictedProperties = [
-  { object: 'Math', property: 'random', message: 'Use the subsystem RngStream.' },
-  ...['round', 'floor', 'ceil', 'trunc'].map((property) => ({
-    object: 'Math',
-    property,
-    message: roundingMessage,
-  })),
-  ...['toFixed', 'toPrecision', 'toExponential'].map((property) => ({
-    property,
-    message: roundingMessage,
-  })),
-  { property: 'localeCompare', message: localeMessage },
-  { property: 'toLocaleString', message: localeMessage },
-  { property: 'toLocaleLowerCase', message: localeMessage },
-  { property: 'toLocaleUpperCase', message: localeMessage },
-];
-
-const coreRestrictedImports = {
-  paths: ['preact', '@preact/signals', 'idb'],
-  patterns: [
-    { group: ['preact/*', 'node:*'], message: 'core/ imports only shared/ and pure libraries.' },
-  ],
-};
 
 // Fingerprinting and full state walks are never on a hot path (D4): advance (core/time) and
 // applyCommand stay out of fingerprint, its parts (canonicalize, sha256Hex) and the full-walk

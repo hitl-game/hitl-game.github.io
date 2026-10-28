@@ -7,6 +7,13 @@ export {
   timeSplitArbitrary,
   type LiveStep,
 } from './arbitraries';
+export {
+  makeContentPack,
+  makeTuningInput,
+  readTuningSource,
+  tuningSourcePath,
+  type TuningOverrides,
+} from './makeContentPack';
 export { makeEvent } from './makeEvent';
 export { makeRunStart } from './makeRunStart';
 export { makeState, makeStateWithEvents } from './makeState';
