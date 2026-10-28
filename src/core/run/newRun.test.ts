@@ -51,12 +51,14 @@ describe('newRun', () => {
       makeEconomyTuning({
         'start.cashUsd': 500,
         'start.hypeIndex': 7,
+        'start.alignmentPoints': 42,
         'start.gpuCapacityUnits': 4,
       }),
     );
 
     expect(state.cashCents).toBe(50_000);
     expect(state.hypeBp).toBe(700);
+    expect(state.alignmentMilli).toBe(42_000);
     expect(state.gpuCapacityUnits).toBe(4);
   });
 

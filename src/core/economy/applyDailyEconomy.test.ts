@@ -57,10 +57,16 @@ describe('computeDailyRevenueCents', () => {
     },
   );
 
-  it('rounds an exact half up, and just under it down', () => {
+  it('rounds to the nearest cent: 1,015 and 1,014 give 34, 1,004 gives 33', () => {
     expect(computeDailyRevenueCents(makeState({ mrrCents: 1_015 }), tuning)).toBe(34);
     expect(computeDailyRevenueCents(makeState({ mrrCents: 1_014 }), tuning)).toBe(34);
     expect(computeDailyRevenueCents(makeState({ mrrCents: 1_004 }), tuning)).toBe(33);
+  });
+
+  it('rounds an exact half away from zero: 15 and 45 over 30 days give 1 and 2', () => {
+    expect(computeDailyRevenueCents(makeState({ mrrCents: 15 }), tuning)).toBe(1);
+    expect(computeDailyRevenueCents(makeState({ mrrCents: 45 }), tuning)).toBe(2);
+    expect(computeDailyRevenueCents(makeState({ mrrCents: 44 }), tuning)).toBe(1);
   });
 
   it('stays a safe integer at the largest MRR the state can hold', () => {
@@ -121,6 +127,12 @@ describe('applyDailyEconomy', () => {
     for (let day = 0; day < 32; day += 1) state = applyDailyEconomy(state, tuning).state;
 
     expect(state.cashCents).toBe(-40_000);
+  });
+
+  it('treats a cash balance past the safe-integer range as a bug, not a silent overflow', () => {
+    const state = makeState({ cashCents: Number.MAX_SAFE_INTEGER, mrrCents: 3_000_000 });
+
+    expect(() => applyDailyEconomy(state, tuning)).toThrow(/safe integers/);
   });
 
   it('keeps cash a safe integer whatever the MRR and GPU units (DET-06)', () => {

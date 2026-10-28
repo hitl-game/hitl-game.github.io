@@ -288,7 +288,26 @@ Modified:
 - `_bmad-output/implementation-artifacts/sprint-status.yaml`
 - `_bmad-output/implementation-artifacts/1-5-daily-economy-step.md`
 
+### Review Findings
+
+Code review run 1 (2026-10-28, full workflow: Blind Hunter, Edge Case Hunter and Acceptance Auditor as parallel subagents). 0 decision_needed, 8 patch (all applied), 3 defer, 15 dismissed.
+
+- [x] [Review][Patch] Start Hype, Alignment and GPU units had no lower bound, so a negative start built clean and crashed in `newRun`'s validation; now `atLeast(…, 0)`, JSON Schema regenerated, failing-input tests [src/core/contentSchema/tuningSchema/startAndPhases.ts, tuningSchema.test.ts, content/schema/tuning.schema.json]
+- [x] [Review][Patch] The daily settlement could push cash past the safe-integer range silently (found only at the next fingerprint); `applyDailyEconomy` now asserts the change and the new balance are safe integers, with a test [src/core/economy/applyDailyEconomy.ts, applyDailyEconomy.test.ts]
+- [x] [Review][Patch] The "exact half" rounding test held no exact half; titles fixed and 15 → 1, 45 → 2, 44 → 1 pinned as literals [src/core/economy/applyDailyEconomy.test.ts]
+- [x] [Review][Patch] B4's 31-day scenario did not assert the runway; it now checks 31 days at start and 0 after [src/core/time/advance.test.ts]
+- [x] [Review][Patch] The tuning-override test of `newRun` left Alignment out [src/core/run/newRun.test.ts]
+- [x] [Review][Patch] `countKeys` named fields that are not counts and needed a comment; renamed `nonNegativeKeys` [src/core/run/assertStateIsValid.ts]
+- [x] [Review][Patch] The D3 replay invariant still read `replay(start, inputLog)` [_bmad-output/game-architecture.md]
+- [x] [Review][Patch] A code comment cited the story clarification "(Story 1.5 C-6)", which goes stale [src/core/contentSchema/tuningSchema/economy.ts]
+- [x] [Review][Defer] No validator check for exactly one pending `economyStep` on the day grid [src/core/run/assertStateIsValid.ts] — deferred, widens the existing "Queue domain invariants unchecked" item (story default: tests only)
+- [x] [Review][Defer] Replay does not tie tuning to `contentPackVersion` [src/core/run/replay.ts] — deferred to the Story 1.9 load path
+- [x] [Review][Defer] Hidden-state import boundary has no lint rule [eslint.config.js] — deferred, `hiddenState.ts` arrives with Story 5.x
+
+Dismissed (one line each): billing the ended day at state changed by an earlier same-`gameMs` event is the approved settle-at-day-end default, and nothing changes phase or GPU units yet; per-day rounding drift against monthly MRR is the specified D2 rounding (C-6); tests that compare against `divideRounded` are what B4 prescribes, now backed by literal half cases; the float-cash case matching `/safe integers/` is the earlier canonicalize check rejecting it, the intended behaviour; `selectRunway`'s "never reads Alignment" test is required by C2 and lives in a test file, not a production read; `makeEconomyTuning`'s shared default is already deep-frozen by `makeContentPack`; unknown phase giving a `TypeError` needs an unvalidated state, and a phase missing from `phasesTuning` fails to compile; event-id space halving (about 500k game days) is far beyond any run; `applyDailyEconomy` returning `{ state, cashChangeCents }` and the `replay` probe collision are recorded deviations and open points; `selectRunway`'s Story 1.6/1.8 comment states why it is a plain function; runway from gross burn is C-8 as specified; stale signatures in `epics.md` belong to Stories 1.2 (historical ACs) and 1.9 (owns its replay form); hype/alignment upper bounds wait for the stories that move them (the 1.3 range-check defer).
+
 ## Change Log
 
 - 2026-10-28: Story created (status ready-for-dev) by gds-create-story, unattended.
 - 2026-10-28: Implemented by gds-dev-story, unattended (status review): `core/economy` module, `economyStep` event and handler, `AdvanceContext` (`advance`/`newRun`/`replay` now take tuning), `GameState` economy and hidden fields with validation, `app/selectors/selectRunway`, tuning schema bounds for the fields read here, builders, tests and docs. `npm run check` and e2e (Chromium, WebKit) green.
+- 2026-10-28: Code review run 1 (full workflow): 8 patches applied, 3 items deferred.

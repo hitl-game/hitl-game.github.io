@@ -4,9 +4,10 @@ import { atLeast, defineFieldGroup, range } from '../fieldGroup';
 
 export const startTuning = defineFieldGroup({
   cash: atLeast('usd', 0),
-  hype: 'hypeIndex',
-  alignment: 'alignmentPoints',
-  gpuCapacityUnits: 'count',
+  // The run state keeps these at or above zero, so a negative start fails the build, not newRun.
+  hype: atLeast('hypeIndex', 0),
+  alignment: atLeast('alignmentPoints', 0),
+  gpuCapacityUnits: atLeast('count', 0),
 });
 
 // Per-phase numbers, so a reader writes `tuning.phases[phase].baseCostsPerDayCents`.

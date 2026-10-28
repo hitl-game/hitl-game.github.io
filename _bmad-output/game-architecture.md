@@ -329,7 +329,7 @@ Versions verified on npm on 2026-10-27.
 
 #### Replay Consistency (mandatory)
 
-**Invariant:** `replay(start, inputLog)` reproduces the saved state exactly.
+**Invariant:** `replay(start, inputLog, tuning)`, with the tuning of the pinned pack, reproduces the saved state exactly.
 
 **State fingerprint.** States are compared by fingerprint: canonical serialisation (sorted keys, integers only) hashed with SHA-256.
 

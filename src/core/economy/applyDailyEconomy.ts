@@ -1,3 +1,4 @@
+import { assertInvariant } from '../../shared';
 import { computeDailyBurnCents } from './computeDailyBurnCents';
 import { computeDailyRevenueCents } from './computeDailyRevenueCents';
 import type { EconomyState } from './economyState';
@@ -15,5 +16,12 @@ export function applyDailyEconomy<S extends EconomyState>(
 ): DailyEconomyResult<S> {
   const cashChangeCents =
     computeDailyRevenueCents(state, tuning) - computeDailyBurnCents(state, tuning);
-  return { state: { ...state, cashCents: state.cashCents + cashChangeCents }, cashChangeCents };
+  const cashCents = state.cashCents + cashChangeCents;
+  // The full state walk runs only at start and after replay; an unsafe sum caught here fails
+  // at its cause instead of at the next fingerprint.
+  assertInvariant(
+    Number.isSafeInteger(cashChangeCents) && Number.isSafeInteger(cashCents),
+    'the daily cash change and the new cash balance are safe integers',
+  );
+  return { state: { ...state, cashCents }, cashChangeCents };
 }

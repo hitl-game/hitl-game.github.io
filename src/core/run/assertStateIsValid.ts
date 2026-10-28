@@ -26,8 +26,7 @@ const gameStateKeys = [
   'alignmentMilli',
   'gpuCapacityUnits',
 ] as const satisfies readonly (keyof GameState)[];
-// Non-negative by their own rules: these are fields this story keeps at or above zero.
-const countKeys = [
+const nonNegativeKeys = [
   'mrrCents',
   'customerCount',
   'hypeBp',
@@ -131,7 +130,7 @@ function assertEconomyIsValid(state: GameState): void {
     typeof state.cashCents === 'number' && Number.isSafeInteger(state.cashCents),
     'cashCents is a safe integer',
   );
-  for (const key of countKeys) {
+  for (const key of nonNegativeKeys) {
     assertInvariant(isNonNegativeInteger(state[key]), `${key} is a non-negative integer`);
   }
 }

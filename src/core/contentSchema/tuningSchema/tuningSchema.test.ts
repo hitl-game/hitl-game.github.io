@@ -128,6 +128,9 @@ describe('tuning schema', () => {
     { label: 'a zero billing month', field: 'economy.billingMonthDays', value: 0, min: 1 },
     { label: 'a negative billing month', field: 'economy.billingMonthDays', value: -30, min: 1 },
     { label: 'negative starting cash', field: 'start.cashUsd', value: -1, min: 0 },
+    { label: 'a negative starting Hype', field: 'start.hypeIndex', value: -5, min: 0 },
+    { label: 'a negative starting Alignment', field: 'start.alignmentPoints', value: -1, min: 0 },
+    { label: 'negative starting GPU units', field: 'start.gpuCapacityUnits', value: -3, min: 0 },
     { label: 'negative base costs', field: 'phases.seed.baseCostsPerDayUsd', value: -0.01, min: 0 },
     {
       label: 'a negative GPU unit cost',
@@ -135,11 +138,17 @@ describe('tuning schema', () => {
       value: -50,
       min: 0,
     },
-  ])('rejects $label, which the daily step would divide by or burn backwards', (row) => {
-    expect(issuesOf({ [row.field]: row.value })).toEqual([
-      expect.objectContaining({ field: row.field, message: `must be at least ${String(row.min)}` }),
-    ]);
-  });
+  ])(
+    'rejects $label, which the economy would divide by, burn backwards or reject at run start',
+    (row) => {
+      expect(issuesOf({ [row.field]: row.value })).toEqual([
+        expect.objectContaining({
+          field: row.field,
+          message: `must be at least ${String(row.min)}`,
+        }),
+      ]);
+    },
+  );
 
   it('rejects a fractional-day billing month: the daily step divides MRR by whole days', () => {
     expect(issuesOf({ 'economy.billingMonthDays': 1.5 })).toEqual([

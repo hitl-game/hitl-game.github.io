@@ -11,7 +11,7 @@ import {
   timeSplitArbitrary,
 } from '../../../tests/builders';
 import { GAME_DAY_MS } from '../constants';
-import { computeDailyBurnCents } from '../economy';
+import { computeDailyBurnCents, computeRunwayDays } from '../economy';
 import { assertStateIsValid, fingerprint, type GameState } from '../run';
 import { advance, type AdvanceResult } from './advance';
 import type { AdvanceMode } from './advanceMode';
@@ -108,10 +108,14 @@ describe('advance', () => {
     expect(countOf(endOfDayOne.events, 'dailyEconomyApplied')).toBe(1);
   });
 
-  it('runs 31 Garage days down to exactly zero cash (ECO-02)', () => {
-    const result = advance(makeState(), 31 * GAME_DAY_MS, present);
+  it('runs 31 Garage days down to exactly zero cash and zero runway (ECO-02)', () => {
+    const start = makeState();
 
+    const result = advance(start, 31 * GAME_DAY_MS, present);
+
+    expect(computeRunwayDays(start, present.tuning)).toEqual({ kind: 'days', days: 31 });
     expect(result.state.cashCents).toBe(0);
+    expect(computeRunwayDays(result.state, present.tuning)).toEqual({ kind: 'days', days: 0 });
     expect(countOf(result.events, 'dailyEconomyApplied')).toBe(31);
   });
 
