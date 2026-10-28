@@ -2,6 +2,8 @@ import * as fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 
 import {
+  gameMsArbitrary,
+  makeAdvanceContext,
   makeState,
   makeStateWithEvents,
   runStartArbitrary,
@@ -9,21 +11,25 @@ import {
   timeSplitArbitrary,
 } from '../../../tests/builders';
 import { GAME_DAY_MS } from '../constants';
-import { fingerprint, type GameState } from '../run';
+import { computeDailyBurnCents, computeRunwayDays } from '../economy';
+import { assertStateIsValid, fingerprint, type GameState } from '../run';
 import { advance, type AdvanceResult } from './advance';
 import type { AdvanceMode } from './advanceMode';
 import type { DomainEvent } from './domainEvent';
 import { eventKinds } from './eventKinds';
+import type { QueuedEvent } from './queuedEvent';
 import { scheduleEvent } from './scheduleEvent';
 
 const modes: readonly AdvanceMode[] = ['present', 'away', 'ending'];
+const present = makeAdvanceContext();
+const garageBurnCents = 40_000;
 
 // Resumes after every blocking stop; what a live session does once a stop is handled.
 function advanceResuming(state: GameState, untilGameMs: number): AdvanceResult<GameState> {
-  let result = advance(state, untilGameMs, 'present');
+  let result = advance(state, untilGameMs, present);
   const events = [...result.events];
   while (result.stoppedBy !== null) {
-    result = advance(result.state, untilGameMs, 'present');
+    result = advance(result.state, untilGameMs, present);
     events.push(...result.events);
   }
   return { ...result, events };
@@ -31,38 +37,98 @@ function advanceResuming(state: GameState, untilGameMs: number): AdvanceResult<G
 
 // A blocking stop in the first step is final: a live session cannot step past it on its own.
 function advanceInTwoSteps(state: GameState, t1: number, t2: number): AdvanceResult<GameState> {
-  const first = advance(state, t1, 'present');
+  const first = advance(state, t1, present);
   if (first.stoppedBy !== null) return first;
-  const second = advance(first.state, t2, 'present');
+  const second = advance(first.state, t2, present);
   return { ...second, events: [...first.events, ...second.events] };
 }
+
+// What each kind emits from a fresh run that earns nothing: the step's cash change is the
+// burn, whatever the balance.
+function expectedEventOf(event: QueuedEvent, state: GameState): DomainEvent {
+  switch (event.kind) {
+    case 'dayBoundary':
+      return { type: 'gameDayStarted', atGameMs: event.gameMs };
+    case 'economyStep':
+      return {
+        type: 'dailyEconomyApplied',
+        atGameMs: event.gameMs,
+        cashChangeCents: -computeDailyBurnCents(state, present.tuning),
+      };
+    case 'heavyDecisionDue':
+      return { type: 'heavyDecisionOpened', atGameMs: event.gameMs };
+  }
+}
+
+const countOf = (events: readonly DomainEvent[], type: DomainEvent['type']): number =>
+  events.filter((event) => event.type === type).length;
 
 describe('advance', () => {
   it('moves nowGameMs to untilGameMs when nothing is due', () => {
     const state = makeState();
 
-    const result = advance(state, GAME_DAY_MS - 1, 'present');
+    const result = advance(state, GAME_DAY_MS - 1, present);
 
     expect(result.state.nowGameMs).toBe(GAME_DAY_MS - 1);
     expect(result.events).toEqual([]);
     expect(result.stoppedBy).toBeNull();
     expect(result.state.queue).toEqual(state.queue);
+    expect(result.state.cashCents).toBe(state.cashCents);
   });
 
-  it('emits gameDayStarted at each day boundary and schedules the next one', () => {
-    const result = advance(makeState(), 2 * GAME_DAY_MS, 'present');
+  it('starts each day, then settles its economy, and books both again a day later', () => {
+    const result = advance(makeState(), 2 * GAME_DAY_MS, present);
 
     expect(result.events).toEqual([
       { type: 'gameDayStarted', atGameMs: GAME_DAY_MS },
+      { type: 'dailyEconomyApplied', atGameMs: GAME_DAY_MS, cashChangeCents: -garageBurnCents },
       { type: 'gameDayStarted', atGameMs: 2 * GAME_DAY_MS },
+      {
+        type: 'dailyEconomyApplied',
+        atGameMs: 2 * GAME_DAY_MS,
+        cashChangeCents: -garageBurnCents,
+      },
     ]);
     expect(result.state.queue).toEqual([
-      { id: 'evt-000003', gameMs: 3 * GAME_DAY_MS, kind: 'dayBoundary' },
+      { id: 'evt-000005', gameMs: 3 * GAME_DAY_MS, kind: 'dayBoundary' },
+      { id: 'evt-000006', gameMs: 3 * GAME_DAY_MS, kind: 'economyStep' },
     ]);
+    expect(result.state.cashCents).toBe(1_240_000 - 2 * garageBurnCents);
+  });
+
+  it('takes the first day of burn at GAME_DAY_MS inclusive, never at day 0 (ECO-02)', () => {
+    const state = makeState();
+
+    const dayZero = advance(state, 0, present);
+    const endOfDayOne = advance(state, GAME_DAY_MS, present);
+
+    expect(dayZero.state.cashCents).toBe(1_240_000);
+    expect(dayZero.events).toEqual([]);
+    expect(endOfDayOne.state.cashCents).toBe(1_240_000 - garageBurnCents);
+    expect(countOf(endOfDayOne.events, 'dailyEconomyApplied')).toBe(1);
+  });
+
+  it('runs 31 Garage days down to exactly zero cash and zero runway (ECO-02)', () => {
+    const start = makeState();
+
+    const result = advance(start, 31 * GAME_DAY_MS, present);
+
+    expect(computeRunwayDays(start, present.tuning)).toEqual({ kind: 'days', days: 31 });
+    expect(result.state.cashCents).toBe(0);
+    expect(computeRunwayDays(result.state, present.tuning)).toEqual({ kind: 'days', days: 0 });
+    expect(countOf(result.events, 'dailyEconomyApplied')).toBe(31);
+  });
+
+  it('settles with the tuning it is given, so a tuning change needs no code change', () => {
+    const dearer = makeAdvanceContext('present', { 'phases.garage.baseCostsPerDayUsd': 500 });
+
+    const result = advance(makeState(), GAME_DAY_MS, dearer);
+
+    expect(result.state.cashCents).toBe(1_240_000 - 55_000);
   });
 
   it('stores a negative-zero target as 0, so the state stays fingerprintable', () => {
-    const result = advance(makeState(), -0, 'present');
+    const result = advance(makeState(), -0, present);
 
     expect(Object.is(result.state.nowGameMs, 0)).toBe(true);
     expect(() => fingerprint(result.state)).not.toThrow();
@@ -73,14 +139,16 @@ describe('advance', () => {
   it('runs a day boundary queued at 0, then the one it scheduled a day later', () => {
     const state = makeStateWithEvents([{ gameMs: 0, kind: 'dayBoundary' }]);
 
-    const result = advance(state, GAME_DAY_MS, 'present');
+    const result = advance(state, GAME_DAY_MS, present);
 
     expect(result.events).toEqual([
       { type: 'gameDayStarted', atGameMs: 0 },
       { type: 'gameDayStarted', atGameMs: GAME_DAY_MS },
       { type: 'gameDayStarted', atGameMs: GAME_DAY_MS },
+      { type: 'dailyEconomyApplied', atGameMs: GAME_DAY_MS, cashChangeCents: -garageBurnCents },
     ]);
     expect(result.state.queue.map((event) => event.gameMs)).toEqual([
+      2 * GAME_DAY_MS,
       2 * GAME_DAY_MS,
       2 * GAME_DAY_MS,
     ]);
@@ -92,40 +160,49 @@ describe('advance', () => {
       { gameMs: 700, kind: 'heavyDecisionDue' },
     ]);
 
-    const result = advance(state, GAME_DAY_MS, 'present');
+    const result = advance(state, GAME_DAY_MS, present);
 
     expect(result.stoppedBy).toEqual({
       kind: 'heavyDecisionDue',
-      eventId: 'evt-000002',
+      eventId: 'evt-000003',
       atGameMs: 500,
     });
     expect(result.state.nowGameMs).toBe(500);
     expect(result.events).toEqual([{ type: 'heavyDecisionOpened', atGameMs: 500 }]);
-    expect(result.state.queue.map((event) => event.id)).toEqual(['evt-000003', 'evt-000001']);
+    expect(result.state.queue.map((event) => event.id)).toEqual([
+      'evt-000004',
+      'evt-000001',
+      'evt-000002',
+    ]);
   });
 
   it('resumes after a blocking stop without re-processing it', () => {
     const state = makeStateWithEvents([{ gameMs: 500, kind: 'heavyDecisionDue' }]);
-    const stopped = advance(state, GAME_DAY_MS, 'present');
+    const stopped = advance(state, GAME_DAY_MS, present);
 
-    const resumed = advance(stopped.state, GAME_DAY_MS, 'present');
+    const resumed = advance(stopped.state, GAME_DAY_MS, present);
 
     expect(resumed.stoppedBy).toBeNull();
     expect(resumed.state.nowGameMs).toBe(GAME_DAY_MS);
-    expect(resumed.events).toEqual([{ type: 'gameDayStarted', atGameMs: GAME_DAY_MS }]);
+    expect(resumed.events).toEqual([
+      { type: 'gameDayStarted', atGameMs: GAME_DAY_MS },
+      { type: 'dailyEconomyApplied', atGameMs: GAME_DAY_MS, cashChangeCents: -garageBurnCents },
+    ]);
   });
 
-  it('runs a day boundary before a heavy decision due at the same gameMs, then stops', () => {
+  it('at one gameMs starts the day, settles cash, then opens the decision and stops', () => {
     const state = makeStateWithEvents([{ gameMs: GAME_DAY_MS, kind: 'heavyDecisionDue' }]);
 
-    const result = advance(state, 5 * GAME_DAY_MS, 'present');
+    const result = advance(state, 5 * GAME_DAY_MS, present);
 
     expect(result.events).toEqual([
       { type: 'gameDayStarted', atGameMs: GAME_DAY_MS },
+      { type: 'dailyEconomyApplied', atGameMs: GAME_DAY_MS, cashChangeCents: -garageBurnCents },
       { type: 'heavyDecisionOpened', atGameMs: GAME_DAY_MS },
     ]);
-    expect(result.stoppedBy?.eventId).toBe('evt-000002');
+    expect(result.stoppedBy?.eventId).toBe('evt-000003');
     expect(result.state.nowGameMs).toBe(GAME_DAY_MS);
+    expect(result.state.cashCents).toBe(1_240_000 - garageBurnCents);
   });
 
   it('processes ties in (gameMs, kind priority, id) order whatever the insertion order (DET-04)', () => {
@@ -143,10 +220,7 @@ describe('advance', () => {
               (a.id < b.id ? -1 : 1),
           )
           .filter((event) => event.gameMs <= horizonGameMs)
-          .map((event) => ({
-            type: event.kind === 'dayBoundary' ? 'gameDayStarted' : 'heavyDecisionOpened',
-            atGameMs: event.gameMs,
-          }));
+          .map((event) => expectedEventOf(event, state));
 
         expect(advanceResuming(state, horizonGameMs).events).toEqual(expected);
       }),
@@ -161,12 +235,42 @@ describe('advance', () => {
         timeSplitArbitrary,
         (start, pending, [t1, t2]) => {
           const state = makeStateWithEvents(pending, start);
-          const whole = advance(state, t2, 'present');
+          const whole = advance(state, t2, present);
           const stepwise = advanceInTwoSteps(state, t1, t2);
 
           expect(fingerprint(stepwise.state)).toBe(fingerprint(whole.state));
           expect(stepwise.events).toEqual(whole.events);
           expect(stepwise.stoppedBy).toEqual(whole.stoppedBy);
+        },
+      ),
+    );
+  });
+
+  it('settles exactly one day per day boundary crossed and keeps one step booked (ECO-02, DET-06)', () => {
+    const economyArbitrary = fc.record({
+      gpuCapacityUnits: fc.integer({ min: 0, max: 50 }),
+      mrrCents: fc.integer({ min: 0, max: 10_000_000_000 }),
+    });
+    fc.assert(
+      fc.property(
+        runStartArbitrary,
+        economyArbitrary,
+        gameMsArbitrary,
+        (start, economy, untilGameMs) => {
+          const state = makeState(economy, start);
+
+          const result = advance(state, untilGameMs, present);
+
+          const daysSettled = (untilGameMs - (untilGameMs % GAME_DAY_MS)) / GAME_DAY_MS;
+          const pendingSteps = result.state.queue.filter((event) => event.kind === 'economyStep');
+          expect(countOf(result.events, 'dailyEconomyApplied')).toBe(daysSettled);
+          expect(pendingSteps.map((event) => event.gameMs)).toEqual([
+            (daysSettled + 1) * GAME_DAY_MS,
+          ]);
+          expect(Number.isSafeInteger(result.state.cashCents)).toBe(true);
+          expect(() => {
+            assertStateIsValid(result.state);
+          }).not.toThrow();
         },
       ),
     );
@@ -184,13 +288,14 @@ describe('advance', () => {
 
     expect(fingerprint(stepwise.state)).toBe(fingerprint(jump.state));
     expect(stepwise.events).toEqual(jump.events);
-    expect(jump.events).toHaveLength(15);
+    expect(jump.events).toHaveLength(29);
+    expect(jump.state.cashCents).toBe(1_240_000 - 14 * garageBurnCents);
   });
 
   it('accepts present, away and ending and, for now, treats them alike', () => {
     const state = makeStateWithEvents([{ gameMs: 2 * GAME_DAY_MS, kind: 'heavyDecisionDue' }]);
 
-    const results = modes.map((mode) => advance(state, 3 * GAME_DAY_MS, mode));
+    const results = modes.map((mode) => advance(state, 3 * GAME_DAY_MS, makeAdvanceContext(mode)));
 
     for (const result of results) {
       expect(fingerprint(result.state)).toBe(fingerprint(results[0]?.state ?? state));
@@ -202,6 +307,6 @@ describe('advance', () => {
   it('treats moving time backwards as a bug', () => {
     const state = scheduleEvent(makeState({ nowGameMs: 10 }), { gameMs: 10, kind: 'dayBoundary' });
 
-    expect(() => advance(state, 9, 'present')).toThrow(/never moves time backwards/);
+    expect(() => advance(state, 9, present)).toThrow(/never moves time backwards/);
   });
 });

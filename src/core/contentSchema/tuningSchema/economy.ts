@@ -1,7 +1,8 @@
-import { defineFieldGroup } from '../fieldGroup';
+import { defineFieldGroup, wholeAtLeast } from '../fieldGroup';
 
 export const economyTuning = defineFieldGroup({
-  billingMonth: 'days',
+  // Whole days: the daily step divides MRR by this count.
+  billingMonth: wholeAtLeast('days', 1),
   overdraftInterestPerDay: 'percent',
   belowZeroLimit: 'days',
   garageOverdraftFloor: 'usd',

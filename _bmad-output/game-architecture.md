@@ -262,8 +262,8 @@ Versions verified on npm on 2026-10-27.
 
 **Approach:** discrete-event simulation.
 
-- The core keeps an ordered event queue: message arrivals, message expiries, staff work completions, daily economy steps, scheduled events.
-- `advance(state, untilGameMs, mode)` processes events in order up to `untilGameMs`. It stops early at the first **blocking event** (heavy decision, death) and reports why it stopped.
+- The core keeps an ordered event queue: message arrivals, message expiries, staff work completions, daily economy steps (`economyStep`, priority 15, between `dayBoundary` 10 and `heavyDecisionDue` 20, so a day starts before its cash settles and a decision never opens before it), scheduled events.
+- `advance(state, untilGameMs, { mode, tuning })` processes events in order up to `untilGameMs`. It stops early at the first **blocking event** (heavy decision, death) and reports why it stopped. The context carries the compiled tuning slice the handlers read (`EconomyTuning`, Story 1.5): tuning is passed to the core as an argument, never imported, and one object keeps `advance` at three parameters.
 - `mode` is `present`, `away` or `ending` (Surpassed sequence: only script events run, see N4). Away applies M3 rules: no delegation policy means full pause; non-delegated messages go to the backlog; staff never pick up new work; the absence is capped at 14 game days.
 - Ties in the queue are broken by a deterministic key (time, event kind priority, stable id). Iteration order never depends on object key order or `Map` insertion side effects.
 
@@ -301,10 +301,10 @@ Versions verified on npm on 2026-10-27.
 - **Commands.** The UI never mutates state. It dispatches **commands**, a TypeScript discriminated union such as `{ type: 'answerMessage', messageId, answerId }`.
 - **Core entry points** (two):
   - `applyCommand(state, command, atGameMs)`: validates, appends to the input log, returns the new state;
-  - `advance(state, untilGameMs, mode)`: time progression (D1).
+  - `advance(state, untilGameMs, { mode, tuning })`: time progression (D1).
 - **Layers.** `app` owns the live state, calls the two entry points and publishes the state through signals. Views read derived `computed` selectors. Components contain no game rules.
-- **Replay.** `replay(start, inputLog)` folds the same two entry points (`replay(start, log)` = `replayFrom(newRun(start), log)`; snapshot + tail uses `replayFrom`). It is the same code, not a parallel implementation.
-- **Replay contract (callers of `advance`/`applyCommand`, Story 1.6 `app/session`).** Replay does exactly one `advance(state, entry.atGameMs)` before each logged command, so live play must too: call `advance` up to `nowGameMs` before every command (a zero-length advance can still process another event due at that time), except right after a blocking stop: from a blocking stop until a command has been logged there, make no `advance` call of any length, not even a zero-length one (it would process a second blocking event due at the same `gameMs` that replay leaves queued). Two commands back to back with no `advance` between them replay differently.
+- **Replay.** `replay(start, inputLog, tuning)` folds the same two entry points (`replay(start, log, tuning)` = `replayFrom(newRun(start, tuning), log, tuning)`; snapshot + tail uses `replayFrom`). It is the same code, not a parallel implementation. The tuning is the pinned pack's (`contentPackVersion`), so replay with the same pack gives the same run.
+- **Replay contract (callers of `advance`/`applyCommand`, Story 1.6 `app/session`).** Replay does exactly one `advance(state, entry.atGameMs, { mode: 'present', tuning })` before each logged command, so live play must too: call `advance` up to `nowGameMs` before every command (a zero-length advance can still process another event due at that time), except right after a blocking stop: from a blocking stop until a command has been logged there, make no `advance` call of any length, not even a zero-length one (it would process a second blocking event due at the same `gameMs` that replay leaves queued). Two commands back to back with no `advance` between them replay differently.
 
 ### Data Persistence (D4)
 
@@ -318,7 +318,7 @@ Versions verified on npm on 2026-10-27.
 - **Single live tab.** Web Locks API (`navigator.locks.request('hitl:live', { ifAvailable: true })`). Other tabs show "Huddlr is open in another tab · Use here"; the hand-over is coordinated with `BroadcastChannel`.
 - **Migrations.** A chain of pure functions `vN → vN+1`, each covered by fixture saves.
 - **Bounded state.** Resolved (answered or expired) messages stay in state for a bounded window (`tuning.resolvedMessagesPerChannel`, ~200), then are dropped. Chronicle entries keep their own quotes, and the clue replay re-derives older data by replay (N5). Snapshots, saves and memory stay flat over multi-hour runs.
-- **Run start parameters.** `newRun(start: RunStart)` with `RunStart = { seed, loopNumber, contentPackVersion, settings }` (one options object: `max-params` is 3). They are stored in the save, so replay never depends on the profile.
+- **Run start parameters.** `newRun(start: RunStart, tuning)` with `RunStart = { seed, loopNumber, contentPackVersion, settings }` (one options object: `max-params` is 3). They are stored in the save, so replay never depends on the profile. The start values (cash, Hype, Alignment, GPU units) come from `tuning.start`; `GameState` then carries `phase`, `cashCents`, `mrrCents`, `customerCount`, `gpuCapacityUnits` and the hidden `hypeBp`, `alignmentMilli` (Story 1.5).
 
 #### Meta-progression (profile)
 
@@ -329,7 +329,7 @@ Versions verified on npm on 2026-10-27.
 
 #### Replay Consistency (mandatory)
 
-**Invariant:** `replay(start, inputLog)` reproduces the saved state exactly.
+**Invariant:** `replay(start, inputLog, tuning)`, with the tuning of the pinned pack, reproduces the saved state exactly.
 
 **State fingerprint.** States are compared by fingerprint: canonical serialisation (sorted keys, integers only) hashed with SHA-256.
 
@@ -454,7 +454,7 @@ RunRecord ──▶ buildReportModel() ──▶ ReportModel ─┬─▶ render
 
 ### Background Tab and Notifications (D9)
 
-- **Hidden tab.** While the tab is hidden, a ~60 s timer runs `advance(copy, now, 'away')` **incrementally from the previous preview** (valid by chunk invariance) on a throwaway copy. It derives the backlog count and blocking events, and updates `document.title` (`(4) Human in the Loop`, following the title corruption stages) and notifications.
+- **Hidden tab.** While the tab is hidden, a ~60 s timer runs `advance(copy, now, { mode: 'away', tuning })` **incrementally from the previous preview** (valid by chunk invariance) on a throwaway copy. It derives the backlog count and blocking events, and updates `document.title` (`(4) Human in the Loop`, following the title corruption stages) and notifications.
 - **The preview is never persisted.** On return, the real `advance` runs from the saved state, so a corrupted preview cannot reach a save.
 - **Notifications.**
   - The tab-title counter works without notification permission.

@@ -48,7 +48,10 @@ const commandArbitrary: fc.Arbitrary<Command> = fc.oneof(
 export const gameMsArbitrary = fc.integer({ min: 0, max: maxHorizonGameMs });
 
 const pendingEventArbitrary: fc.Arbitrary<PendingEvent> = fc.record(
-  { gameMs: gameMsArbitrary, kind: fc.constantFrom('dayBoundary', 'heavyDecisionDue') },
+  {
+    gameMs: gameMsArbitrary,
+    kind: fc.constantFrom('dayBoundary', 'economyStep', 'heavyDecisionDue'),
+  },
   plain,
 );
 

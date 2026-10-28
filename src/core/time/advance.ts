@@ -1,8 +1,7 @@
 import { assertInvariant } from '../../shared';
 import { withoutNegativeZero } from '../numerics';
-import type { AdvanceMode } from './advanceMode';
 import type { DomainEvent } from './domainEvent';
-import type { HandlerContext, HandlerResult } from './eventHandler';
+import type { AdvanceContext, HandlerResult, SimulationState } from './eventHandler';
 import { eventHandlers } from './eventHandlers';
 import { eventKinds, type EventKind } from './eventKinds';
 import type { EventId, QueuedEvent } from './queuedEvent';
@@ -20,10 +19,10 @@ export interface AdvanceResult<S extends TimeState> {
   readonly stoppedBy: StoppedBy | null;
 }
 
-function processNextEvent<S extends TimeState>(
+function processNextEvent<S extends SimulationState>(
   state: S,
   head: QueuedEvent,
-  context: HandlerContext,
+  context: AdvanceContext,
 ): HandlerResult<S> {
   assertInvariant(
     head.gameMs >= state.nowGameMs,
@@ -33,10 +32,10 @@ function processNextEvent<S extends TimeState>(
   return eventHandlers[head.kind](popped, head, context);
 }
 
-export function advance<S extends TimeState>(
+export function advance<S extends SimulationState>(
   state: S,
   untilGameMs: number,
-  mode: AdvanceMode,
+  context: AdvanceContext,
 ): AdvanceResult<S> {
   assertInvariant(
     Number.isSafeInteger(untilGameMs) && untilGameMs >= state.nowGameMs,
@@ -45,7 +44,7 @@ export function advance<S extends TimeState>(
   let current = state;
   const events: DomainEvent[] = [];
   for (let head = current.queue[0]; head !== undefined && head.gameMs <= untilGameMs;) {
-    const step = processNextEvent(current, head, { mode });
+    const step = processNextEvent(current, head, context);
     current = step.state;
     events.push(...step.events);
     if (eventKinds[head.kind].blocking) {

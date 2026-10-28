@@ -1,11 +1,13 @@
 import { describe, expect, it } from 'vitest';
 
-import { makeRunStart, makeState } from '../../../tests/builders';
+import { makeEconomyTuning, makeRunStart, makeState } from '../../../tests/builders';
 import { applyCommand } from './applyCommand';
 import { fingerprint } from './fingerprint';
 import type { GameState } from './gameState';
 import { newRun } from './newRun';
 import { toRunSeed } from './runSeed';
+
+const tuning = makeEconomyTuning();
 
 describe('fingerprint', () => {
   it('is a 64-character hex SHA-256 digest', () => {
@@ -25,9 +27,15 @@ describe('fingerprint', () => {
     ['content pack version', { contentPackVersion: 'test-pack-2' }],
     ['settings', { settings: { timing: 'relaxed', gameSpeed: 'full' } }],
   ] as const)('changes when the %s changes', (_, overrides) => {
-    const base = newRun(makeRunStart());
+    const base = newRun(makeRunStart(), tuning);
 
-    expect(fingerprint(newRun(makeRunStart(overrides)))).not.toBe(fingerprint(base));
+    expect(fingerprint(newRun(makeRunStart(overrides), tuning))).not.toBe(fingerprint(base));
+  });
+
+  it('changes when the cash changes', () => {
+    const state = makeState();
+
+    expect(fingerprint(makeState({ cashCents: state.cashCents - 1 }))).not.toBe(fingerprint(state));
   });
 
   it('changes when the input log changes', () => {

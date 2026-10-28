@@ -124,6 +124,65 @@ describe('tuning schema', () => {
     expect(Object.is(zeroed.start.cashCents, 0)).toBe(true);
   });
 
+  it.each([
+    { label: 'a zero billing month', field: 'economy.billingMonthDays', value: 0, min: 1 },
+    { label: 'a negative billing month', field: 'economy.billingMonthDays', value: -30, min: 1 },
+    { label: 'negative starting cash', field: 'start.cashUsd', value: -1, min: 0 },
+    { label: 'a negative starting Hype', field: 'start.hypeIndex', value: -5, min: 0 },
+    { label: 'a negative starting Alignment', field: 'start.alignmentPoints', value: -1, min: 0 },
+    { label: 'negative starting GPU units', field: 'start.gpuCapacityUnits', value: -3, min: 0 },
+    { label: 'negative base costs', field: 'phases.seed.baseCostsPerDayUsd', value: -0.01, min: 0 },
+    {
+      label: 'a negative GPU unit cost',
+      field: 'phases.garage.gpuUnitCostPerDayUsd',
+      value: -50,
+      min: 0,
+    },
+  ])(
+    'rejects $label, which the economy would divide by, burn backwards or reject at run start',
+    (row) => {
+      expect(issuesOf({ [row.field]: row.value })).toEqual([
+        expect.objectContaining({
+          field: row.field,
+          message: `must be at least ${String(row.min)}`,
+        }),
+      ]);
+    },
+  );
+
+  it('rejects a fractional-day billing month: the daily step divides MRR by whole days', () => {
+    expect(issuesOf({ 'economy.billingMonthDays': 1.5 })).toEqual([
+      expect.objectContaining({
+        field: 'economy.billingMonthDays',
+        message: 'must be a whole number',
+      }),
+    ]);
+  });
+
+  it('accepts the bounds themselves: a one-day month, free costs and an empty start', () => {
+    const { tuning: edge } = makeContentPack({
+      'economy.billingMonthDays': 1,
+      'start.cashUsd': 0,
+      'start.hypeIndex': 0,
+      'start.alignmentPoints': 0,
+      'start.gpuCapacityUnits': 0,
+      'phases.garage.baseCostsPerDayUsd': 0,
+      'phases.garage.gpuUnitCostPerDayUsd': 0,
+    });
+
+    expect(edge.economy.billingMonthGameMs).toBe(GAME_DAY_MS);
+    expect(edge.start).toMatchObject({
+      cashCents: 0,
+      hypeBp: 0,
+      alignmentMilli: 0,
+      gpuCapacityUnits: 0,
+    });
+    expect(edge.phases.garage).toMatchObject({
+      baseCostsPerDayCents: 0,
+      gpuUnitCostPerDayCents: 0,
+    });
+  });
+
   it('rejects a range whose min exceeds its max', () => {
     expect(issuesOf({ 'messages.backlogCapMessages': { min: 20, max: 15 } })).toEqual([
       expect.objectContaining({

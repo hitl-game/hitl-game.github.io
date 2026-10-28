@@ -15,6 +15,12 @@ describe('assertStateIsValid', () => {
     }).not.toThrow();
   });
 
+  it('accepts an overdraft: cash may be negative', () => {
+    expect(() => {
+      assertStateIsValid({ ...makeState(), cashCents: -40_000 });
+    }).not.toThrow();
+  });
+
   it('rejects an unsorted queue', () => {
     const state: GameState = {
       ...makeState(),
@@ -66,7 +72,7 @@ describe('assertStateIsValid', () => {
     ['a malformed event id', { queue: [makeEvent({ id: 'evt-1' as EventId })] }, /evt-1/],
     [
       'an event id the counter has not reached',
-      { queue: [makeEvent({ id: formatEventId(2) })] },
+      { queue: [makeEvent({ id: formatEventId(3) })] },
       /already counted/,
     ],
     [
@@ -90,6 +96,18 @@ describe('assertStateIsValid', () => {
       /stream/,
     ],
     ['a seed outside the Run ID range', { seed: -5 }, /run seed/],
+    ['a float cash balance', { cashCents: 0.5 }, /safe integers/],
+    ['a string cash balance', { cashCents: '1240000' }, /cashCents/],
+    ['a null cash balance', { cashCents: null }, /cashCents/],
+    ['a negative MRR', { mrrCents: -1 }, /mrrCents/],
+    ['a string MRR', { mrrCents: '0' }, /mrrCents/],
+    ['a negative customer count', { customerCount: -1 }, /customerCount/],
+    ['a negative Hype', { hypeBp: -1 }, /hypeBp/],
+    ['a negative Alignment', { alignmentMilli: -1 }, /alignmentMilli/],
+    ['a boolean Alignment', { alignmentMilli: true }, /alignmentMilli/],
+    ['negative GPU units', { gpuCapacityUnits: -1 }, /gpuCapacityUnits/],
+    ['an unknown phase', { phase: 'ipo' }, /unknown phase/],
+    ['a numeric phase', { phase: 0 }, /unknown phase/],
     ['a string loop number', { loopNumber: '1' }, /loopNumber/],
     ['a zero loop number', { loopNumber: 0 }, /loopNumber/],
     ['a null loop number', { loopNumber: null }, /loopNumber/],

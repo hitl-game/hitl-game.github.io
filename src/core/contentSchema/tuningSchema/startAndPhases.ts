@@ -1,19 +1,20 @@
 import * as z from 'zod';
 
-import { defineFieldGroup, range } from '../fieldGroup';
+import { atLeast, defineFieldGroup, range } from '../fieldGroup';
 
 export const startTuning = defineFieldGroup({
-  cash: 'usd',
-  hype: 'hypeIndex',
-  alignment: 'alignmentPoints',
-  gpuCapacityUnits: 'count',
+  cash: atLeast('usd', 0),
+  // The run state keeps these at or above zero, so a negative start fails the build, not newRun.
+  hype: atLeast('hypeIndex', 0),
+  alignment: atLeast('alignmentPoints', 0),
+  gpuCapacityUnits: atLeast('count', 0),
 });
 
 // Per-phase numbers, so a reader writes `tuning.phases[phase].baseCostsPerDayCents`.
 const phaseTuning = defineFieldGroup({
-  baseCostsPerDay: 'usd',
+  baseCostsPerDay: atLeast('usd', 0),
   salaryPerHirePerDay: 'usd',
-  gpuUnitCostPerDay: 'usd',
+  gpuUnitCostPerDay: atLeast('usd', 0),
   newCustomersPhase: 'multiplier',
   alignmentDriftPhase: 'multiplier',
   messageArrivalInterval: range('gameSeconds'),

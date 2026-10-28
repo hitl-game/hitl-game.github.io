@@ -6,17 +6,20 @@
       "type": "object",
       "properties": {
         "cashUsd": {
-          "type": "number"
+          "type": "number",
+          "minimum": 0
         },
         "hypeIndex": {
-          "type": "number"
+          "type": "number",
+          "minimum": 0
         },
         "alignmentPoints": {
-          "type": "number"
+          "type": "number",
+          "minimum": 0
         },
         "gpuCapacityUnits": {
           "type": "integer",
-          "minimum": -9007199254740991,
+          "minimum": 0,
           "maximum": 9007199254740991
         }
       },
@@ -35,13 +38,15 @@
           "type": "object",
           "properties": {
             "baseCostsPerDayUsd": {
-              "type": "number"
+              "type": "number",
+              "minimum": 0
             },
             "salaryPerHirePerDayUsd": {
               "type": "number"
             },
             "gpuUnitCostPerDayUsd": {
-              "type": "number"
+              "type": "number",
+              "minimum": 0
             },
             "newCustomersPhaseMultiplier": {
               "type": "number"
@@ -97,13 +102,15 @@
           "type": "object",
           "properties": {
             "baseCostsPerDayUsd": {
-              "type": "number"
+              "type": "number",
+              "minimum": 0
             },
             "salaryPerHirePerDayUsd": {
               "type": "number"
             },
             "gpuUnitCostPerDayUsd": {
-              "type": "number"
+              "type": "number",
+              "minimum": 0
             },
             "newCustomersPhaseMultiplier": {
               "type": "number"
@@ -159,13 +166,15 @@
           "type": "object",
           "properties": {
             "baseCostsPerDayUsd": {
-              "type": "number"
+              "type": "number",
+              "minimum": 0
             },
             "salaryPerHirePerDayUsd": {
               "type": "number"
             },
             "gpuUnitCostPerDayUsd": {
-              "type": "number"
+              "type": "number",
+              "minimum": 0
             },
             "newCustomersPhaseMultiplier": {
               "type": "number"
@@ -229,7 +238,9 @@
       "type": "object",
       "properties": {
         "billingMonthDays": {
-          "type": "number"
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
         },
         "overdraftInterestPerDayPercent": {
           "type": "number"
