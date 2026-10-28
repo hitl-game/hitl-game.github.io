@@ -1,3 +1,5 @@
+import type { GameSpeed } from './time';
+
 // One real minute is one game day at 1× (GDD Time bases), so game-ms equal real ms.
 export const GAME_DAY_MS = 60_000;
 
@@ -39,3 +41,11 @@ export const MILLI_PER_POINT = 1_000;
 export const MS_PER_SECOND = 1_000;
 export const SECONDS_PER_MINUTE = 60;
 export const DECIMAL_BASE = 10;
+
+// Real ms per game ms at each Game speed: the GDD's fixed meaning of 1×, ½× and ¼×, so a
+// content pack can never redefine a speed. Integers, so the clock divides once and floors.
+export const REAL_MS_PER_GAME_MS_BY_SPEED = {
+  full: 1,
+  half: 2,
+  quarter: 4,
+} as const satisfies Record<GameSpeed, number>;

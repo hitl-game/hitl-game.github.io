@@ -34,7 +34,7 @@ export const runStartArbitrary: fc.Arbitrary<RunStart> = fc.record(
   plain,
 );
 
-const commandArbitrary: fc.Arbitrary<Command> = fc.oneof(
+export const commandArbitrary: fc.Arbitrary<Command> = fc.oneof(
   fc.record(
     { type: fc.constant('changeGameSpeed' as const), speed: fc.constantFrom(...gameSpeeds) },
     plain,

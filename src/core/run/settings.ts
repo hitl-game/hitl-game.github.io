@@ -1,6 +1,4 @@
-export const gameSpeeds = ['full', 'half', 'quarter'] as const;
-
-export type GameSpeed = (typeof gameSpeeds)[number];
+import type { GameSpeed } from '../time';
 
 export const timings = ['standard', 'extended', 'relaxed', 'untimed'] as const;
 

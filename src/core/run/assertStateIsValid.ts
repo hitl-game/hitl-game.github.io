@@ -1,12 +1,18 @@
 import { assertInvariant } from '../../shared';
 import { ID_SEQUENCE_WIDTH, phases, rngStreamNames } from '../constants';
 import { isRngStreamState, type RngStreams } from '../rng';
-import { compareQueuedEvents, eventKinds, formatEventId, type QueuedEvent } from '../time';
+import {
+  compareQueuedEvents,
+  eventKinds,
+  formatEventId,
+  gameSpeeds,
+  type QueuedEvent,
+} from '../time';
 import { canonicalize } from './canonicalize';
 import type { GameState } from './gameState';
 import type { InputLogEntry } from './inputLogEntry';
 import { toRunSeed } from './runSeed';
-import { gameSpeeds, timings, type Settings } from './settings';
+import { timings, type Settings } from './settings';
 
 const gameStateKeys = [
   'seed',
