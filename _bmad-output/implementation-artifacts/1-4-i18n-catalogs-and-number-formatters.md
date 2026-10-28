@@ -256,13 +256,20 @@ Default decisions (beyond the story's list, which is kept as written):
 
 ### Review Findings
 
-Code review run 1 (2026-10-28): 0 decision_needed, 0 patch, 2 defer, 6 dismissed.
+Code review run 1 (2026-10-28, full workflow: Blind Hunter, Edge Case Hunter and Acceptance Auditor as parallel subagents; replaces an earlier skimmed pass): 0 decision_needed, 6 patch (all applied), 1 defer, 26 dismissed.
 
-- [x] [Review][Defer] A translated message may use different arguments than English (a missing `{count}` throws at runtime in `t()`) [tools/i18n/parseUiCatalog.ts] — deferred, no non-English locale exists yet; add an argument-set comparison to `i18n:missing` with the first translation.
-- [x] [Review][Defer] Content catalogs report every key as "unknown" while the English content key set is empty [tools/i18n/listMissingTranslations.ts] — deferred, warnings only and no content catalog exists; resolved by Story 7.1 passing real keys.
+- [x] [Review][Patch] A translation could use an argument English lacks, or read one as another type, and `t()` threw at runtime; `i18n:missing` now reports it as an error (a pure drop stays valid, extra values are ignored) [tools/i18n/findMissingTranslations.ts]
+- [x] [Review][Patch] Overlapping `loadLocale` calls: the slower, older request could win and leave the wrong locale active; the last request now wins [src/i18n/loadLocale.ts]
+- [x] [Review][Patch] An empty-string translation in a loaded UI catalog overrode the English fallback and rendered blank; `setLocale` now ignores empty and non-string values [src/i18n/locale.ts]
+- [x] [Review][Patch] An empty or comment-only content YAML failed `i18n:missing` as malformed [tools/i18n/findMissingTranslations.ts]
+- [x] [Review][Patch] Warning annotations were not escaped, so a newline or `%` in a translator-supplied key could inject workflow commands [tools/i18n/findMissingTranslations.ts]
+- [x] [Review][Patch] ICU argument names such as `{0}` would emit invalid TypeScript in `uiKeys.ts`; rejected at parse time. The generator also sorted argument names with `localeCompare`, which depends on the ICU build; now a plain comparison [tools/i18n/collectMessageArguments.ts, tools/i18n/generateUiKeyTypes.ts]
+- [x] [Review][Defer] `locales/<lang>/` directories are not cross-checked against `supportedLocales`, so a new locale folder is linted but cannot load until `supportedLocales` is edited [src/i18n/supportedLocales.ts] — deferred, C-8 keeps one locale at launch; handle with the first translation.
+
+Dismissed (one line each): the previous run's "dropped argument throws" wording was wrong (only a missing-but-referenced argument throws), fixed above; duplicate-key scan is heuristic but correct for the flat string-only catalogs the parser already enforces; only one problem reported for a bad key plus bad value (cosmetic); `loadLocale('en')` loading an empty catalog is intended (English is the base); recompiling formats on locale switch (negligible); `formatNumber` sign and Intl string-numeric support are covered by tests on the supported browsers; `formatGameDay` uses BigInt deliberately (C-5/C-3); `formatRealDuration` clamps negatives by C-6; `TranslateArgs` union hole is unreachable (the generator never emits `X | undefined`); `.yml` extension is not the project convention; EISDIR/ENOTDIR on malformed locale trees gives a stack trace, acceptable for a dev tool; missing English catalog throws, acceptable; `lookupContentText` dot-collision follows the architecture D7 key format; CNT-08 regex is the specified check; CI step order and `i18n:types` rewriting in `check` follow the story; unknown keys stay warnings by C-10; no `knip`/dependency issues (gates green); remaining blind-hunter style and test-strength remarks without a concrete failing input.
 
 ## Change Log
 
 - 2026-10-28: Story created (status: ready-for-dev).
 - 2026-10-28: Implemented typed UI catalog, `t()`, number formatters, content lookup, missing-translation CI check and lazy locale loader (status: review).
-- 2026-10-28: Code review run 1: no patches; 2 items deferred.
+- 2026-10-28: Code review run 1 (full workflow): 6 patches applied, 1 item deferred.

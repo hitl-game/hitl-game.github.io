@@ -45,5 +45,5 @@ Items a code review found real but not actionable in the story under review. Eac
 
 ## Deferred from: code review of story-1-4-i18n-catalogs-and-number-formatters (2026-10-28)
 
-- **Translation argument sets are not compared with English** (`tools/i18n/parseUiCatalog.ts`). A translated message that drops or renames an argument passes `i18n:missing` and throws at runtime in `t()`. Add the comparison when the first non-English locale lands.
+- **Locale folders are not cross-checked against `supportedLocales`** (`src/i18n/supportedLocales.ts`, `tools/i18n/findMissingTranslations.ts`). A new `locales/<lang>/` is linted and warned about but cannot load until `supportedLocales` is edited. Add the check with the first translation.
 - **Content catalogs list every key as "unknown" while the English content key set is empty** (`tools/i18n/listMissingTranslations.ts`). Warnings only; Story 7.1 passes the real keys.

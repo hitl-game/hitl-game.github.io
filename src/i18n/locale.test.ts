@@ -21,6 +21,13 @@ describe('t', () => {
 });
 
 describe('setLocale', () => {
+  it('keeps English for a key translated to an empty string', () => {
+    setLocale('en', { 'time.day': '' });
+
+    expect(t('time.day', { day: 3 })).toBe('Day 3');
+    setLocale('en', {});
+  });
+
   afterEach(() => {
     setLocale('en', {});
   });

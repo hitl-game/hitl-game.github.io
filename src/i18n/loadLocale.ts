@@ -48,10 +48,16 @@ const loadCatalog = createLocaleLoader({
   en: () => Promise.resolve({}),
 });
 
-// The active locale changes only once its catalog is in memory.
+// The active locale changes only once its catalog is in memory. When two loads overlap, the one
+// requested last wins; an earlier one that finishes later reports an error and changes nothing.
+let latestRequest = 0;
+
 export async function loadLocale(locale: Locale): Promise<Result<Locale, LocaleLoadError>> {
+  latestRequest += 1;
+  const request = latestRequest;
   const catalog = await loadCatalog(locale);
   if (!catalog.ok) return catalog;
+  if (request !== latestRequest) return err({ locale, reason: 'superseded by a newer request' });
   setLocale(locale, catalog.value);
   return ok(locale);
 }

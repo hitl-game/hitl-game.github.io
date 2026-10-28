@@ -16,7 +16,7 @@ const renderParams = (argumentTypes: ReadonlyMap<string, string>): string =>
   argumentTypes.size === 0
     ? 'undefined'
     : `{ ${[...argumentTypes]
-        .sort(([a], [b]) => a.localeCompare(b))
+        .sort(([a], [b]) => Number(a > b) - Number(a < b))
         .map(([name, tsType]) => `readonly ${name}: ${tsType};`)
         .join(' ')} }`;
 

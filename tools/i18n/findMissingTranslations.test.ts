@@ -93,6 +93,39 @@ describe('findMissingTranslations', () => {
     });
   });
 
+  it('lets a translation drop an argument but not add or retype one', async () => {
+    await writeLocaleFile(
+      'fr/ui.json',
+      JSON.stringify({
+        'inbox.unreadCount': '{count, plural, one {Un message} other {Des messages}}',
+        'time.day': 'Jour {day, number} ({extra})',
+      }),
+    );
+
+    expect(await findMissingTranslations(rootDir, new Set())).toEqual({
+      warnings: [],
+      errors: ['locales/fr/ui.json: time.day: argument "extra" is not in the English message'],
+    });
+
+    await writeLocaleFile('fr/ui.json', JSON.stringify({ 'time.day': 'Jour {day}' }));
+
+    expect((await findMissingTranslations(rootDir, new Set())).errors).toEqual([
+      'locales/fr/ui.json: time.day: argument "day" is string, English has number',
+    ]);
+  });
+
+  it('treats an empty content file as a locale that translates nothing', async () => {
+    await writeLocaleFile('fr/content/events.yaml', '# nothing yet\n');
+
+    expect((await findMissingTranslations(rootDir, new Set())).errors).toEqual([]);
+  });
+
+  it('escapes newlines and separators in GitHub annotations', () => {
+    expect(formatTranslationWarning({ file: 'a:b,c', message: 'unknown key x\ny%' }, true)).toBe(
+      '::warning file=a%3Ab%2Cc::unknown key x%0Ay%25',
+    );
+  });
+
   it.each([
     ['fr/ui.json', '{ "time.day": ', /^locales\/fr\/ui\.json: invalid JSON/],
     [

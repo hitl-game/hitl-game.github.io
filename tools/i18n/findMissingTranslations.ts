@@ -2,7 +2,8 @@ import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { parse } from 'yaml';
 
-import { parseUiCatalog } from './parseUiCatalog.ts';
+import { collectMessageArguments } from './collectMessageArguments.ts';
+import { parseUiCatalog, type UiCatalog } from './parseUiCatalog.ts';
 import { englishUiCatalogPath, readEnglishUiCatalog } from './readEnglishUiCatalog.ts';
 
 export interface TranslationWarning {
@@ -50,19 +51,47 @@ function compareKeys(
   ];
 }
 
+const argumentTypesOf = (message: string): ReadonlyMap<string, string> => {
+  const parsed = collectMessageArguments(message);
+  return parsed.ok ? parsed.argumentTypes : new Map();
+};
+
+// `t()` passes the English argument set, so a translation may drop an argument (extra values
+// are ignored) but must not need one English lacks, nor read one as another type: either throws.
+function compareArguments(english: UiCatalog, translated: UiCatalog): string[] {
+  return Object.entries(translated).flatMap(([key, message]) => {
+    const englishMessage = english[key];
+    if (englishMessage === undefined) return [];
+    const allowed = argumentTypesOf(englishMessage);
+    return [...argumentTypesOf(message)].flatMap(([name, type]) => {
+      const expected = allowed.get(name);
+      if (expected === undefined)
+        return [`${key}: argument "${name}" is not in the English message`];
+      return expected === type
+        ? []
+        : [`${key}: argument "${name}" is ${type}, English has ${expected}`];
+    });
+  });
+}
+
 async function checkUiCatalog(
   rootDir: string,
   locale: string,
-  englishKeys: ReadonlySet<string>,
+  english: UiCatalog,
 ): Promise<TranslationReport> {
+  const englishKeys = new Set(Object.keys(english));
   const file = `${localesDir}/${locale}/ui.json`;
   const text = await readOptional(() => readFile(path.join(rootDir, file), 'utf8'), undefined);
   if (text === undefined)
     return { warnings: compareKeys(file, englishKeys, new Set()), errors: [] };
   const parsed = parseUiCatalog(text);
-  return parsed.ok
-    ? { warnings: compareKeys(file, englishKeys, new Set(Object.keys(parsed.catalog))), errors: [] }
-    : { warnings: [], errors: parsed.problems.map((problem) => `${file}: ${problem}`) };
+  if (!parsed.ok) {
+    return { warnings: [], errors: parsed.problems.map((problem) => `${file}: ${problem}`) };
+  }
+  return {
+    warnings: compareKeys(file, englishKeys, new Set(Object.keys(parsed.catalog))),
+    errors: compareArguments(english, parsed.catalog).map((problem) => `${file}: ${problem}`),
+  };
 }
 
 const isStringMap = (value: unknown): value is Readonly<Record<string, string>> =>
@@ -73,7 +102,8 @@ const isStringMap = (value: unknown): value is Readonly<Record<string, string>> 
 
 async function readContentKeys(rootDir: string, file: string): Promise<string[] | string> {
   try {
-    const parsed: unknown = parse(await readFile(path.join(rootDir, file), 'utf8'));
+    // An empty or comment-only file parses to null: a locale that translates nothing yet.
+    const parsed: unknown = parse(await readFile(path.join(rootDir, file), 'utf8')) ?? {};
     return isStringMap(parsed)
       ? Object.keys(parsed)
       : `${file}: must be a flat map of "<contentId>.<field path>" to text`;
@@ -109,18 +139,23 @@ export async function findMissingTranslations(
   if (!english.ok) {
     return { warnings: [], errors: english.problems.map((p) => `${englishUiCatalogPath}: ${p}`) };
   }
-  const englishUiKeys = new Set(Object.keys(english.catalog));
   const locales = (await listDirectories(path.join(rootDir, localesDir)))
     .filter((locale) => locale !== sourceLocale)
     .sort();
   const reports = await Promise.all(
     locales.flatMap((locale) => [
-      checkUiCatalog(rootDir, locale, englishUiKeys),
+      checkUiCatalog(rootDir, locale, english.catalog),
       checkContentCatalogs(rootDir, locale, englishContentKeys),
     ]),
   );
   return mergeReports(reports);
 }
+
+// Workflow commands end at a newline, so keys and paths from translator files are escaped.
+const escapeData = (text: string): string =>
+  text.replaceAll('%', '%25').replaceAll('\r', '%0D').replaceAll('\n', '%0A');
+const escapeProperty = (text: string): string =>
+  escapeData(text).replaceAll(':', '%3A').replaceAll(',', '%2C');
 
 // GitHub Actions turns `::warning file=…::` lines into annotations on the pull request.
 export const formatTranslationWarning = (
@@ -128,5 +163,5 @@ export const formatTranslationWarning = (
   isGithubActions: boolean,
 ): string =>
   isGithubActions
-    ? `::warning file=${warning.file}::${warning.message}`
+    ? `::warning file=${escapeProperty(warning.file)}::${escapeData(warning.message)}`
     : `warning ${warning.file}: ${warning.message}`;

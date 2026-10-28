@@ -36,6 +36,13 @@ describe('collectMessageArguments', () => {
     });
   });
 
+  it.each(['{0}', '{1, number}'])('rejects the argument name in %s', (message) => {
+    expect(collectMessageArguments(message)).toEqual({
+      ok: false,
+      problems: [expect.stringContaining('must be a plain identifier')],
+    });
+  });
+
   it('rejects markup tags', () => {
     expect(collectMessageArguments('Click <b>here</b>')).toEqual({
       ok: false,

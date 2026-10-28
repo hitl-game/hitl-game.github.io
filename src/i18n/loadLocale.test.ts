@@ -45,6 +45,16 @@ describe('loadLocale', () => {
     setLocale('en', {});
   });
 
+  it('lets the last requested load win when two overlap', async () => {
+    const [first, second] = await Promise.all([loadLocale('en'), loadLocale('en')]);
+
+    expect(first).toEqual({
+      ok: false,
+      error: { locale: 'en', reason: 'superseded by a newer request' },
+    });
+    expect(second).toEqual({ ok: true, value: 'en' });
+  });
+
   it('activates English from the main bundle', async () => {
     setLocale('en', { 'time.day': 'Jour {day, number}' });
 

@@ -14,6 +14,9 @@ const elementType = {
   tag: 8,
 } as const;
 
+// Generated types emit argument names as property names, so they must be valid identifiers.
+const identifierPattern = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
+
 interface AstNode {
   readonly type: number;
   readonly value?: string;
@@ -43,6 +46,10 @@ const toTsType = (node: AstNode): string | undefined =>
 function recordArgument(node: AstNode, argumentTypes: Map<string, string>, problems: string[]) {
   const tsType = toTsType(node);
   if (tsType === undefined || node.value === undefined) return;
+  if (!identifierPattern.test(node.value)) {
+    problems.push(`argument name "${node.value}" must be a plain identifier`);
+    return;
+  }
   const known = argumentTypes.get(node.value);
   if (known === undefined) argumentTypes.set(node.value, tsType);
   else if (known !== tsType) {
