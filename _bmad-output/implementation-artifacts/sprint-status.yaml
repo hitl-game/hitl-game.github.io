@@ -75,7 +75,7 @@ development_status:
   1-3-content-and-tuning-pipeline: done
   1-4-i18n-catalogs-and-number-formatters: done
   1-5-daily-economy-step: done
-  1-6-game-clock-presence-and-clock-states: review
+  1-6-game-clock-presence-and-clock-states: done
   1-7-design-tokens-accessible-primitives-and-a11y-services: backlog
   1-8-founding-screen-game-bar-and-first-workspace-screen: backlog
   1-9-local-save-autosave-single-live-tab-and-error-boundary: backlog
