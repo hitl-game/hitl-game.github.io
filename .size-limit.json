@@ -1,7 +1,11 @@
 [
   {
     "name": "initial bundle",
-    "path": ["dist/assets/index-*.js", "dist/assets/index-*.css"],
+    "path": [
+      "dist/assets/index-*.js",
+      "dist/assets/index-*.css",
+      "dist/assets/modulepreload-polyfill-*.js"
+    ],
     "limit": "150 KB",
     "gzip": true,
     "running": false

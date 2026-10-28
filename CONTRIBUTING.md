@@ -12,14 +12,14 @@ The pre-commit hook runs ESLint, Stylelint and Prettier on the staged files only
 
 ## Scripts
 
-| Script                              | What it does                                                                                                            |
-| ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| `npm run dev`                       | Dev server                                                                                                              |
-| `npm run build` / `npm run preview` | Production build and a local preview of it                                                                              |
-| `npm run check`                     | Every PR gate except e2e: typecheck, ESLint, lint fixtures, Stylelint, Prettier, jscpd, knip, build, size-limit, Vitest |
-| `npm test`                          | Vitest                                                                                                                  |
-| `npm run test:e2e`                  | Playwright (Chromium, Firefox, WebKit)                                                                                  |
-| `npm run lint:fixtures`             | Checks that every Charter rule still reports its intentional violation in `tests/lint-fixtures/`                        |
+| Script                              | What it does                                                                                                                              |
+| ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run dev`                       | Dev server                                                                                                                                |
+| `npm run build` / `npm run preview` | Production build and a local preview of it                                                                                                |
+| `npm run check`                     | Every PR gate except e2e: typecheck, ESLint, lint fixtures, Stylelint, Prettier, jscpd, knip, build, size-limit, lazy-chunk check, Vitest |
+| `npm test`                          | Vitest                                                                                                                                    |
+| `npm run test:e2e`                  | Playwright (Chromium, Firefox, WebKit)                                                                                                    |
+| `npm run lint:fixtures`             | Checks that every Charter rule still reports its intentional violation in `tests/lint-fixtures/`                                          |
 
 ## Code Quality Charter
 

@@ -70,3 +70,40 @@ jobs:
           name: playwright-report
           path: playwright-report
           retention-days: 14
+
+  # PDF/UA-1 check of the Story 8.1 PDF spike. Main only: it adds a browser install and a Docker pull.
+  verapdf:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    env:
+      VERAPDF_IMAGE: verapdf/cli:v1.30.3@sha256:d565095c67a083e693aebf7d1a15784007370571053fc1aa5b502665b9a78f9c
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test --project=chromium tests/e2e/pdfSpike.spec.ts
+      - name: Validate the sample PDF against PDF/UA-1
+        run: |
+          set +e
+          docker run --rm -v "$PWD/test-results/pdf-spike:/data" "$VERAPDF_IMAGE" \
+            --flavour ua1 --format mrr /data/sample-chromium.pdf > test-results/pdf-spike/verapdf-report.xml
+          status=$?
+          set -e
+          grep -o '<validationReports [^>]*>' test-results/pdf-spike/verapdf-report.xml || true
+          grep -o '<rule [^>]*status="failed"[^>]*>' test-results/pdf-spike/verapdf-report.xml || true
+          # veraPDF exits 0 only when every file is compliant; the summary also guards against a run that validated nothing.
+          test "$status" -eq 0
+          grep -q 'compliant="1" nonCompliant="0" failedJobs="0"' test-results/pdf-spike/verapdf-report.xml
+      - if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: pdf-spike
+          path: |
+            test-results/pdf-spike
+            playwright-report
+          if-no-files-found: warn
+          retention-days: 14

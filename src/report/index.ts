@@ -1,1 +1,1 @@
-export {};
+export { renderSamplePdf } from './pdf';

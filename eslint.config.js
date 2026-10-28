@@ -16,6 +16,8 @@ const layerImports = {
   i18n: ['shared'],
   shared: [],
   debug: ['app'],
+  // Story 8.1 PDF spike page only; Story 6.5 removes the layer with the page.
+  spike: ['report'],
 };
 
 const publicApi = 'index.{ts,tsx}';

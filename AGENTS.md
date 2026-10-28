@@ -11,7 +11,7 @@ Human in the Loop is a browser game built with Preact, TypeScript and Vite, depl
 
 ## Layers
 
-`ui → app → core → shared` · `app → platform → shared` · `report → core + shared` · `i18n → shared` · `debug → app`. `ui` never imports `core` or `platform`. Import through `index.ts` only. Features never import features.
+`ui → app → core → shared` · `app → platform → shared` · `report → core + shared` · `i18n → shared` · `debug → app` · `spike → report` (Story 8.1 PDF spike page only; Story 6.5 removes it). `ui` never imports `core` or `platform`. Import through `index.ts` only. Features never import features.
 
 ## Working rules
 
@@ -21,13 +21,13 @@ Human in the Loop is a browser game built with Preact, TypeScript and Vite, depl
 
 ## npm scripts
 
-| Script                      | What it does                                                   |
-| --------------------------- | -------------------------------------------------------------- |
-| `dev` / `build` / `preview` | Vite dev server, production build, preview of the build        |
-| `typecheck`                 | `tsc -b`                                                       |
-| `lint` / `lint:css`         | ESLint (Charter and boundaries) / Stylelint (tokens only)      |
-| `lint:fixtures`             | Proves every Charter rule still fails on its violation fixture |
-| `format` / `format:check`   | Prettier                                                       |
-| `dup` / `knip` / `size`     | Duplication, dead code and dependencies, bundle budget         |
-| `test` / `test:e2e`         | Vitest / Playwright                                            |
-| `check`                     | Every PR gate except e2e, in sequence                          |
+| Script                      | What it does                                                                                                     |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `dev` / `build` / `preview` | Vite dev server, production build, preview of the build                                                          |
+| `typecheck`                 | `tsc -b`                                                                                                         |
+| `lint` / `lint:css`         | ESLint (Charter and boundaries) / Stylelint (tokens only)                                                        |
+| `lint:fixtures`             | Proves every Charter rule still fails on its violation fixture                                                   |
+| `format` / `format:check`   | Prettier                                                                                                         |
+| `dup` / `knip` / `size`     | Duplication, dead code and dependencies, bundle budget plus the lazy-chunk check (`tools/checkInitialBundle.ts`) |
+| `test` / `test:e2e`         | Vitest / Playwright                                                                                              |
+| `check`                     | Every PR gate except e2e, in sequence                                                                            |

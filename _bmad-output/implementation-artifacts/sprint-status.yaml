@@ -68,8 +68,8 @@ development_status:
   1-1-project-scaffold-quality-gates-ci-and-pages-deploy: review # first; may split into 1.1a (scaffold+gates) / 1.1b (CI, deploy, agent files). Required status checks set on main 2026-10-27
 
   # ── Epic 8 opens early: PDFKit spike, parallel right after 1.1 (de-risks D8 before 6.5) ──
-  epic-8: backlog
-  8-1-pdfkit-tagged-pdf-spike: backlog # parallel lane; brings its own font if 1.7 has not landed
+  epic-8: in-progress
+  8-1-pdfkit-tagged-pdf-spike: review # parallel lane; brings its own font if 1.7 has not landed
 
   1-2-deterministic-core-skeleton: backlog
   1-3-content-and-tuning-pipeline: backlog

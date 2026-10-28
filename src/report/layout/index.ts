@@ -1,0 +1,1 @@
+export { documentLayout } from './documentLayout';
