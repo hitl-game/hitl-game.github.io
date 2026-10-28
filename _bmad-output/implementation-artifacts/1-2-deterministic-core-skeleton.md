@@ -174,6 +174,13 @@ Code review run 4 (2026-10-28, gds-code-review: Blind Hunter, Edge Case Hunter, 
 - [x] [Review][Patch] Project Structure tree for `core/numerics/` did not list `withoutNegativeZero` (F2) [_bmad-output/game-architecture.md]
 - [x] [Review][Defer] `assertStateIsValid` does not check queue domain invariants: a snapshot with no pending `dayBoundary` (or two) passes, and replay silently drops (or doubles) game days [src/core/run/assertStateIsValid.ts] — deferred: which per-kind invariants hold depends on the event kinds later stories add; decide with the Story 1.9 load path
 
+Code review run 5, final run of the loop (2026-10-28, gds-code-review: Blind Hunter, Edge Case Hunter, Acceptance Auditor). 1 patched, 0 deferred, 3 dismissed. No code finding survived triage; the loop stops here (max 5 runs).
+
+- [x] [Review][Patch] Change Log had no entry for review run 4 [_bmad-output/implementation-artifacts/1-2-deterministic-core-skeleton.md]
+- Dismissed: replay's time-only guard cannot tell two blocking events at the same `gameMs` apart if the live layer resumes without logging a command — that is the D3 contract violation already documented (run 3) and deferred to Story 1.6's enforcement.
+- Dismissed: `assertStateIsValid` throws a plain `TypeError` (not the invariant message) for wrong container types (`settings: null`, `queue: {}`, a string stream); the state is still rejected, and structural decoding of saves is the deferred Story 1.9/1.10 decoder's job.
+- Dismissed: a crafted save with `nowGameMs` near `Number.MAX_SAFE_INTEGER` (~285,000 years of game time) passes validation and then fails an invariant on the next day boundary; unreachable in play and fails closed.
+
 ## Dev Notes
 
 ### What exists today (read before touching anything)
@@ -369,3 +376,5 @@ Deleted:
 - 2026-10-28: Code review run 1: 13 findings patched (state validation, corrupt-log guards, rounding/locale/hot-path lint bans with fixtures, test-harness and property fixes, replay contract in architecture D3), 7 deferred, 6 dismissed. `npm run check` and chromium e2e green.
 - 2026-10-28: Code review run 2: 6 findings patched (`-0` normalisation, input-log order checks, stray `rngStreams`/`counters` keys, `newRun` settings copy, wider hot-path import ban with fixtures, DET-04 regression test), 2 deferred, 1 dismissed.
 - 2026-10-28: Code review run 3: 6 findings patched (exact keys and typed time fields in `assertStateIsValid`, comparator `TypeError` on unknown kinds, `replayFrom` validates the snapshot, stale signatures in docs, D3 blocking-stop contract), 1 deferred, 7 dismissed. `npm run check` and chromium e2e green.
+- 2026-10-28: Code review run 4: 3 findings patched (typed `loopNumber`/`contentPackVersion` in `assertStateIsValid`, stale Completion Notes, `withoutNegativeZero` in the architecture tree), 1 deferred (queue domain invariants), 1 dismissed. `npm run check` and chromium e2e green.
+- 2026-10-28: Code review run 5 (final run of the 5-run loop): 1 finding patched (this Change Log lacked the run-4 entry), 0 deferred, 3 dismissed; no code change. Loop total: 29 patched, 11 deferred (all in `deferred-work.md`), 18 dismissed. `npm run check` and chromium e2e green. Status stays review.
