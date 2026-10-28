@@ -3,7 +3,7 @@ baseline_commit: 928552a1677e8fcee14257812b07ec0b1cf88f35
 ---
 # Story 1.2: Deterministic core skeleton
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -378,3 +378,4 @@ Deleted:
 - 2026-10-28: Code review run 3: 6 findings patched (exact keys and typed time fields in `assertStateIsValid`, comparator `TypeError` on unknown kinds, `replayFrom` validates the snapshot, stale signatures in docs, D3 blocking-stop contract), 1 deferred, 7 dismissed. `npm run check` and chromium e2e green.
 - 2026-10-28: Code review run 4: 3 findings patched (typed `loopNumber`/`contentPackVersion` in `assertStateIsValid`, stale Completion Notes, `withoutNegativeZero` in the architecture tree), 1 deferred (queue domain invariants), 1 dismissed. `npm run check` and chromium e2e green.
 - 2026-10-28: Code review run 5 (final run of the 5-run loop): 1 finding patched (this Change Log lacked the run-4 entry), 0 deferred, 3 dismissed; no code change. Loop total: 29 patched, 11 deferred (all in `deferred-work.md`), 18 dismissed. `npm run check` and chromium e2e green. Status stays review.
+- 2026-10-28: Closed. PR #6 merged (`8932ca4`). The CI run on `main` passed every job, including the three-engine `e2e` job, so Firefox is now verified. The Pages deploy and the post-deploy smoke passed. Status → done.
