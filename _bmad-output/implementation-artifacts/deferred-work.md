@@ -69,3 +69,7 @@ Items a code review found real but not actionable in the story under review. Eac
 - **`Session.state` exposes the whole `GameState` to `ui`** (`src/app/session/session.ts`). No hidden field exists yet; Story 1.8 must keep `ui` on derived signals or keep the session `app`-internal.
 - **Calls after `dispose` still mutate state and `isClockRunning` stays true** (`src/app/session/createSession.ts`). Add a disposed flag when Story 1.8 gives the session a UI lifecycle.
 - **A long visible gap (system sleep without a `visibilitychange`) is simulated in one frame** (`createPresentLoop.ts` onFrame). The test treats visible catch-up as intended; add a max frame gap or `freeze`/`pageshow` handling with Story 3.5 (away time).
+
+## Deferred from: code review of story-1-6-game-clock-presence-and-clock-states (2026-10-28, run 3)
+
+- **A session created from a state that already sits at a blocking stop starts unblocked** (`src/app/session/createSessionSignals.ts`). `isBlockedByStop` starts `false`, and a stop already consumed by `advance` cannot be re-derived from the state, so a restored run could skip the stop it was waiting on. Nothing restores a run yet; decide with the Story 1.9 load path (store the blocked flag in the save, or derive it from the queue) and Story 4.5.
