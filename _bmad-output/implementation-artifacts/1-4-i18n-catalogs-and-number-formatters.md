@@ -274,8 +274,16 @@ Code review run 2 (2026-10-28, full workflow: Blind Hunter, Edge Case Hunter and
 
 Dismissed (one line each): stale `loadLocale` failure is a true failure of that request and the newest failing leaves the locale unchanged, which is correct; plain `{x}` in English with select in a translation changes the caller type contract, so it stays an error; duplicate-key scan, key-then-value check order, O(n^2) dedupe, `formatRealDuration` clamp, BigInt in `formatGameDay`, missing English catalog throwing and `check` rewriting `uiKeys.ts` repeat run-1 dismissals; runtime catalogs are the same files CI validates; locale state is deliberately non-reactive (app/ owns the signal); `latestRequest` bumping on an unknown locale is harmless; `Locale` type holds only `en` until a translation lands; formatter tests assume `en` by design until a second locale exists; compact M/B/T boundary and mixed-unit remarks have no failing input; hidden-state test scans English as specified; empty content-key set in the CLI is the documented C-10 stub; annotation escaping is complete; knip/yaml/prettier deps pass the gate; YAML non-string scalar message is adequate; ICU syntax-only check is the specified level; `{day}` as string is by design.
 
+Code review run 3 (2026-10-28, full workflow: Blind Hunter, Edge Case Hunter and Acceptance Auditor as parallel subagents). 1 patch, 0 deferred, 7 dismissed. Edge Case Hunter and Acceptance Auditor found nothing; run 2's subset fix held up under edge inputs (`__proto__`, `other`-only, reorder, drop, add).
+
+- [x] [Review][Patch] `createLocaleLoader` looked the locale up on the plain loaders object, so `constructor` or `toString` resolved an inherited function instead of "no catalog"; now an own-key check, with a test [src/i18n/loadLocale.ts, loadLocale.test.ts]. Also the `formatRealDuration` test title used `%i` and printed `59999` for `59999.5`; now `%s`.
+
+Dismissed (one line each): "missing dependency changes" is unfounded (blind layer saw no manifest; `knip` and `check` pass); `.yml` ignored and `{x}`-vs-plural strictness repeat earlier dismissals; duplicate content keys across files need a content kind that does not exist yet (C-10 stub); concurrent same-locale loads fetch twice is harmless (module chunk is cached by the browser); superseded request when the newest fails repeats run 2; Acceptance Auditor's Change Log gap is fixed here; documented spec deviations are in the Dev Agent Record.
+
 ## Change Log
 
 - 2026-10-28: Story created (status: ready-for-dev).
 - 2026-10-28: Implemented typed UI catalog, `t()`, number formatters, content lookup, missing-translation CI check and lazy locale loader (status: review).
 - 2026-10-28: Code review run 1 (full workflow): 6 patches applied, 1 item deferred.
+- 2026-10-28: Code review run 2: 1 patch applied (select options compare as subset).
+- 2026-10-28: Code review run 3: 1 patch applied (own-key locale lookup).

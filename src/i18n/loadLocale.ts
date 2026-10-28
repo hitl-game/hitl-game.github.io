@@ -20,7 +20,7 @@ export function createLocaleLoader(
   return async (locale) => {
     const cached = loaded.get(locale);
     if (cached !== undefined) return ok(cached);
-    const load = loaders[locale];
+    const load = Object.hasOwn(loaders, locale) ? loaders[locale] : undefined;
     if (load === undefined) return err({ locale, reason: 'no catalog for this locale' });
     try {
       const catalog = await load();

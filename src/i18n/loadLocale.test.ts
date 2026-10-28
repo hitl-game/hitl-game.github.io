@@ -38,6 +38,16 @@ describe('createLocaleLoader', () => {
       error: { locale: 'xx', reason: 'no catalog for this locale' },
     });
   });
+
+  it.each(['constructor', 'toString', '__proto__'])(
+    'does not resolve inherited object keys such as %s',
+    async (locale) => {
+      expect(await createLocaleLoader({})(locale)).toEqual({
+        ok: false,
+        error: { locale, reason: 'no catalog for this locale' },
+      });
+    },
+  );
 });
 
 describe('loadLocale', () => {

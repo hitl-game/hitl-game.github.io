@@ -19,7 +19,7 @@ describe('formatRealDuration', () => {
     [40_001, '0:41'],
     [59_999.5, '1:00'],
     [-5_000, '0:00'],
-  ])('renders %i ms as %s', (realMs, expected) => {
+  ])('renders %s ms as %s', (realMs, expected) => {
     expect(formatRealDuration(realMs)).toBe(expected);
   });
 
