@@ -10,7 +10,7 @@ export interface AdvanceContext {
   readonly tuning: EconomyTuning;
 }
 
-// Every slice a handler may read or write; core/run's GameState satisfies it.
+// A bound of slices rather than GameState: core/time importing core/run would be a cycle.
 export type SimulationState = TimeState & EconomyState;
 
 export interface HandlerResult<S extends TimeState> {
