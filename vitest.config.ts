@@ -1,10 +1,12 @@
 import preact from '@preact/preset-vite';
 import { configDefaults, defineConfig } from 'vitest/config';
 
+import { contentPlugin } from './tools/content/contentPlugin.ts';
+
 const nodeOnlyTests = ['src/{core,shared}/**/*.test.{ts,tsx}'];
 
 export default defineConfig({
-  plugins: [preact()],
+  plugins: [preact(), contentPlugin(import.meta.dirname)],
   test: {
     passWithNoTests: false,
     setupFiles: ['tests/setup/configureFastCheck.ts'],

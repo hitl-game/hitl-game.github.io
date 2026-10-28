@@ -1,0 +1,1183 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "start": {
+      "type": "object",
+      "properties": {
+        "cashUsd": {
+          "type": "number"
+        },
+        "hypeIndex": {
+          "type": "number"
+        },
+        "alignmentPoints": {
+          "type": "number"
+        },
+        "gpuCapacityUnits": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "cashUsd",
+        "hypeIndex",
+        "alignmentPoints",
+        "gpuCapacityUnits"
+      ],
+      "additionalProperties": false
+    },
+    "phases": {
+      "type": "object",
+      "properties": {
+        "garage": {
+          "type": "object",
+          "properties": {
+            "baseCostsPerDayUsd": {
+              "type": "number"
+            },
+            "salaryPerHirePerDayUsd": {
+              "type": "number"
+            },
+            "gpuUnitCostPerDayUsd": {
+              "type": "number"
+            },
+            "newCustomersPhaseMultiplier": {
+              "type": "number"
+            },
+            "alignmentDriftPhaseMultiplier": {
+              "type": "number"
+            },
+            "messageArrivalIntervalGameSeconds": {
+              "type": "object",
+              "properties": {
+                "min": {
+                  "type": "number"
+                },
+                "max": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "min",
+                "max"
+              ],
+              "additionalProperties": false
+            },
+            "eventIntervalActiveMinutes": {
+              "type": "object",
+              "properties": {
+                "min": {
+                  "type": "number"
+                },
+                "max": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "min",
+                "max"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "baseCostsPerDayUsd",
+            "salaryPerHirePerDayUsd",
+            "gpuUnitCostPerDayUsd",
+            "newCustomersPhaseMultiplier",
+            "alignmentDriftPhaseMultiplier",
+            "messageArrivalIntervalGameSeconds",
+            "eventIntervalActiveMinutes"
+          ],
+          "additionalProperties": false
+        },
+        "seed": {
+          "type": "object",
+          "properties": {
+            "baseCostsPerDayUsd": {
+              "type": "number"
+            },
+            "salaryPerHirePerDayUsd": {
+              "type": "number"
+            },
+            "gpuUnitCostPerDayUsd": {
+              "type": "number"
+            },
+            "newCustomersPhaseMultiplier": {
+              "type": "number"
+            },
+            "alignmentDriftPhaseMultiplier": {
+              "type": "number"
+            },
+            "messageArrivalIntervalGameSeconds": {
+              "type": "object",
+              "properties": {
+                "min": {
+                  "type": "number"
+                },
+                "max": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "min",
+                "max"
+              ],
+              "additionalProperties": false
+            },
+            "eventIntervalActiveMinutes": {
+              "type": "object",
+              "properties": {
+                "min": {
+                  "type": "number"
+                },
+                "max": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "min",
+                "max"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "baseCostsPerDayUsd",
+            "salaryPerHirePerDayUsd",
+            "gpuUnitCostPerDayUsd",
+            "newCustomersPhaseMultiplier",
+            "alignmentDriftPhaseMultiplier",
+            "messageArrivalIntervalGameSeconds",
+            "eventIntervalActiveMinutes"
+          ],
+          "additionalProperties": false
+        },
+        "seriesA": {
+          "type": "object",
+          "properties": {
+            "baseCostsPerDayUsd": {
+              "type": "number"
+            },
+            "salaryPerHirePerDayUsd": {
+              "type": "number"
+            },
+            "gpuUnitCostPerDayUsd": {
+              "type": "number"
+            },
+            "newCustomersPhaseMultiplier": {
+              "type": "number"
+            },
+            "alignmentDriftPhaseMultiplier": {
+              "type": "number"
+            },
+            "messageArrivalIntervalGameSeconds": {
+              "type": "object",
+              "properties": {
+                "min": {
+                  "type": "number"
+                },
+                "max": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "min",
+                "max"
+              ],
+              "additionalProperties": false
+            },
+            "eventIntervalActiveMinutes": {
+              "type": "object",
+              "properties": {
+                "min": {
+                  "type": "number"
+                },
+                "max": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "min",
+                "max"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "baseCostsPerDayUsd",
+            "salaryPerHirePerDayUsd",
+            "gpuUnitCostPerDayUsd",
+            "newCustomersPhaseMultiplier",
+            "alignmentDriftPhaseMultiplier",
+            "messageArrivalIntervalGameSeconds",
+            "eventIntervalActiveMinutes"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "garage",
+        "seed",
+        "seriesA"
+      ],
+      "additionalProperties": false
+    },
+    "economy": {
+      "type": "object",
+      "properties": {
+        "billingMonthDays": {
+          "type": "number"
+        },
+        "overdraftInterestPerDayPercent": {
+          "type": "number"
+        },
+        "belowZeroLimitDays": {
+          "type": "number"
+        },
+        "garageOverdraftFloorUsd": {
+          "type": "number"
+        },
+        "overdraftFloorOfLastRoundPercent": {
+          "type": "number"
+        },
+        "headcountBurnExponent": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "billingMonthDays",
+        "overdraftInterestPerDayPercent",
+        "belowZeroLimitDays",
+        "garageOverdraftFloorUsd",
+        "overdraftFloorOfLastRoundPercent",
+        "headcountBurnExponent"
+      ],
+      "additionalProperties": false
+    },
+    "compute": {
+      "type": "object",
+      "properties": {
+        "gpuUnitLoad": {
+          "type": "number"
+        },
+        "selfServeCustomerLoad": {
+          "type": "number"
+        },
+        "teamCustomerLoad": {
+          "type": "number"
+        },
+        "enterpriseCustomerLoad": {
+          "type": "number"
+        },
+        "metisAnswerLoad": {
+          "type": "number"
+        },
+        "churnUtilizationThresholdPercent": {
+          "type": "number"
+        },
+        "extraChurnPerDayPerUtilizationPointPercent": {
+          "type": "number"
+        },
+        "capacityOfferTargetUtilizationPercent": {
+          "type": "number"
+        },
+        "capacityOfferMinGpuUnits": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "capacityOfferRepeatDays": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "gpuUnitLoad",
+        "selfServeCustomerLoad",
+        "teamCustomerLoad",
+        "enterpriseCustomerLoad",
+        "metisAnswerLoad",
+        "churnUtilizationThresholdPercent",
+        "extraChurnPerDayPerUtilizationPointPercent",
+        "capacityOfferTargetUtilizationPercent",
+        "capacityOfferMinGpuUnits",
+        "capacityOfferRepeatDays"
+      ],
+      "additionalProperties": false
+    },
+    "hype": {
+      "type": "object",
+      "properties": {
+        "changes": {
+          "type": "object",
+          "properties": {
+            "launchHypeIndex": {
+              "type": "object",
+              "properties": {
+                "min": {
+                  "type": "number"
+                },
+                "max": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "min",
+                "max"
+              ],
+              "additionalProperties": false
+            },
+            "boldPostHypeIndex": {
+              "type": "number"
+            },
+            "viralHypeIndex": {
+              "type": "number"
+            },
+            "flopHypeIndex": {
+              "type": "number"
+            },
+            "scandalHypeIndex": {
+              "type": "number"
+            },
+            "decayPerDayPercent": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "launchHypeIndex",
+            "boldPostHypeIndex",
+            "viralHypeIndex",
+            "flopHypeIndex",
+            "scandalHypeIndex",
+            "decayPerDayPercent"
+          ],
+          "additionalProperties": false
+        },
+        "valuationMultiple": {
+          "type": "object",
+          "properties": {
+            "low": {
+              "type": "object",
+              "properties": {
+                "hypeIndex": {
+                  "type": "number"
+                },
+                "valuationMultiplier": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "hypeIndex",
+                "valuationMultiplier"
+              ],
+              "additionalProperties": false
+            },
+            "high": {
+              "type": "object",
+              "properties": {
+                "hypeIndex": {
+                  "type": "number"
+                },
+                "valuationMultiplier": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "hypeIndex",
+                "valuationMultiplier"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "low",
+            "high"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "changes",
+        "valuationMultiple"
+      ],
+      "additionalProperties": false
+    },
+    "customers": {
+      "type": "object",
+      "properties": {
+        "baseNewCustomersPerDay": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "newCustomersPerDayPerHypePoint": {
+          "type": "number"
+        },
+        "teamSharePerHypePointPercent": {
+          "type": "number"
+        },
+        "teamShareMaxPercent": {
+          "type": "number"
+        },
+        "baselineChurnPerDayPercent": {
+          "type": "number"
+        },
+        "selfServePricePerMonthUsd": {
+          "type": "number"
+        },
+        "teamPricePerMonthUsd": {
+          "type": "number"
+        },
+        "enterprisePricePerMonthUsd": {
+          "type": "object",
+          "properties": {
+            "min": {
+              "type": "number"
+            },
+            "max": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "min",
+            "max"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "baseNewCustomersPerDay",
+        "newCustomersPerDayPerHypePoint",
+        "teamSharePerHypePointPercent",
+        "teamShareMaxPercent",
+        "baselineChurnPerDayPercent",
+        "selfServePricePerMonthUsd",
+        "teamPricePerMonthUsd",
+        "enterprisePricePerMonthUsd"
+      ],
+      "additionalProperties": false
+    },
+    "staff": {
+      "type": "object",
+      "properties": {
+        "messageIntervalGameSeconds": {
+          "type": "number"
+        },
+        "contentMinMorale": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "strainedMinMorale": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "leavingResignAfterDays": {
+          "type": "number"
+        },
+        "overloadedAboveQueuedMessages": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "overloadedMoraleDriftPerDay": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "normalMoraleDriftPerDay": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "eventMoraleSwing": {
+          "type": "object",
+          "properties": {
+            "min": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            "max": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "min",
+            "max"
+          ],
+          "additionalProperties": false
+        },
+        "exFaangSalaryMultiplier": {
+          "type": "number"
+        },
+        "safetyResearcherSalaryMultiplier": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "messageIntervalGameSeconds",
+        "contentMinMorale",
+        "strainedMinMorale",
+        "leavingResignAfterDays",
+        "overloadedAboveQueuedMessages",
+        "overloadedMoraleDriftPerDay",
+        "normalMoraleDriftPerDay",
+        "eventMoraleSwing",
+        "exFaangSalaryMultiplier",
+        "safetyResearcherSalaryMultiplier"
+      ],
+      "additionalProperties": false
+    },
+    "traits": {
+      "type": "object",
+      "properties": {
+        "peterPan": {
+          "type": "object",
+          "properties": {
+            "throughputMultiplier": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "throughputMultiplier"
+          ],
+          "additionalProperties": false
+        },
+        "notionArchitect": {
+          "type": "object",
+          "properties": {
+            "throughputMultiplier": {
+              "type": "number"
+            },
+            "teammateMorale": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "throughputMultiplier",
+            "teammateMorale"
+          ],
+          "additionalProperties": false
+        },
+        "rewriteItInRust": {
+          "type": "object",
+          "properties": {
+            "blockedTaskSharePercent": {
+              "type": "number"
+            },
+            "blockedForDays": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "blockedTaskSharePercent",
+            "blockedForDays"
+          ],
+          "additionalProperties": false
+        },
+        "thumbsUp": {
+          "type": "object",
+          "properties": {
+            "defaultAnswerSharePercent": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "defaultAnswerSharePercent"
+          ],
+          "additionalProperties": false
+        },
+        "vibeCoder": {
+          "type": "object",
+          "properties": {
+            "throughputMultiplier": {
+              "type": "number"
+            },
+            "incidentTaskSharePercent": {
+              "type": "number"
+            },
+            "incidentHypeIndex": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "throughputMultiplier",
+            "incidentTaskSharePercent",
+            "incidentHypeIndex"
+          ],
+          "additionalProperties": false
+        },
+        "exFounder": {
+          "type": "object",
+          "properties": {
+            "moraleSwing": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            "moraleSwingIntervalDays": {
+              "type": "number"
+            },
+            "leaveChancePerDayPercent": {
+              "type": "number"
+            },
+            "leaveEligibleAfterDays": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "moraleSwing",
+            "moraleSwingIntervalDays",
+            "leaveChancePerDayPercent",
+            "leaveEligibleAfterDays"
+          ],
+          "additionalProperties": false
+        },
+        "meetingMaximalist": {
+          "type": "object",
+          "properties": {
+            "teamThroughputChangePercent": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "teamThroughputChangePercent"
+          ],
+          "additionalProperties": false
+        },
+        "promptWhisperer": {
+          "type": "object",
+          "properties": {
+            "metisLoadChangePercent": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "metisLoadChangePercent"
+          ],
+          "additionalProperties": false
+        },
+        "aiMaximalist": {
+          "type": "object",
+          "properties": {
+            "policyProposalIntervalDays": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "policyProposalIntervalDays"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "peterPan",
+        "notionArchitect",
+        "rewriteItInRust",
+        "thumbsUp",
+        "vibeCoder",
+        "exFounder",
+        "meetingMaximalist",
+        "promptWhisperer",
+        "aiMaximalist"
+      ],
+      "additionalProperties": false
+    },
+    "investors": {
+      "type": "object",
+      "properties": {
+        "cashOfRoundTop": {
+          "type": "object",
+          "properties": {
+            "growthFundMultiplier": {
+              "type": "number"
+            },
+            "ethicalVcMultiplier": {
+              "type": "number"
+            },
+            "billionaireMultiplier": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "growthFundMultiplier",
+            "ethicalVcMultiplier",
+            "billionaireMultiplier"
+          ],
+          "additionalProperties": false
+        },
+        "growthFundClause": {
+          "type": "object",
+          "properties": {
+            "mrrGrowthTargetPercent": {
+              "type": "number"
+            },
+            "periodDays": {
+              "type": "number"
+            },
+            "missHypeIndex": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "mrrGrowthTargetPercent",
+            "periodDays",
+            "missHypeIndex"
+          ],
+          "additionalProperties": false
+        },
+        "responsibleVenturesClause": {
+          "type": "object",
+          "properties": {
+            "graceDays": {
+              "type": "number"
+            },
+            "penaltyHypeIndex": {
+              "type": "number"
+            },
+            "penaltyIntervalDays": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "graceDays",
+            "penaltyHypeIndex",
+            "penaltyIntervalDays"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "cashOfRoundTop",
+        "growthFundClause",
+        "responsibleVenturesClause"
+      ],
+      "additionalProperties": false
+    },
+    "rounds": {
+      "type": "object",
+      "properties": {
+        "seed": {
+          "type": "object",
+          "properties": {
+            "triggerMrrUsd": {
+              "type": "number"
+            },
+            "raiseUsd": {
+              "type": "object",
+              "properties": {
+                "min": {
+                  "type": "number"
+                },
+                "max": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "min",
+                "max"
+              ],
+              "additionalProperties": false
+            },
+            "postMoneyUsd": {
+              "type": "object",
+              "properties": {
+                "min": {
+                  "type": "number"
+                },
+                "max": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "min",
+                "max"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "triggerMrrUsd",
+            "raiseUsd",
+            "postMoneyUsd"
+          ],
+          "additionalProperties": false
+        },
+        "seriesA": {
+          "type": "object",
+          "properties": {
+            "triggerMrrUsd": {
+              "type": "number"
+            },
+            "raiseUsd": {
+              "type": "object",
+              "properties": {
+                "min": {
+                  "type": "number"
+                },
+                "max": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "min",
+                "max"
+              ],
+              "additionalProperties": false
+            },
+            "postMoneyUsd": {
+              "type": "object",
+              "properties": {
+                "min": {
+                  "type": "number"
+                },
+                "max": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "min",
+                "max"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "triggerMrrUsd",
+            "raiseUsd",
+            "postMoneyUsd"
+          ],
+          "additionalProperties": false
+        },
+        "growthTarget": {
+          "type": "object",
+          "properties": {
+            "arrMultiplier": {
+              "type": "number"
+            },
+            "windowDays": {
+              "type": "number"
+            },
+            "downRoundAfterMisses": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            "downRoundCashCutPercent": {
+              "type": "number"
+            },
+            "downRoundHypeIndex": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "arrMultiplier",
+            "windowDays",
+            "downRoundAfterMisses",
+            "downRoundCashCutPercent",
+            "downRoundHypeIndex"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "seed",
+        "seriesA",
+        "growthTarget"
+      ],
+      "additionalProperties": false
+    },
+    "heavyDecisions": {
+      "type": "object",
+      "properties": {
+        "riskyReleaseSuccessPercent": {
+          "type": "number"
+        },
+        "crisisFixSuccessPercent": {
+          "type": "number"
+        },
+        "capabilityGrantSuccessPercent": {
+          "type": "number"
+        },
+        "minGapDays": {
+          "type": "number"
+        },
+        "failureDownsideMultiplier": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "riskyReleaseSuccessPercent",
+        "crisisFixSuccessPercent",
+        "capabilityGrantSuccessPercent",
+        "minGapDays",
+        "failureDownsideMultiplier"
+      ],
+      "additionalProperties": false
+    },
+    "messages": {
+      "type": "object",
+      "properties": {
+        "backlogCapMessages": {
+          "type": "object",
+          "properties": {
+            "min": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            "max": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "min",
+            "max"
+          ],
+          "additionalProperties": false
+        },
+        "backlogTopItemWindowSeconds": {
+          "type": "object",
+          "properties": {
+            "min": {
+              "type": "number"
+            },
+            "max": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "min",
+            "max"
+          ],
+          "additionalProperties": false
+        },
+        "noRepeatWindowMaxMessages": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "noRepeatPoolMarginMessages": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "tradeOffCapPercent": {
+          "type": "number"
+        },
+        "tradeOffCashFloorUsd": {
+          "type": "number"
+        },
+        "heavyTradeOffCapPercent": {
+          "type": "number"
+        },
+        "routineInferenceLineIntervalGameSeconds": {
+          "type": "number"
+        },
+        "seriesARoundExtraArrivalsPerMinute": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "maxArrivalsPerMinute": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "backlogCapMessages",
+        "backlogTopItemWindowSeconds",
+        "noRepeatWindowMaxMessages",
+        "noRepeatPoolMarginMessages",
+        "tradeOffCapPercent",
+        "tradeOffCashFloorUsd",
+        "heavyTradeOffCapPercent",
+        "routineInferenceLineIntervalGameSeconds",
+        "seriesARoundExtraArrivalsPerMinute",
+        "maxArrivalsPerMinute"
+      ],
+      "additionalProperties": false
+    },
+    "pacing": {
+      "type": "object",
+      "properties": {
+        "tickerHeadlineIntervalDays": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "tickerHeadlineIntervalDays"
+      ],
+      "additionalProperties": false
+    },
+    "alignment": {
+      "type": "object",
+      "properties": {
+        "drift": {
+          "type": "object",
+          "properties": {
+            "lowStakesPoints": {
+              "type": "number"
+            },
+            "mediumStakesPoints": {
+              "type": "number"
+            },
+            "highStakesPoints": {
+              "type": "number"
+            },
+            "capabilityGrantPoints": {
+              "type": "object",
+              "properties": {
+                "min": {
+                  "type": "number"
+                },
+                "max": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "min",
+                "max"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "lowStakesPoints",
+            "mediumStakesPoints",
+            "highStakesPoints",
+            "capabilityGrantPoints"
+          ],
+          "additionalProperties": false
+        },
+        "auditPause": {
+          "type": "object",
+          "properties": {
+            "policiesOffDays": {
+              "type": "number"
+            },
+            "penaltyHypeIndex": {
+              "type": "number"
+            },
+            "recoveryPoints": {
+              "type": "number"
+            },
+            "cooldownDays": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "policiesOffDays",
+            "penaltyHypeIndex",
+            "recoveryPoints",
+            "cooldownDays"
+          ],
+          "additionalProperties": false
+        },
+        "researcherTrend": {
+          "type": "object",
+          "properties": {
+            "windowDays": {
+              "type": "number"
+            },
+            "risingAtPoints": {
+              "type": "number"
+            },
+            "fallingAtPoints": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "windowDays",
+            "risingAtPoints",
+            "fallingAtPoints"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "drift",
+        "auditPause",
+        "researcherTrend"
+      ],
+      "additionalProperties": false
+    },
+    "spine": {
+      "type": "object",
+      "properties": {
+        "roundCooldownDays": {
+          "type": "number"
+        },
+        "minBeatGapDays": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "roundCooldownDays",
+        "minBeatGapDays"
+      ],
+      "additionalProperties": false
+    },
+    "meta": {
+      "type": "object",
+      "properties": {
+        "aegisVersionOffset": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "aegisVersionOffset"
+      ],
+      "additionalProperties": false
+    },
+    "clueReplay": {
+      "type": "object",
+      "properties": {
+        "staffMessageGameSeconds": {
+          "type": "number"
+        },
+        "marginalHeadcountExponent": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "staffMessageGameSeconds",
+        "marginalHeadcountExponent"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "start",
+    "phases",
+    "economy",
+    "compute",
+    "hype",
+    "customers",
+    "staff",
+    "traits",
+    "investors",
+    "rounds",
+    "heavyDecisions",
+    "messages",
+    "pacing",
+    "alignment",
+    "spine",
+    "meta",
+    "clueReplay"
+  ],
+  "additionalProperties": false
+}
