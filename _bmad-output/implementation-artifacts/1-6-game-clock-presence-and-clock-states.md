@@ -300,3 +300,17 @@ Modified:
 
 - 2026-10-28: Story created (status ready-for-dev) by gds-create-story, unattended.
 - 2026-10-28: Implemented by gds-dev-story (unattended): `core/time` game speeds, pause reasons and real-window helper; `platform/clock` anchor-based clock and frame loop; `platform/visibility`; `app/session` with signals, pause set, awaiting-Deploy seam, present loop and replay-contract `dispatch`; CLK-01/02/03, DET-01/09 and edge-case tests; architecture and deferred-work updates. Status → review.
+
+### Review Findings
+
+Run 1 (3 layers: Blind Hunter, Edge Case Hunter, Acceptance Auditor): 0 decision_needed, 3 patch, 5 defer, rest dismissed as noise or duplicates (disclosed deviations, tests-only robustness, already-deferred sub-frame loss).
+
+- [x] [Review][Patch] A throwing `onFrame` left the clock running with no frame requested [src/platform/clock/createGameClock.ts:runFrame] — fixed with try/finally, test added
+- [x] [Review][Patch] "Window unchanged by a later speed change" test was tautological [src/app/session/createSession.replay.test.ts] — removed (the core property covers purity)
+- [x] [Review][Patch] `passRealMs` looped forever on `frameRealMs <= 0` [tests/builders/makeSessionHarness.ts] — now throws
+- [x] [Review][Defer] Window conversion rounds, clock floors — deferred, spec mandates `divideRounded`; decide with 2.3 / 3.8
+- [x] [Review][Defer] Stop cleared by the same dispatch / any command clears a stop — deferred, default decision C-10; revisit in 4.5
+- [x] [Review][Defer] `Session.state` exposes full `GameState` to `ui` — deferred to 1.8
+- [x] [Review][Defer] Calls after `dispose` still mutate — deferred to 1.8 lifecycle
+- [x] [Review][Defer] Long visible gap (sleep) simulated in one frame — deferred to 3.5
+

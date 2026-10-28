@@ -165,15 +165,4 @@ describe('createSession: real windows (AC 7)', () => {
       ),
     );
   });
-
-  it('keeps a converted window unchanged by a later speed change', () => {
-    const harness = makeSessionHarness();
-    harness.session.markDeployed();
-    const windowGameMs = convertRealWindowToGameMs(60_000, 'full');
-
-    harness.session.dispatch({ type: 'changeGameSpeed', speed: 'quarter' });
-
-    expect(windowGameMs).toBe(60_000);
-    expect(convertRealWindowToGameMs(60_000, 'full')).toBe(windowGameMs);
-  });
 });

@@ -37,8 +37,12 @@ export function createGameClock(options: GameClockOptions): GameClock {
   function runFrame(): void {
     pendingFrameId = null;
     if (!isRunning) return;
-    onFrame();
-    requestNextFrame();
+    try {
+      onFrame();
+    } finally {
+      // A throwing frame must not leave a running clock with no frame requested.
+      requestNextFrame();
+    }
   }
 
   const start = (fromGameMs: number, nextRealMsPerGameMs: number): void => {

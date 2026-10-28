@@ -51,6 +51,7 @@ export function makeSessionHarness(
     ...overrides,
   });
   const passRealMs = (realMs: number, frameRealMs = defaultFrameRealMs): void => {
+    if (frameRealMs <= 0 || realMs < 0) throw new RangeError('passRealMs needs positive frames');
     let remainingRealMs = realMs;
     do {
       const stepRealMs = Math.min(frameRealMs, remainingRealMs);

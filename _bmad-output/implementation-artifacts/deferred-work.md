@@ -61,3 +61,11 @@ Items a code review found real but not actionable in the story under review. Eac
 
 - **Sub-frame time at a stop is dropped** (`src/app/session/createPresentLoop.ts`). When the clock stops (pause, hidden, blocking stop) the session does not advance to the clock's reading first, so the real time since the last frame (at most one frame, ~16 ms) is not simulated. Harmless for determinism (only commands are logged, and `dispatch` always catches up first); revisit if a playtest shows a visible drift against a wall clock.
 - **Hidden-tab time is dropped** (`src/app/session/createSession.ts`, C-9). Until Story 3.5 adds the away simulation, time spent with the tab hidden is not simulated; Story 3.10 adds the hidden preview.
+
+## Deferred from: code review of story-1-6-game-clock-presence-and-clock-states (2026-10-28, run 1)
+
+- **Window conversion rounds, the clock floors** (`src/core/time/convertRealWindowToGameMs.ts`, `src/platform/clock/createGameClock.ts`). `divideRounded(1001, 2)` is 501 game ms but the clock needs 1002 real ms for it; the AC 7 property only uses whole seconds. The story mandates `divideRounded` (C-5), so decide round, floor or whole-second windows with Stories 2.3 and 3.8 before they rely on it.
+- **A stop opened by `dispatch`'s own pre-advance is cleared by that same dispatch, and any accepted command clears a stop** (`src/app/session/createDispatch.ts`). This is the story's default decision (C-10, "a logged command clears it") and it matches replay. Story 4.5 (heavy-decision overlay) should tie the unblock to resolving the decision and expose `isBlockedByStop` on `Session`.
+- **`Session.state` exposes the whole `GameState` to `ui`** (`src/app/session/session.ts`). No hidden field exists yet; Story 1.8 must keep `ui` on derived signals or keep the session `app`-internal.
+- **Calls after `dispose` still mutate state and `isClockRunning` stays true** (`src/app/session/createSession.ts`). Add a disposed flag when Story 1.8 gives the session a UI lifecycle.
+- **A long visible gap (system sleep without a `visibilitychange`) is simulated in one frame** (`createPresentLoop.ts` onFrame). The test treats visible catch-up as intended; add a max frame gap or `freeze`/`pageshow` handling with Story 3.5 (away time).

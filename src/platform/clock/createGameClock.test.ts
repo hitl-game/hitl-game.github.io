@@ -114,4 +114,21 @@ describe('createGameClock', () => {
 
     expect(fake.pendingFrameCount()).toBe(0);
   });
+
+  it('keeps requesting frames when onFrame throws', () => {
+    const fake = makeFakeClockSources();
+    const clock = createGameClock({
+      onFrame: () => {
+        throw new Error('frame failed');
+      },
+      sources: fake.sources,
+    });
+    clock.start(0, 1);
+
+    expect(() => {
+      fake.runFrame();
+    }).toThrow('frame failed');
+
+    expect(fake.pendingFrameCount()).toBe(1);
+  });
 });
