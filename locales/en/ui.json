@@ -1,0 +1,4 @@
+{
+  "inbox.unreadCount": "{count, plural, one {# message} other {# messages}}",
+  "time.day": "Day {day, number}"
+}
