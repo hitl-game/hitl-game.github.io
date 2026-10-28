@@ -54,4 +54,10 @@ describe('applyCommand', () => {
       /advance first/,
     );
   });
+
+  it('logs a command applied at -0 at time 0, so the log stays replayable', () => {
+    const result = applyCommand(makeState(), { type: 'changeTiming', timing: 'untimed' }, -0);
+
+    expect(result.ok && Object.is(result.value.state.inputLog[0]?.atGameMs, 0)).toBe(true);
+  });
 });

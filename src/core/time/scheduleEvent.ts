@@ -1,4 +1,5 @@
 import { assertInvariant } from '../../shared';
+import { withoutNegativeZero } from '../numerics';
 import { compareQueuedEvents } from './compareQueuedEvents';
 import type { EventKind } from './eventKinds';
 import { formatEventId } from './formatEventId';
@@ -18,7 +19,7 @@ export function scheduleEvent<S extends TimeState>(state: S, pending: PendingEve
   const sequence = state.counters.event + 1;
   const event: QueuedEvent = {
     id: formatEventId(sequence),
-    gameMs: pending.gameMs,
+    gameMs: withoutNegativeZero(pending.gameMs),
     kind: pending.kind,
   };
   const index = state.queue.findLastIndex((queued) => compareQueuedEvents(queued, event) < 0) + 1;

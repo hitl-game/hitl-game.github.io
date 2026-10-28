@@ -61,6 +61,31 @@ describe('advance', () => {
     ]);
   });
 
+  it('stores a negative-zero target as 0, so the state stays fingerprintable', () => {
+    const result = advance(makeState(), -0, 'present');
+
+    expect(Object.is(result.state.nowGameMs, 0)).toBe(true);
+    expect(() => fingerprint(result.state)).not.toThrow();
+  });
+
+  // Shrunk DET-04 counterexample (seed-independent): a day boundary queued at 0 schedules the
+  // next one at GAME_DAY_MS, inside a horizon that ends at GAME_DAY_MS.
+  it('runs a day boundary queued at 0, then the one it scheduled a day later', () => {
+    const state = makeStateWithEvents([{ gameMs: 0, kind: 'dayBoundary' }]);
+
+    const result = advance(state, GAME_DAY_MS, 'present');
+
+    expect(result.events).toEqual([
+      { type: 'gameDayStarted', atGameMs: 0 },
+      { type: 'gameDayStarted', atGameMs: GAME_DAY_MS },
+      { type: 'gameDayStarted', atGameMs: GAME_DAY_MS },
+    ]);
+    expect(result.state.queue.map((event) => event.gameMs)).toEqual([
+      2 * GAME_DAY_MS,
+      2 * GAME_DAY_MS,
+    ]);
+  });
+
   it('stops at the first blocking event and leaves later events queued', () => {
     const state = makeStateWithEvents([
       { gameMs: 500, kind: 'heavyDecisionDue' },

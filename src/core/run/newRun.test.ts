@@ -12,7 +12,7 @@ describe('newRun', () => {
   it('gives two runs with structurally equal starts the same fingerprint', () => {
     fc.assert(
       fc.property(runStartArbitrary, (start) => {
-        expect(fingerprint(newRun(start))).toBe(fingerprint(newRun({ ...start })));
+        expect(fingerprint(newRun(start))).toBe(fingerprint(newRun(structuredClone(start))));
       }),
     );
   });
@@ -38,10 +38,16 @@ describe('newRun', () => {
   });
 
   it('keeps extra fields of a decoded start out of the state', () => {
-    const decoded = { ...makeRunStart(), stray: 'from an old save' };
+    const start = makeRunStart();
+    const decoded = {
+      ...start,
+      stray: 'from an old save',
+      settings: { ...start.settings, stray: 1 },
+    };
 
     expect(Object.keys(newRun(decoded))).not.toContain('stray');
-    expect(fingerprint(newRun(decoded))).toBe(fingerprint(newRun(makeRunStart())));
+    expect(Object.keys(newRun(decoded).settings)).not.toContain('stray');
+    expect(fingerprint(newRun(decoded))).toBe(fingerprint(newRun(start)));
   });
 
   it('produces only readonly plain data with safe integers (DET-06)', () => {

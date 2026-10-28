@@ -33,7 +33,8 @@ export function applyCommand(
   assertInvariant(atGameMs === state.nowGameMs, 'a command applies at nowGameMs: advance first');
   const settings = changeSetting(state.settings, command);
   if (!settings.ok) return settings;
-  const entry: InputLogEntry = { atGameMs, command };
+  // Logged from the state: atGameMs is equal but may be -0, which canonicalize rejects.
+  const entry: InputLogEntry = { atGameMs: state.nowGameMs, command };
   return ok({
     state: { ...state, settings: settings.value, inputLog: [...state.inputLog, entry] },
     events: [],

@@ -1,4 +1,5 @@
 import { assertInvariant } from '../../shared';
+import { withoutNegativeZero } from '../numerics';
 import type { AdvanceMode } from './advanceMode';
 import type { DomainEvent } from './domainEvent';
 import type { HandlerContext, HandlerResult } from './eventHandler';
@@ -53,5 +54,9 @@ export function advance<S extends TimeState>(
     }
     head = current.queue[0];
   }
-  return { state: { ...current, nowGameMs: untilGameMs }, events, stoppedBy: null };
+  return {
+    state: { ...current, nowGameMs: withoutNegativeZero(untilGameMs) },
+    events,
+    stoppedBy: null,
+  };
 }

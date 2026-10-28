@@ -17,6 +17,12 @@ describe('scheduleEvent', () => {
     expect(state.queue).toHaveLength(1);
   });
 
+  it('stores a negative-zero time as 0', () => {
+    const next = scheduleEvent(makeState(), { gameMs: -0, kind: 'heavyDecisionDue' });
+
+    expect(next.queue.some((event) => Object.is(event.gameMs, -0))).toBe(false);
+  });
+
   it('keeps the queue sorted whatever the insertion order', () => {
     fc.assert(
       fc.property(pendingEventsArbitrary, (pending) => {

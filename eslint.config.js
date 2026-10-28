@@ -172,18 +172,31 @@ const coreRestrictedImports = {
   ],
 };
 
-// Fingerprinting is never on a hot path (D4): advance (core/time) and applyCommand stay
-// out of core/run/fingerprint, and core/time never depends on core/run (no import cycle).
-const hotPathMessage = 'Hot paths never fingerprint; core/time never imports core/run.';
+// Fingerprinting and full state walks are never on a hot path (D4): advance (core/time) and
+// applyCommand stay out of fingerprint, its parts (canonicalize, sha256Hex) and the full-walk
+// entry points, and core/time never depends on core/run (no import cycle).
+const hotPathMessage =
+  'Hot paths never fingerprint or walk the whole state; core/time never imports core/run.';
 const hotPathRestrictedImports = {
   paths: [
     ...coreRestrictedImports.paths,
     ...['.', './index', '..', '../index'].map((name) => ({ name, message: hotPathMessage })),
+    { name: '../../shared', importNames: ['sha256Hex'], message: hotPathMessage },
   ],
   patterns: [
     ...coreRestrictedImports.patterns,
     {
-      group: ['**/run', '**/run/*', '**/fingerprint', '**/core', '**/core/index'],
+      group: [
+        '**/run',
+        '**/run/*',
+        '**/fingerprint',
+        '**/canonicalize',
+        '**/assertStateIsValid',
+        '**/newRun',
+        '**/replay',
+        '**/core',
+        '**/core/index',
+      ],
       message: hotPathMessage,
     },
   ],

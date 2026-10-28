@@ -4,9 +4,10 @@
   "src/core/run/index.ts": [],
   "src/core/run/advance.ts": [],
   "src/core/run/fingerprint.ts": [],
-  "src/core/run/applyCommand.ts": [
-    "no-restricted-imports"
-  ],
+  "src/core/run/canonicalize.ts": [],
+  "src/core/run/applyCommand.ts": {
+    "no-restricted-imports": 2
+  },
   "src/core/time/deepSiblingImport.ts": [
     "boundaries/dependencies",
     "no-restricted-imports"
@@ -17,6 +18,9 @@
   "src/core/time/importsCoreRoot.ts": {
     "no-restricted-imports": 2
   },
+  "src/core/time/hashesState.ts": [
+    "no-restricted-imports"
+  ],
   "src/core/importsPlatform.ts": [
     "boundaries/dependencies"
   ],

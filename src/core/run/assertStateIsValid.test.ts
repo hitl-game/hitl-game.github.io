@@ -3,7 +3,10 @@ import { describe, expect, it } from 'vitest';
 import { makeEvent, makeState } from '../../../tests/builders';
 import { formatEventId, type EventId, type EventKind } from '../time';
 import { assertStateIsValid } from './assertStateIsValid';
+import type { Command } from './command';
 import type { GameState } from './gameState';
+
+const halfSpeed: Command = { type: 'changeGameSpeed', speed: 'half' };
 
 describe('assertStateIsValid', () => {
   it('accepts a fresh run', () => {
@@ -86,6 +89,28 @@ describe('assertStateIsValid', () => {
       /stream/,
     ],
     ['a seed outside the Run ID range', { seed: -5 }, /run seed/],
+    [
+      'an unreleased rng stream',
+      { rngStreams: { ...makeState().rngStreams, bogus: [1, 2, 3, 4] } },
+      /released streams only/,
+    ],
+    ['an unknown counter', { counters: { event: 1, bogus: 0 } }, /event counter only/],
+    [
+      'an input log entry after nowGameMs',
+      { nowGameMs: 100, inputLog: [{ atGameMs: 200, command: halfSpeed }] },
+      /input log/,
+    ],
+    [
+      'input log entries out of order',
+      {
+        nowGameMs: 100,
+        inputLog: [
+          { atGameMs: 50, command: halfSpeed },
+          { atGameMs: 10, command: halfSpeed },
+        ],
+      },
+      /input log/,
+    ],
   ])('rejects %s', (_, overrides, message) => {
     const state = { ...makeState(), ...overrides } as GameState;
 

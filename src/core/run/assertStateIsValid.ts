@@ -48,6 +48,21 @@ function assertStartIsValid(settings: Settings, rngStreams: RngStreams): void {
     ),
     'every released stream is four int32 words, not all zero',
   );
+  assertInvariant(
+    Object.keys(rngStreams).length === rngStreamNames.length,
+    'rngStreams holds the released streams only',
+  );
+}
+
+// Replay advances to each entry in turn (C-4), so log times never decrease and never pass now.
+function assertInputLogIsValid(state: GameState): void {
+  state.inputLog.reduce((previousGameMs, entry) => {
+    assertInvariant(
+      entry.atGameMs >= previousGameMs && entry.atGameMs <= state.nowGameMs,
+      `input log entry at ${String(entry.atGameMs)} is in order and not after nowGameMs`,
+    );
+    return entry.atGameMs;
+  }, 0);
 }
 
 // Full walk: only at run start, after a replay and in tests. advance and applyCommand keep
@@ -59,5 +74,10 @@ export function assertStateIsValid(state: GameState): void {
   assertStartIsValid(state.settings, state.rngStreams);
   assertInvariant(state.nowGameMs >= 0, 'nowGameMs is never negative');
   assertInvariant(state.counters.event >= 0, 'counters never go negative');
+  assertInvariant(
+    Object.keys(state.counters).length === 1,
+    'counters holds the event counter only',
+  );
   assertQueueIsValid(state);
+  assertInputLogIsValid(state);
 }

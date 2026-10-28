@@ -11,7 +11,7 @@ export function newRun(start: RunStart): GameState {
     seed: start.seed,
     loopNumber: start.loopNumber,
     contentPackVersion: start.contentPackVersion,
-    settings: start.settings,
+    settings: { gameSpeed: start.settings.gameSpeed, timing: start.settings.timing },
     nowGameMs: 0,
     queue: [],
     rngStreams: deriveRngStreams(start.seed),
