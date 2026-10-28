@@ -4,7 +4,7 @@ baseline_commit: 72f046336e8fec1bf7a318552a4e792ca1c3ed09
 
 # Story 1.1: Project scaffold, quality gates, CI and Pages deploy
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -499,3 +499,4 @@ Claude Opus 5.5 (claude-opus-5-5[1m]) via Claude Code, gds-dev-story workflow.
 | 2026-10-27 | Story 1.1 implemented: scaffold, Charter lint + fixtures, Stylelint, jscpd, knip, size-limit, Vitest, Playwright smoke, pre-commit hook, CI/nightly/deploy workflows, agent and repo files. |
 | 2026-10-27 | First push, PR #1 merged, three-engine CI, Pages deploy and post-deploy smoke verified; required status checks set. Status → review. |
 | 2026-10-27 | Post-merge review loop (5 runs) fixes: lint gate bypasses closed, fixtures 44 → 71, test/typecheck coverage, deploy ordering. |
+| 2026-10-28 | Closed after the Story 8.1 merge: CI on `main`, deploy and post-deploy smoke green again on `03a2cc9`. Status → done. |

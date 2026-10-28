@@ -1,6 +1,6 @@
 # ADR 0003: Tagged PDF with PDFKit, spike outcome
 
-- **Status:** Accepted (go), 2026-10-27. Proven locally on Chromium and WebKit. Still to confirm, by the first run on `main` after the merge: the `verapdf` job (CI), the three-engine `e2e` job (Firefox) and the post-deploy smoke (Pages).
+- **Status:** Accepted (go), 2026-10-27. Confirmed on 2026-10-28 by the first run on `main` after the merge (PR #4, `03a2cc9`): the `verapdf` job passed PDF/UA-1, the three-engine `e2e` job passed (Firefox included), and the post-deploy smoke passed on Pages.
 - **Story:** 8.1, PDFKit tagged-PDF spike
 - **Follows:** architecture ADR-003 (Tagged PDF via PDFKit) and D8 (End-of-run documents)
 - **Feeds:** Story 6.5 (Tagged PDF export), Story 1.7 (fonts), Story 8.8 (bundle budgets)

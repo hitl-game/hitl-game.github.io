@@ -4,7 +4,7 @@ baseline_commit: 6d5ac8d
 
 # Story 8.1: PDFKit tagged-PDF spike
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -67,7 +67,7 @@ Source: epics.md → Story 8.1; test-design PDF-01 and risk R8. This is a **spik
 
 Code review run 1 (2026-10-27; Blind Hunter, Edge Case Hunter, Acceptance Auditor; 19 raw findings, 11 patched, 2 deferred to Tiziano, 6 dismissed as verified non-issues).
 
-- [ ] [Review][Decision] Firefox has never run `pdfSpike.spec.ts` — Playwright's Firefox fails to launch in the sandbox ("Could not find profile folder", also on this run). The first push to `main` runs the spec on Firefox in the three-engine `e2e` job; a Firefox-only failure there would block the Pages deploy. Options: run `npx playwright test --project=firefox tests/e2e/pdfSpike.spec.ts` once outside the sandbox before merging, or accept the first-run risk (the job can be re-run after a fix).
+- [x] [Review][Decision] Firefox has never run `pdfSpike.spec.ts` — Playwright's Firefox fails to launch in the sandbox ("Could not find profile folder", also on this run). The first push to `main` runs the spec on Firefox in the three-engine `e2e` job; a Firefox-only failure there would block the Pages deploy. Options: run `npx playwright test --project=firefox tests/e2e/pdfSpike.spec.ts` once outside the sandbox before merging, or accept the first-run risk (the job can be re-run after a fix). **Resolved 2026-10-28:** passed in the Linux Playwright container before merge and in the three-engine `e2e` job on `main`.
 - [ ] [Review][Decision] The `verapdf` job pulls `verapdf/cli` anonymously from Docker Hub [.github/workflows/ci.yml:79]. A registry rate limit or outage fails `ci` on `main` and therefore the deploy. Options: accept (re-run), or mirror the image (GHCR) later. Low likelihood; no code change made.
 - [x] [Review][Patch] `findStaticImports` missed `export … from` re-exports, so an eagerly loaded facade chunk could carry PDFKit unnoticed [tools/findInitialChunks.ts:4] — regex now matches `import` and `export` forms; test added.
 - [x] [Review][Patch] Spike page left the status at "Generating…" on failure and the e2e surfaced only a 5 s attribute timeout [src/spike/pdfSpikePage.ts:30, tests/e2e/pdfSpike.spec.ts:14] — the page writes `Failed: <message>` and rethrows; the spec asserts the status text first, so the message is in the failure report.
@@ -377,3 +377,4 @@ Claude Opus 5.5 (claude-opus-5-5[1m]), Claude Code, gds-dev-story workflow, run 
 | 2026-10-27 | Code review run 3: 9 findings patched (gradient colour set before the path in `drawMetisMark`, spike page imports the report module lazily as task 4.1 asks, ADR evidence re-measured and three ADR claims corrected, declaration leftovers, naming, stale pointers), 0 deferred, 6 dismissed. See Review Findings. Status stays review. |
 | 2026-10-27 | Code review run 4: 1 finding patched (ADR table gotcha: the font rollback re-parses after every cell, not only cells with their own font; measured cost and the fontkit-object option recorded for Story 6.5), 0 deferred, 20 dismissed after verification. No code change. See Review Findings. Status stays review. |
 | 2026-10-27 | Code review run 5, last of the loop: 1 finding patched (ADR "Cold" bullet listed the cold-path load order wrongly; it is report chunk, fonts, then PDFKit), 0 deferred, 4 dismissed after verification; the Edge Case Hunter found nothing. No code change. See Review Findings. Status stays review. |
+| 2026-10-28 | Closed. Firefox run of `pdfSpike.spec.ts` passed before merge (Linux Playwright container, plus a manual desktop Firefox PDF that passes veraPDF). After merging PR #4 (`03a2cc9`), the CI run on `main` passed every job (`verapdf` included) and the deploy and post-deploy smoke passed on Pages. ADR 0003 marked confirmed. Status set to done. |
