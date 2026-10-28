@@ -114,6 +114,26 @@ describe('findMissingTranslations', () => {
     ]);
   });
 
+  it('accepts a select that reorders or drops options but not one that adds an option', async () => {
+    await writeLocaleFile(
+      'en/ui.json',
+      JSON.stringify({ 'msg.state': '{state, select, open {Open} shut {Shut} other {?}}' }),
+    );
+    await writeLocaleFile(
+      'fr/ui.json',
+      JSON.stringify({ 'msg.state': '{state, select, other {?} shut {Fermé}}' }),
+    );
+
+    expect((await findMissingTranslations(rootDir, new Set())).errors).toEqual([]);
+
+    await writeLocaleFile(
+      'fr/ui.json',
+      JSON.stringify({ 'msg.state': '{state, select, ajar {Entrouvert} other {?}}' }),
+    );
+
+    expect((await findMissingTranslations(rootDir, new Set())).errors).toHaveLength(1);
+  });
+
   it('treats an empty content file as a locale that translates nothing', async () => {
     await writeLocaleFile('fr/content/events.yaml', '# nothing yet\n');
 

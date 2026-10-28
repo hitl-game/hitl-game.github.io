@@ -56,6 +56,17 @@ const argumentTypesOf = (message: string): ReadonlyMap<string, string> => {
   return parsed.ok ? parsed.argumentTypes : new Map();
 };
 
+const optionPattern = /"(?:[^"\\]|\\.)*"/g;
+
+// A select type is a union of quoted option names. A translation may list them in any order and
+// drop some (`other` is mandatory and catches the rest), so those compare as a subset.
+function isCompatibleType(expected: string, actual: string): boolean {
+  if (expected === actual) return true;
+  if (!expected.startsWith('"') || !actual.startsWith('"')) return false;
+  const allowed = new Set(expected.match(optionPattern));
+  return (actual.match(optionPattern) ?? []).every((option) => allowed.has(option));
+}
+
 // `t()` passes the English argument set, so a translation may drop an argument (extra values
 // are ignored) but must not need one English lacks, nor read one as another type: either throws.
 function compareArguments(english: UiCatalog, translated: UiCatalog): string[] {
@@ -67,7 +78,7 @@ function compareArguments(english: UiCatalog, translated: UiCatalog): string[] {
       const expected = allowed.get(name);
       if (expected === undefined)
         return [`${key}: argument "${name}" is not in the English message`];
-      return expected === type
+      return isCompatibleType(expected, type)
         ? []
         : [`${key}: argument "${name}" is ${type}, English has ${expected}`];
     });
