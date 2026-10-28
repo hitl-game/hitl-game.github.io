@@ -140,10 +140,67 @@ const coreRestrictedGlobals = [
   'process',
   'self',
   'globalThis',
+  'Intl',
 ].map((name) => ({
   name,
   message: 'core/ is pure: time, randomness and I/O arrive as arguments.',
 }));
+
+const roundingMessage = 'Divide through core/numerics divideRounded, the only rounding path.';
+const localeMessage = 'Locale-dependent results break cross-engine determinism (DET-08).';
+const coreRestrictedProperties = [
+  { object: 'Math', property: 'random', message: 'Use the subsystem RngStream.' },
+  ...['round', 'floor', 'ceil', 'trunc'].map((property) => ({
+    object: 'Math',
+    property,
+    message: roundingMessage,
+  })),
+  ...['toFixed', 'toPrecision', 'toExponential'].map((property) => ({
+    property,
+    message: roundingMessage,
+  })),
+  { property: 'localeCompare', message: localeMessage },
+  { property: 'toLocaleString', message: localeMessage },
+  { property: 'toLocaleLowerCase', message: localeMessage },
+  { property: 'toLocaleUpperCase', message: localeMessage },
+];
+
+const coreRestrictedImports = {
+  paths: ['preact', '@preact/signals', 'idb'],
+  patterns: [
+    { group: ['preact/*', 'node:*'], message: 'core/ imports only shared/ and pure libraries.' },
+  ],
+};
+
+// Fingerprinting and full state walks are never on a hot path (D4): advance (core/time) and
+// applyCommand stay out of fingerprint, its parts (canonicalize, sha256Hex) and the full-walk
+// entry points, and core/time never depends on core/run (no import cycle).
+const hotPathMessage =
+  'Hot paths never fingerprint or walk the whole state; core/time never imports core/run.';
+const hotPathRestrictedImports = {
+  paths: [
+    ...coreRestrictedImports.paths,
+    ...['.', './index', '..', '../index'].map((name) => ({ name, message: hotPathMessage })),
+    { name: '../../shared', importNames: ['sha256Hex'], message: hotPathMessage },
+  ],
+  patterns: [
+    ...coreRestrictedImports.patterns,
+    {
+      group: [
+        '**/run',
+        '**/run/*',
+        '**/fingerprint',
+        '**/canonicalize',
+        '**/assertStateIsValid',
+        '**/newRun',
+        '**/replay',
+        '**/core',
+        '**/core/index',
+      ],
+      message: hotPathMessage,
+    },
+  ],
+};
 
 const configFilesWithDefaultExport = [
   'vite.config.ts',
@@ -229,17 +286,8 @@ export default defineConfig(
     files: inSrc('core/**/*.{ts,tsx}'),
     rules: {
       'no-restricted-globals': ['error', ...coreRestrictedGlobals],
-      'no-restricted-properties': [
-        'error',
-        { object: 'Math', property: 'random', message: 'Use the subsystem RngStream.' },
-      ],
-      'no-restricted-imports': [
-        'error',
-        {
-          paths: ['preact', '@preact/signals', 'idb'],
-          patterns: ['preact/*', 'node:*'],
-        },
-      ],
+      'no-restricted-properties': ['error', ...coreRestrictedProperties],
+      'no-restricted-imports': ['error', coreRestrictedImports],
       'no-restricted-syntax': [
         'error',
         ...noDefaultExport,
@@ -260,6 +308,11 @@ export default defineConfig(
   {
     files: inSrc('core/constants.ts'),
     rules: { '@typescript-eslint/no-magic-numbers': 'off' },
+  },
+  {
+    files: [...inSrc('core/time/**/*.ts'), ...inSrc('core/run/applyCommand.ts')],
+    ignores: ['**/*.test.ts'],
+    rules: { 'no-restricted-imports': ['error', hotPathRestrictedImports] },
   },
   {
     files: ['**/*.test.{ts,tsx}', 'tests/**/*.{ts,tsx}'],

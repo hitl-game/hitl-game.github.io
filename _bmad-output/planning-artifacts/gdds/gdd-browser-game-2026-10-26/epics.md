@@ -485,8 +485,8 @@ So that every later mechanic is deterministic and replayable by construction.
 
 **Acceptance Criteria:**
 
-**Given** `newRun(seed, loopNumber, contentPackVersion, settings)`
-**When** it is called twice with the same arguments
+**Given** `newRun(start)` with `start = { seed, loopNumber, contentPackVersion, settings }` (one options object; Story 1.2 C-1)
+**When** it is called twice with structurally equal arguments
 **Then** both states have the same fingerprint, and the state contains only readonly plain data (no classes, `Map`, `Set` or `undefined` values)
 
 **Given** an event queue holding events with equal `gameMs`
@@ -505,7 +505,7 @@ So that every later mechanic is deterministic and replayable by construction.
 
 **Given** random seeds, random valid command sequences and random time splits (fast-check)
 **When** the properties run
-**Then** chunk invariance (`advance(advance(s, t1), t2) ≡ advance(s, t2)`), live ≡ `replay(seed, inputLog)`, and snapshot + log tail ≡ full replay all hold
+**Then** chunk invariance (`advance(advance(s, t1), t2) ≡ advance(s, t2)`), live ≡ `replay(start, inputLog)`, and snapshot + log tail (`replayFrom(snapshot, tail)`) ≡ full replay all hold
 **And** any shrunk counterexample is committed as a regression test.
 
 **Given** the fingerprint function
@@ -750,7 +750,7 @@ So that I never lose a run.
 
 **Given** a saved run
 **When** the page reloads
-**Then** the restored state's fingerprint equals the saved fingerprint and equals `replay(seed, inputLog)`.
+**Then** the restored state's fingerprint equals the saved fingerprint and equals `replay(start, inputLog)`.
 
 **Given** the player's first meaningful action (Deploy)
 **When** it is applied
@@ -2251,7 +2251,7 @@ So that the proof needs nothing recorded during play.
 
 **Acceptance Criteria:**
 
-**Given** `replay(seed, inputLog, { probe })`
+**Given** `replay(start, inputLog, { probe })`
 **When** run with and without the probe
 **Then** the final fingerprints are identical (test).
 

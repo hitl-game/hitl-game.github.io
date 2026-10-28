@@ -99,7 +99,7 @@ What makes this game hard to test is not rendering. It is **determinism over mul
 
 | ID | Area | Risk | L | I | Pri | Mitigation (test strategy) | Scenarios |
 |---|---|---|---|---|---|---|---|
-| R1 | Determinism and replay | Live state ≠ `replay(seed, inputLog)` because of float math, iteration order, tie-breaks, stream cross-talk, unlogged settings, or JS engine differences. ADR-002 makes any non-determinism release-blocking. | High | High | **P0** | All five Replay Consistency levels: properties, goldens, migration fixtures, e2e fingerprint, runtime desync detector. Plus a cross-engine golden check. | DET-01…DET-12 |
+| R1 | Determinism and replay | Live state ≠ `replay(start, inputLog)` because of float math, iteration order, tie-breaks, stream cross-talk, unlogged settings, or JS engine differences. ADR-002 makes any non-determinism release-blocking. | High | High | **P0** | All five Replay Consistency levels: properties, goldens, migration fixtures, e2e fingerprint, runtime desync detector. Plus a cross-engine golden check. | DET-01…DET-12 |
 | R2 | Absence simulation | One big `advance(…,'away')` diverges from many small steps. The 14-day cap or the stop at a heavy decision or death is wrong. The hidden-tab preview disagrees with the real return. | High | High | **P0** | Chunk-invariance properties over absences. Cap and stop unit tests. Preview ≡ return e2e. Nightly 14-day < 500 ms check. | ABS-01…ABS-14 |
 | R3 | Hidden Alignment leak | Alignment, or the fact that a signal changed, reaches the UI, DOM, accessibility tree, live regions, toasts, audio, notifications, logs, the away report, the chronicle, the PNG/PDF, the stats export or a production debug hook. This would destroy the core twist (Pillar 2, NFR14). | Medium | High | **P0** | Lint boundary on `alignmentMilli`. A non-interference property on `buildReportModel`. Forbidden-term scans of reports, documents and the DOM. Live-region and reactor silence tests at forced crossings. Production bundle inspection. | ALN-01…ALN-16 |
 | R4 | Spine beat queue | Beats stack, fire during a round cooldown, are lost or moved on reload, survive into Surpassed, or delay visible signal state. The pacing of the narrative spine (H2) breaks. | Medium | High | **P0** | Scheduling unit tests with exact day arithmetic. Chunk invariance with queued beats. Reload survival. Drop on Surpassed. | SPN-01…SPN-09 |
@@ -170,7 +170,7 @@ SCENARIO <ID>: <behaviour stated as a sentence>
 SCENARIO DET-01: Live state equals full replay for any valid command sequence
   GIVEN a random seed, a random sequence of valid commands and random game-ms timestamps (fast-check)
   WHEN the commands are applied live with interleaved advance() calls
-  AND replay(seed, inputLog) is run from scratch
+  AND replay(start, inputLog) is run from scratch
   THEN fingerprint(live) equals fingerprint(replay)
   AND any shrunk counterexample is committed as a permanent regression test
   PRIORITY: P0
@@ -194,7 +194,7 @@ SCENARIO DET-02: Chunk invariance holds for arbitrary time splits
 SCENARIO DET-03: Snapshot plus log tail equals full replay
   GIVEN a run saved at a random point (snapshot + input log)
   WHEN it is restored from the snapshot and the remaining log tail is applied
-  THEN the fingerprint equals replay(seed, fullInputLog)
+  THEN the fingerprint equals replay(start, fullInputLog)
   PRIORITY: P0
   CATEGORY: gameplay
   LEVEL: property
@@ -346,7 +346,7 @@ SCENARIO CLK-03: Clock stays at zero before Deploy and ignores a backwards clock
 
 ```
 SCENARIO ECO-01: A new run starts with the canonical state
-  GIVEN newRun(seed, 1, contentPackVersion, settings)
+  GIVEN newRun({ seed, loopNumber: 1, contentPackVersion, settings })
   WHEN the state is inspected
   THEN cash is 1,240,000 cents, Hype 2,000 bp (hidden), Alignment 100,000 milli, phase garage, 1 GPU unit, MRR 0, customers 0
   PRIORITY: P0
@@ -1345,7 +1345,7 @@ SCENARIO END-06: Locked controls explain themselves; only the incident report st
 ```
 SCENARIO END-07: The clue probe never perturbs replay
   GIVEN any run (fast-check) and the clue probe
-  WHEN replay(seed, inputLog, { probe }) and replay(seed, inputLog) run
+  WHEN replay(start, inputLog, { probe }) and replay(start, inputLog) run
   THEN their final fingerprints are identical
   PRIORITY: P0
   CATEGORY: gameplay
@@ -1437,7 +1437,7 @@ Not applicable. The game has no movement, physics or collision (DOM/CSS only). T
 SCENARIO SAV-01: Basic save/load round trip
   GIVEN a run with progress (fixture garage-after-cascade plus answers)
   WHEN a game-day boundary passes and the page reloads
-  THEN the restored fingerprint equals the saved fingerprint and equals replay(seed, inputLog)
+  THEN the restored fingerprint equals the saved fingerprint and equals replay(start, inputLog)
   PRIORITY: P0
   CATEGORY: progression
   LEVEL: e2e
