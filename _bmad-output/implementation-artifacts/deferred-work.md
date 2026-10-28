@@ -42,3 +42,8 @@ Items a code review found real but not actionable in the story under review. Eac
 - **"Every `ui.json` key is used" is not checked** (CNT-08, story 1.4 C-13). With no UI consumer yet the scan would fail on the first key. Story 1.8 (first UI consumer) adds a `tools/i18n/` unused-key scan.
 - **`i18n:missing` has no English content key set yet** (`tools/i18n/listMissingTranslations.ts`). No content kind carries translatable text, so the CLI passes an empty set: content catalogs are checked for shape (malformed YAML fails) but missing content translations cannot be listed. Story 7.1 derives the keys (`<contentId>.<field path>`) from the content pack and passes them in.
 - **Real lazy-locale chunk check waits for the first translation** (`src/i18n/loadLocale.ts`). The glob matches nothing today, so `npm run size` / `tools/checkInitialBundle.ts` cannot yet prove a non-English catalog stays out of the initial bundle; the loader is proven by unit tests with injected loaders. Add a marker check like PDFKit's when the first locale lands.
+
+## Deferred from: code review of story-1-4-i18n-catalogs-and-number-formatters (2026-10-28)
+
+- **Translation argument sets are not compared with English** (`tools/i18n/parseUiCatalog.ts`). A translated message that drops or renames an argument passes `i18n:missing` and throws at runtime in `t()`. Add the comparison when the first non-English locale lands.
+- **Content catalogs list every key as "unknown" while the English content key set is empty** (`tools/i18n/listMissingTranslations.ts`). Warnings only; Story 7.1 passes the real keys.

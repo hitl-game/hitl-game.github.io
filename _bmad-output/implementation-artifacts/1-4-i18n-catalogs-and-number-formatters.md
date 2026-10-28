@@ -254,7 +254,15 @@ Default decisions (beyond the story's list, which is kept as written):
 - `_bmad-output/implementation-artifacts/sprint-status.yaml` (modified)
 - `_bmad-output/implementation-artifacts/1-4-i18n-catalogs-and-number-formatters.md` (this story)
 
+### Review Findings
+
+Code review run 1 (2026-10-28): 0 decision_needed, 0 patch, 2 defer, 6 dismissed.
+
+- [x] [Review][Defer] A translated message may use different arguments than English (a missing `{count}` throws at runtime in `t()`) [tools/i18n/parseUiCatalog.ts] — deferred, no non-English locale exists yet; add an argument-set comparison to `i18n:missing` with the first translation.
+- [x] [Review][Defer] Content catalogs report every key as "unknown" while the English content key set is empty [tools/i18n/listMissingTranslations.ts] — deferred, warnings only and no content catalog exists; resolved by Story 7.1 passing real keys.
+
 ## Change Log
 
 - 2026-10-28: Story created (status: ready-for-dev).
 - 2026-10-28: Implemented typed UI catalog, `t()`, number formatters, content lookup, missing-translation CI check and lazy locale loader (status: review).
+- 2026-10-28: Code review run 1: no patches; 2 items deferred.
