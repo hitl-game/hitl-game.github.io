@@ -47,14 +47,52 @@ describe('deriveRngStreams', () => {
     );
   });
 
-  it('keeps the released derivation stable', () => {
-    expect(deriveRngStreams(0).messages).toMatchInlineSnapshot(`
-      [
-        850969216,
-        1626052019,
-        1738153037,
-        -1891032340,
-      ]
+  it('keeps the released derivation of every stream stable', () => {
+    expect(deriveRngStreams(0)).toMatchInlineSnapshot(`
+      {
+        "candidates": [
+          -1728117842,
+          844258865,
+          -473903462,
+          -319099435,
+        ],
+        "deck": [
+          1038806012,
+          73942708,
+          -2135625990,
+          1874315096,
+        ],
+        "documents": [
+          256672761,
+          -1270919957,
+          2082087022,
+          1620758433,
+        ],
+        "headlines": [
+          786721096,
+          -730211628,
+          1442575060,
+          -1315349017,
+        ],
+        "investors": [
+          -573277543,
+          1417491737,
+          -285613619,
+          -1621396581,
+        ],
+        "messages": [
+          850969216,
+          1626052019,
+          1738153037,
+          -1891032340,
+        ],
+        "outcomes": [
+          1149956239,
+          750562475,
+          -533082673,
+          -1543977940,
+        ],
+      }
     `);
   });
 });

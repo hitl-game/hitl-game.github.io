@@ -23,6 +23,8 @@ interface LiveRun {
   readonly events: readonly DomainEvent[];
   // The state right after each logged command: every one is a snapshot candidate.
   readonly snapshots: readonly GameState[];
+  // Where the last advance after the last logged command was aimed, or null if there was none.
+  readonly trailingUntilGameMs: number | null;
 }
 
 // A live session: advance, apply at nowGameMs, and never advance past a blocking stop until
@@ -30,11 +32,13 @@ interface LiveRun {
 function driveLive(initial: GameState, steps: readonly LiveStep[]): LiveRun {
   let current = initial;
   let blocked = false;
+  let trailingUntilGameMs: number | null = null;
   const events: DomainEvent[] = [];
   const snapshots: GameState[] = [];
   for (const step of steps) {
     if (!blocked) {
-      const advanced = advance(current, current.nowGameMs + step.advanceByGameMs, 'present');
+      trailingUntilGameMs = current.nowGameMs + step.advanceByGameMs;
+      const advanced = advance(current, trailingUntilGameMs, 'present');
       current = advanced.state;
       events.push(...advanced.events);
       blocked = advanced.stoppedBy !== null;
@@ -45,15 +49,18 @@ function driveLive(initial: GameState, steps: readonly LiveStep[]): LiveRun {
       events.push(...applied.value.events);
       snapshots.push(current);
       blocked = false;
+      trailingUntilGameMs = null;
     }
   }
-  return { state: current, events, snapshots };
+  return { state: current, events, snapshots, trailingUntilGameMs };
 }
 
-// Replay ends at the last log entry; the live run may have advanced further since.
+// Replay ends at the last log entry. Equal times do not mean equal states (a zero-length
+// advance can still process a second blocking event at the same gameMs), so repeat the live
+// run's trailing advance exactly; chunk invariance makes one advance equal to several.
 function catchUp(replayed: { state: GameState; events: readonly DomainEvent[] }, live: LiveRun) {
-  if (replayed.state.nowGameMs === live.state.nowGameMs) return replayed;
-  const tail = advance(replayed.state, live.state.nowGameMs, 'present');
+  if (live.trailingUntilGameMs === null) return replayed;
+  const tail = advance(replayed.state, live.trailingUntilGameMs, 'present');
   return { state: tail.state, events: [...replayed.events, ...tail.events] };
 }
 
@@ -123,6 +130,20 @@ describe('replay', () => {
         },
       ),
     );
+  });
+
+  it('matches a live run whose trailing zero-length advance opens a second decision at the same gameMs', () => {
+    const initial = withDecisions(newRun(makeRunStart()), [100, 100]);
+    const live = driveLive(initial, [
+      { advanceByGameMs: 100, command: { type: 'changeGameSpeed', speed: 'half' } },
+      { advanceByGameMs: 0, command: { type: 'changeGameSpeed', speed: 'half' } },
+    ]);
+
+    const replayed = catchUp(replayFrom(initial, live.state.inputLog), live);
+
+    expect(live.state.queue.some((event) => event.kind === 'heavyDecisionDue')).toBe(false);
+    expect(fingerprint(replayed.state)).toBe(fingerprint(live.state));
+    expect(replayed.events).toEqual(live.events);
   });
 
   it('returns the folded domain events in production order', () => {

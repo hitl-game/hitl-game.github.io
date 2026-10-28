@@ -36,6 +36,7 @@ describe('canonicalize', () => {
     ['a typed array', new Uint8Array(1), /plain objects/],
     ['an undefined value', { a: undefined }, /undefined/],
     ['a negative zero', -0, /negative zero/],
+    ['a sparse array', [1, , 3], /undefined/],
   ])('rejects %s', (_, value, message) => {
     expect(() => canonicalize(value)).toThrow(message);
   });

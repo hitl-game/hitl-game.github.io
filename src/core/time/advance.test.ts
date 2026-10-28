@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import {
   makeState,
   makeStateWithEvents,
+  runStartArbitrary,
   pendingEventsArbitrary,
   timeSplitArbitrary,
 } from '../../../tests/builders';
@@ -107,8 +108,8 @@ describe('advance', () => {
     // queue alone predicts the events.
     const horizonGameMs = GAME_DAY_MS - 1;
     fc.assert(
-      fc.property(pendingEventsArbitrary, (pending) => {
-        const state = makeStateWithEvents(pending);
+      fc.property(runStartArbitrary, pendingEventsArbitrary, (start, pending) => {
+        const state = makeStateWithEvents(pending, start);
         const expected: DomainEvent[] = [...state.queue]
           .sort(
             (a, b) =>
@@ -129,15 +130,20 @@ describe('advance', () => {
 
   it('is chunk invariant: advancing in two steps equals one step (DET-02)', () => {
     fc.assert(
-      fc.property(pendingEventsArbitrary, timeSplitArbitrary, (pending, [t1, t2]) => {
-        const state = makeStateWithEvents(pending);
-        const whole = advance(state, t2, 'present');
-        const stepwise = advanceInTwoSteps(state, t1, t2);
+      fc.property(
+        runStartArbitrary,
+        pendingEventsArbitrary,
+        timeSplitArbitrary,
+        (start, pending, [t1, t2]) => {
+          const state = makeStateWithEvents(pending, start);
+          const whole = advance(state, t2, 'present');
+          const stepwise = advanceInTwoSteps(state, t1, t2);
 
-        expect(fingerprint(stepwise.state)).toBe(fingerprint(whole.state));
-        expect(stepwise.events).toEqual(whole.events);
-        expect(stepwise.stoppedBy).toEqual(whole.stoppedBy);
-      }),
+          expect(fingerprint(stepwise.state)).toBe(fingerprint(whole.state));
+          expect(stepwise.events).toEqual(whole.events);
+          expect(stepwise.stoppedBy).toEqual(whole.stoppedBy);
+        },
+      ),
     );
   });
 

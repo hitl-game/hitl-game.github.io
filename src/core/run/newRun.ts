@@ -6,8 +6,12 @@ import type { GameState } from './gameState';
 import type { RunStart } from './runStart';
 
 export function newRun(start: RunStart): GameState {
+  // Fields picked one by one: extra keys on a decoded RunStart must not reach the fingerprint.
   const empty: GameState = {
-    ...start,
+    seed: start.seed,
+    loopNumber: start.loopNumber,
+    contentPackVersion: start.contentPackVersion,
+    settings: start.settings,
     nowGameMs: 0,
     queue: [],
     rngStreams: deriveRngStreams(start.seed),

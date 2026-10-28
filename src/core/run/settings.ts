@@ -1,6 +1,10 @@
-export type GameSpeed = 'full' | 'half' | 'quarter';
+export const gameSpeeds = ['full', 'half', 'quarter'] as const;
 
-export type Timing = 'standard' | 'extended' | 'relaxed' | 'untimed';
+export type GameSpeed = (typeof gameSpeeds)[number];
+
+export const timings = ['standard', 'extended', 'relaxed', 'untimed'] as const;
+
+export type Timing = (typeof timings)[number];
 
 // Simulation settings change replay, so every mid-run change is a logged command (DET-09).
 export interface Settings {

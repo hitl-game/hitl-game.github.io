@@ -34,6 +34,8 @@ describe('fingerprint', () => {
     const state = makeState();
     const logged = applyCommand(state, { type: 'changeGameSpeed', speed: 'half' }, 0);
 
-    expect(logged.ok && fingerprint(logged.value.state)).not.toBe(fingerprint(state));
+    expect(logged.ok).toBe(true);
+    if (!logged.ok) return;
+    expect(fingerprint(logged.value.state)).not.toBe(fingerprint(state));
   });
 });

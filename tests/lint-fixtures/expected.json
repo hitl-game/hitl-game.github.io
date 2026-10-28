@@ -14,6 +14,9 @@
   "src/core/time/importsRun.ts": [
     "no-restricted-imports"
   ],
+  "src/core/time/importsCoreRoot.ts": {
+    "no-restricted-imports": 2
+  },
   "src/core/importsPlatform.ts": [
     "boundaries/dependencies"
   ],
@@ -26,12 +29,18 @@
   "src/core/toFixed.ts": [
     "no-restricted-properties"
   ],
+  "src/core/otherRounding.ts": {
+    "no-restricted-properties": 5
+  },
   "src/core/localeCompare.ts": [
     "no-restricted-properties"
   ],
   "src/core/toLocaleString.ts": [
     "no-restricted-properties"
   ],
+  "src/core/toLocaleCase.ts": {
+    "no-restricted-properties": 2
+  },
   "src/core/intl.ts": [
     "no-restricted-globals"
   ],

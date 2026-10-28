@@ -121,6 +121,31 @@ Source: epics.md → Story 1.2. The **clarifications** under "Binding clarificat
 - [x] **F3.** Run the Agent Review Checklist (game-architecture.md → Implementation Patterns) and paste it, ticked, in the PR. Code review loop before opening the PR (max 5 runs).
 - [x] **F4.** Fill the Dev Agent Record below and set status to `review`.
 
+### Review Findings
+
+Code review run 1 (2026-10-28, gds-code-review: Blind Hunter, Edge Case Hunter, Acceptance Auditor). 13 patched, 7 deferred (see `deferred-work.md`), 6 dismissed.
+
+- [x] [Review][Patch] DET-01 property could fail spuriously: `catchUp` skipped the live run's trailing zero-length advance that opened a second decision at the same `gameMs`; the driver now records the trailing advance, plus a named regression test [src/core/run/replay.test.ts]
+- [x] [Review][Patch] `assertStateIsValid` accepted unknown event kinds, malformed or uncounted event ids (next `scheduleEvent` minted a duplicate), malformed or all-zero RNG streams, unknown settings values and out-of-range seeds [src/core/run/assertStateIsValid.ts]
+- [x] [Review][Patch] An unknown command type from a corrupt log crashed with a TypeError instead of an invariant [src/core/run/applyCommand.ts]
+- [x] [Review][Patch] `canonicalize` accepted sparse arrays (`[1,,3]`) and threw a hand-built `Error` instead of `assertInvariant` [src/core/run/canonicalize.ts]
+- [x] [Review][Patch] "Only rounding path" lint gap: `Math.floor`/`ceil`/`trunc`, `toPrecision`, `toExponential` now banned in `core/`; fixtures added for them, for `toLocaleLowerCase`/`toLocaleUpperCase`, and for the hot-path ban, which now also covers the core root (`..`, `../../core`) [eslint.config.js, tests/lint-fixtures]
+- [x] [Review][Patch] Input-log fingerprint test passed vacuously if the command was rejected [src/core/run/fingerprint.test.ts]
+- [x] [Review][Patch] Released-derivation snapshot covered one stream only; a swapped stream went unnoticed [src/core/rng/deriveRngStreams.test.ts]
+- [x] [Review][Patch] `divideRounded` property allowed any tie-breaking rule; exact halves now pinned away from zero [src/core/numerics/divideRounded.test.ts]
+- [x] [Review][Patch] `newRun` spread every own field of `RunStart` into the state, so stray decoded fields reached the fingerprint [src/core/run/newRun.ts]
+- [x] [Review][Patch] `drawInt` silently skewed draws for ranges wider than 2^53 [src/core/rng/drawInt.ts]
+- [x] [Review][Patch] DET-02 and DET-04 properties never varied the run start (AC 5 "random seeds") [src/core/time/advance.test.ts, tests/builders/makeState.ts]
+- [x] [Review][Patch] Replay contract for Story 1.6 lived only in the Dev Agent Record; added to game-architecture.md D3 [_bmad-output/game-architecture.md]
+- [x] [Review][Patch] `arbitraries.ts` declared a constant above its imports and duplicated the settings value lists; core now exports `gameSpeeds`/`timings` [tests/builders/arbitraries.ts, src/core/run/settings.ts]
+- [x] [Review][Defer] Two commands applied back to back without an `advance` between them replay differently (replay's zero-length advance can process another event due at that time) [src/core/run/replay.ts] — deferred, contract documented; enforcement is a Story 1.6 decision
+- [x] [Review][Defer] `advance` and `scheduleEvent` copy the whole queue per event, against the hot-path rule [src/core/time/advance.ts:31, src/core/time/scheduleEvent.ts:27] — deferred, needs a queue representation decision
+- [x] [Review][Defer] `assertInvariant` sits in `shared/` while only `core/` uses it (admission rule) [src/shared/assertInvariant.ts] — deferred, needs Tiziano's sign-off or a move to a `core` module
+- [x] [Review][Defer] Event ids cap at 999,999 per run (`ID_SEQUENCE_WIDTH = 6`) [src/core/constants.ts] — deferred, decide before saves exist (Story 1.9)
+- [x] [Review][Defer] Commands and `RunStart` are not decoded or normalised (extra fields logged by reference, invalid values accepted live, `loopNumber` unchecked) [src/core/run/applyCommand.ts] — deferred to the save/import decoder (Stories 1.9/1.10)
+- [x] [Review][Defer] `sha256Hex` maps lone surrogates to U+FFFD (fingerprint is safe: `canonicalize` escapes them) [src/shared/sha256.ts] — deferred to Story 1.10 (export checksum caller)
+- [x] [Review][Defer] Hot-path import ban covers `applyCommand.ts` and `core/time` but not helpers they import [eslint.config.js] — deferred, convention until a helper exists
+
 ## Dev Notes
 
 ### What exists today (read before touching anything)
@@ -289,11 +314,11 @@ New:
 - `src/shared/result.ts`, `src/shared/brand.ts`, `src/shared/assertInvariant.ts`, `src/shared/assertInvariant.test.ts`, `src/shared/sha256.ts`, `src/shared/sha256Constants.ts`, `src/shared/sha256.test.ts`
 - `src/core/constants.ts`
 - `src/core/numerics/divideRounded.ts`, `src/core/numerics/divideRounded.test.ts`, `src/core/numerics/index.ts`
-- `src/core/rng/rngStreams.ts`, `src/core/rng/deriveRngStreams.ts`, `src/core/rng/deriveRngStreams.test.ts`, `src/core/rng/drawInt.ts`, `src/core/rng/drawInt.test.ts`, `src/core/rng/drawIntFromStreams.ts`, `src/core/rng/index.ts`
+- `src/core/rng/rngStreams.ts`, `src/core/rng/isRngStreamState.ts`, `src/core/rng/deriveRngStreams.ts`, `src/core/rng/deriveRngStreams.test.ts`, `src/core/rng/drawInt.ts`, `src/core/rng/drawInt.test.ts`, `src/core/rng/drawIntFromStreams.ts`, `src/core/rng/index.ts`
 - `src/core/time/eventKinds.ts`, `src/core/time/queuedEvent.ts`, `src/core/time/timeState.ts`, `src/core/time/domainEvent.ts`, `src/core/time/advanceMode.ts`, `src/core/time/formatEventId.ts`, `src/core/time/compareQueuedEvents.ts`, `src/core/time/compareQueuedEvents.test.ts`, `src/core/time/scheduleEvent.ts`, `src/core/time/scheduleEvent.test.ts`, `src/core/time/eventHandler.ts`, `src/core/time/eventHandlers.ts`, `src/core/time/handleDayBoundary.ts`, `src/core/time/handleHeavyDecisionDue.ts`, `src/core/time/advance.ts`, `src/core/time/advance.test.ts`, `src/core/time/index.ts`
 - `src/core/run/runSeed.ts`, `src/core/run/settings.ts`, `src/core/run/runStart.ts`, `src/core/run/gameState.ts`, `src/core/run/command.ts`, `src/core/run/inputLogEntry.ts`, `src/core/run/coreStep.ts`, `src/core/run/canonicalize.ts`, `src/core/run/canonicalize.test.ts`, `src/core/run/fingerprint.ts`, `src/core/run/fingerprint.test.ts`, `src/core/run/assertStateIsValid.ts`, `src/core/run/assertStateIsValid.test.ts`, `src/core/run/newRun.ts`, `src/core/run/newRun.test.ts`, `src/core/run/applyCommand.ts`, `src/core/run/applyCommand.test.ts`, `src/core/run/replay.ts`, `src/core/run/replay.test.ts`, `src/core/run/index.ts`
 - `tests/builders/arbitraries.ts`, `tests/builders/deepFreeze.ts`, `tests/builders/index.ts`, `tests/builders/makeEvent.ts`, `tests/builders/makeRunStart.ts`, `tests/builders/makeState.ts`
-- `tests/lint-fixtures/src/core/mathRound.ts`, `tests/lint-fixtures/src/core/toFixed.ts`, `tests/lint-fixtures/src/core/localeCompare.ts`, `tests/lint-fixtures/src/core/toLocaleString.ts`, `tests/lint-fixtures/src/core/intl.ts`, `tests/lint-fixtures/src/core/run/fingerprint.ts`, `tests/lint-fixtures/src/core/run/applyCommand.ts`, `tests/lint-fixtures/src/core/time/importsRun.ts`
+- `tests/lint-fixtures/src/core/mathRound.ts`, `tests/lint-fixtures/src/core/toFixed.ts`, `tests/lint-fixtures/src/core/localeCompare.ts`, `tests/lint-fixtures/src/core/toLocaleString.ts`, `tests/lint-fixtures/src/core/intl.ts`, `tests/lint-fixtures/src/core/run/fingerprint.ts`, `tests/lint-fixtures/src/core/run/applyCommand.ts`, `tests/lint-fixtures/src/core/time/importsRun.ts`, `tests/lint-fixtures/src/core/otherRounding.ts`, `tests/lint-fixtures/src/core/toLocaleCase.ts`, `tests/lint-fixtures/src/core/time/importsCoreRoot.ts`
 - `tsconfig.tests.json`
 
 Modified:
@@ -312,3 +337,4 @@ Deleted:
 
 - 2026-10-28: Story created (status ready-for-dev).
 - 2026-10-28: Story implemented (phases A–F): shared foundations and SHA-256, `core/constants`, `core/numerics`, `core/rng`, `core/time`, `core/run`, builders and fast-check properties (DET-01…06, DET-10), lint bans with fixtures, `tsconfig.tests.json`, architecture/epic signature updates. `npm run check` green; e2e green on chromium and webkit. Status → review.
+- 2026-10-28: Code review run 1: 13 findings patched (state validation, corrupt-log guards, rounding/locale/hot-path lint bans with fixtures, test-harness and property fixes, replay contract in architecture D3), 7 deferred, 6 dismissed. `npm run check` and chromium e2e green.

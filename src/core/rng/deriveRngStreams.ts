@@ -1,5 +1,6 @@
 import { assertInvariant, sha256Hex } from '../../shared';
 import { HEX_DIGITS_PER_INT32, HEX_RADIX, RNG_STATE_WORDS } from '../constants';
+import { isRngStreamState } from './isRngStreamState';
 import type { RngStreamName, RngStreams, RngStreamState } from './rngStreams';
 
 // Each stream is hash(runSeed, streamName) (architecture D2): the first 16 bytes of
@@ -12,8 +13,8 @@ function deriveStreamState(runSeed: number, name: RngStreamName): RngStreamState
     return parseInt(digest.slice(start, start + HEX_DIGITS_PER_INT32), HEX_RADIX) | 0;
   });
   assertInvariant(
-    words.some((word) => word !== 0),
-    'xoroshiro128+ must not start from the all-zero state',
+    isRngStreamState(words),
+    'a derived stream is four int32 words and never the all-zero state',
   );
   return words;
 }

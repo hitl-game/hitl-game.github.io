@@ -17,7 +17,8 @@ function canonicalizeArray(items: readonly unknown[], ancestors: readonly object
     Object.getPrototypeOf(items) === Array.prototype,
     'canonical arrays are plain arrays',
   );
-  return `[${items.map((item) => canonicalizeValue(item, ancestors)).join(',')}]`;
+  // Array.from visits holes as undefined, which canonicalizeValue rejects like any undefined.
+  return `[${Array.from(items, (item) => canonicalizeValue(item, ancestors)).join(',')}]`;
 }
 
 function canonicalizeRecord(value: object, ancestors: readonly object[]): string {
@@ -55,7 +56,7 @@ function canonicalizeValue(value: unknown, ancestors: readonly object[]): string
     case 'object':
       return value === null ? 'null' : canonicalizeObject(value, ancestors);
     default:
-      throw new Error(`Invariant violated: canonical data has no ${typeof value} values`);
+      assertInvariant(false, `canonical data has no ${typeof value} values`);
   }
 }
 

@@ -65,6 +65,15 @@ describe('drawInt', () => {
   it('treats an empty range as a bug', () => {
     expect(() => drawInt(deriveRngStreams(1).deck, 5, 4)).toThrow(/min <= max/);
   });
+
+  it('treats a range wider than a safe integer as a bug', () => {
+    const { deck } = deriveRngStreams(1);
+
+    expect(() => drawInt(deck, -Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER)).toThrow(
+      /range width/,
+    );
+    expect(drawInt(deck, 0, Number.MAX_SAFE_INTEGER)[0]).toBeGreaterThanOrEqual(0);
+  });
 });
 
 describe('drawIntFromStreams', () => {

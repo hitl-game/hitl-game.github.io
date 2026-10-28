@@ -1,22 +1,19 @@
 import * as fc from 'fast-check';
 
-// canonicalize accepts Object.prototype objects only, as every command and save record has.
-const plain = { noNullPrototype: true } as const;
-
 import {
   GAME_DAY_MS,
+  gameSpeeds,
   RUN_SEED_MAX,
+  timings,
   toRunSeed,
   type Command,
-  type GameSpeed,
   type PendingEvent,
   type RunStart,
   type Settings,
-  type Timing,
 } from '../../src/core';
 
-const gameSpeeds: readonly GameSpeed[] = ['full', 'half', 'quarter'];
-const timings: readonly Timing[] = ['standard', 'extended', 'relaxed', 'untimed'];
+// canonicalize accepts Object.prototype objects only, as every command and save record has.
+const plain = { noNullPrototype: true } as const;
 
 const maxHorizonGameMs = 20 * GAME_DAY_MS;
 

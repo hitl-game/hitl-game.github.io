@@ -39,6 +39,20 @@ describe('divideRounded', () => {
     expect(() => divideRounded(1, Number.NaN)).toThrow(/safe integers/);
   });
 
+  it('breaks exact halves away from zero', () => {
+    const operand = fc.integer({ min: -1_000_000, max: 1_000_000 });
+    fc.assert(
+      fc.property(operand, fc.boolean(), (half, negativeDenominator) => {
+        const denominator = negativeDenominator ? -2 : 2;
+        const numerator = 2 * half + 1;
+
+        const quotient = divideRounded(numerator, denominator);
+
+        expect(Math.abs(quotient * denominator)).toBeGreaterThan(Math.abs(numerator));
+      }),
+    );
+  });
+
   it('never lands more than half a denominator away from the exact quotient', () => {
     const operand = fc.integer({ min: -1_000_000, max: 1_000_000 });
     fc.assert(

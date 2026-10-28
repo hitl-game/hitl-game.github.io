@@ -37,6 +37,13 @@ describe('newRun', () => {
     expect(state.settings).toEqual(start.settings);
   });
 
+  it('keeps extra fields of a decoded start out of the state', () => {
+    const decoded = { ...makeRunStart(), stray: 'from an old save' };
+
+    expect(Object.keys(newRun(decoded))).not.toContain('stray');
+    expect(fingerprint(newRun(decoded))).toBe(fingerprint(newRun(makeRunStart())));
+  });
+
   it('produces only readonly plain data with safe integers (DET-06)', () => {
     fc.assert(
       fc.property(runStartArbitrary, (start) => {

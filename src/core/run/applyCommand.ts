@@ -5,6 +5,10 @@ import type { GameState } from './gameState';
 import type { InputLogEntry } from './inputLogEntry';
 import type { Settings } from './settings';
 
+function assertUnknownCommand(command: never): never {
+  assertInvariant(false, `unknown command ${JSON.stringify(command)}`);
+}
+
 function changeSetting(settings: Settings, command: Command): Result<Settings, CommandError> {
   switch (command.type) {
     case 'changeGameSpeed':
@@ -13,6 +17,9 @@ function changeSetting(settings: Settings, command: Command): Result<Settings, C
     case 'changeTiming':
       if (settings.timing === command.timing) return err('settingUnchanged');
       return ok({ ...settings, timing: command.timing });
+    default:
+      // Only a corrupt log or save can get here: the type system covers every live caller.
+      return assertUnknownCommand(command);
   }
 }
 

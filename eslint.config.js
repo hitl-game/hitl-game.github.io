@@ -150,8 +150,15 @@ const roundingMessage = 'Divide through core/numerics divideRounded, the only ro
 const localeMessage = 'Locale-dependent results break cross-engine determinism (DET-08).';
 const coreRestrictedProperties = [
   { object: 'Math', property: 'random', message: 'Use the subsystem RngStream.' },
-  { object: 'Math', property: 'round', message: roundingMessage },
-  { property: 'toFixed', message: roundingMessage },
+  ...['round', 'floor', 'ceil', 'trunc'].map((property) => ({
+    object: 'Math',
+    property,
+    message: roundingMessage,
+  })),
+  ...['toFixed', 'toPrecision', 'toExponential'].map((property) => ({
+    property,
+    message: roundingMessage,
+  })),
   { property: 'localeCompare', message: localeMessage },
   { property: 'toLocaleString', message: localeMessage },
   { property: 'toLocaleLowerCase', message: localeMessage },
@@ -175,7 +182,10 @@ const hotPathRestrictedImports = {
   ],
   patterns: [
     ...coreRestrictedImports.patterns,
-    { group: ['**/run', '**/run/*', '**/fingerprint'], message: hotPathMessage },
+    {
+      group: ['**/run', '**/run/*', '**/fingerprint', '**/core', '**/core/index'],
+      message: hotPathMessage,
+    },
   ],
 };
 
