@@ -390,3 +390,11 @@ Deleted:
 
 - 2026-10-28: story file created (status ready-for-dev).
 - 2026-10-28: implemented content and tuning pipeline (tuning.yaml, exact unit conversion, Zod schemas, compiler, Vite plugin with virtual:content-pack, JSON Schema generation, ContentIndex); schemas split into core/contentSchema to keep Zod out of the runtime bundle; status → review.
+
+### Review Findings
+
+Review run 1 (no code defects found):
+
+- Bundle figures reconciled: 4.98 KB gzip is the real initial chunk (`main.tsx` does not import `loadContentIndex` yet, so no pack, Zod or yaml is in it; verified with `npm run build`, grep of every dist chunk). 6.84 KB was the temporary C3 probe with `loadContentIndex()` imported (pack included, still no Zod/yaml).
+- Deferred: dev server does not react to added/removed content files (see deferred-work.md).
+- Dismissed: schema JSON out of date (regenerated, no diff).
