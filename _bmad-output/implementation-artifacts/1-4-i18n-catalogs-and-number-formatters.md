@@ -280,6 +280,12 @@ Code review run 3 (2026-10-28, full workflow: Blind Hunter, Edge Case Hunter and
 
 Dismissed (one line each): "missing dependency changes" is unfounded (blind layer saw no manifest; `knip` and `check` pass); `.yml` ignored and `{x}`-vs-plural strictness repeat earlier dismissals; duplicate content keys across files need a content kind that does not exist yet (C-10 stub); concurrent same-locale loads fetch twice is harmless (module chunk is cached by the browser); superseded request when the newest fails repeats run 2; Acceptance Auditor's Change Log gap is fixed here; documented spec deviations are in the Dev Agent Record.
 
+Code review run 4 (2026-10-28, full workflow: Blind Hunter, Edge Case Hunter and Acceptance Auditor as parallel subagents). 1 patch, 0 deferred, 6 dismissed. Edge Case Hunter and Acceptance Auditor found nothing.
+
+- [x] [Review][Patch] `i18n:missing` counted an empty-string translation (UI JSON or content YAML) as present, while the runtime ignores it and falls back to English; it is now reported as a missing translation, with a test [tools/i18n/findMissingTranslations.ts, findMissingTranslations.test.ts]
+
+Dismissed (one line each): `.yml` ignored and locale folders not cross-checked against `supportedLocales` repeat earlier dismissals/defer; duplicate content keys across files need a content kind that does not exist yet (C-10 stub); a failed later `loadLocale` superseding an earlier success repeats run 2; no ICU validation of runtime catalogs (they are the files CI validates; repeats run 2); the lost error for a duplicated non-string key is cosmetic (the duplicate itself is still reported); Acceptance Auditor's `loadLocale` returning a `Result` rather than the catalog is a harmless unlisted deviation.
+
 ## Change Log
 
 - 2026-10-28: Story created (status: ready-for-dev).
@@ -287,3 +293,4 @@ Dismissed (one line each): "missing dependency changes" is unfounded (blind laye
 - 2026-10-28: Code review run 1 (full workflow): 6 patches applied, 1 item deferred.
 - 2026-10-28: Code review run 2: 1 patch applied (select options compare as subset).
 - 2026-10-28: Code review run 3: 1 patch applied (own-key locale lookup).
+- 2026-10-28: Code review run 4: 1 patch applied (empty translation counts as missing in `i18n:missing`).

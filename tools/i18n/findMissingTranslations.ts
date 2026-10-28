@@ -85,6 +85,14 @@ function compareArguments(english: UiCatalog, translated: UiCatalog): string[] {
   });
 }
 
+// An empty translation counts as missing: the runtime ignores it and falls back to English.
+const translatedKeysOf = (catalog: Readonly<Record<string, string>>): Set<string> =>
+  new Set(
+    Object.entries(catalog)
+      .filter(([, text]) => text !== '')
+      .map(([key]) => key),
+  );
+
 async function checkUiCatalog(
   rootDir: string,
   locale: string,
@@ -100,7 +108,7 @@ async function checkUiCatalog(
     return { warnings: [], errors: parsed.problems.map((problem) => `${file}: ${problem}`) };
   }
   return {
-    warnings: compareKeys(file, englishKeys, new Set(Object.keys(parsed.catalog))),
+    warnings: compareKeys(file, englishKeys, translatedKeysOf(parsed.catalog)),
     errors: compareArguments(english, parsed.catalog).map((problem) => `${file}: ${problem}`),
   };
 }
@@ -116,7 +124,7 @@ async function readContentKeys(rootDir: string, file: string): Promise<string[] 
     // An empty or comment-only file parses to null: a locale that translates nothing yet.
     const parsed: unknown = parse(await readFile(path.join(rootDir, file), 'utf8')) ?? {};
     return isStringMap(parsed)
-      ? Object.keys(parsed)
+      ? [...translatedKeysOf(parsed)]
       : `${file}: must be a flat map of "<contentId>.<field path>" to text`;
   } catch (error) {
     return `${file}: invalid YAML: ${error instanceof Error ? error.message : String(error)}`;

@@ -140,6 +140,21 @@ describe('findMissingTranslations', () => {
     expect((await findMissingTranslations(rootDir, new Set())).errors).toEqual([]);
   });
 
+  it('counts an empty translation as missing, like the runtime fallback', async () => {
+    await writeLocaleFile(
+      'fr/ui.json',
+      JSON.stringify({ 'time.day': '', 'inbox.unreadCount': '{count, plural, other {#}}' }),
+    );
+    await writeLocaleFile('fr/content/events.yaml', 'event.a.body: ""\n');
+
+    const { warnings } = await findMissingTranslations(rootDir, new Set(['event.a.body']));
+
+    expect(warnings.map((warning) => warning.message).sort()).toEqual([
+      'missing translation event.a.body',
+      'missing translation time.day',
+    ]);
+  });
+
   it('escapes newlines and separators in GitHub annotations', () => {
     expect(formatTranslationWarning({ file: 'a:b,c', message: 'unknown key x\ny%' }, true)).toBe(
       '::warning file=a%3Ab%2Cc::unknown key x%0Ay%25',
