@@ -1,10 +1,13 @@
 export { advance, type AdvanceResult, type StoppedBy } from './advance';
 export type { AdvanceMode } from './advanceMode';
 export { compareQueuedEvents } from './compareQueuedEvents';
+export { convertRealWindowToGameMs } from './convertRealWindowToGameMs';
 export type { DomainEvent } from './domainEvent';
 export type { AdvanceContext, SimulationState } from './eventHandler';
 export { eventKinds, type EventKind } from './eventKinds';
 export { formatEventId } from './formatEventId';
+export { gameSpeeds, type GameSpeed } from './gameSpeed';
+export { pauseReasons, type PauseReason } from './pauseReasons';
 export type { EventId, QueuedEvent } from './queuedEvent';
 export { scheduleEvent, type PendingEvent } from './scheduleEvent';
 export type { TimeState } from './timeState';

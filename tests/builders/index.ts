@@ -1,4 +1,5 @@
 export {
+  commandArbitrary,
   gameMsArbitrary,
   liveStepsArbitrary,
   pendingEventsArbitrary,
@@ -18,3 +19,5 @@ export { makeAdvanceContext, makeEconomyTuning } from './makeEconomyTuning';
 export { makeEvent } from './makeEvent';
 export { makeRunStart } from './makeRunStart';
 export { makeState, makeStateWithEvents } from './makeState';
+export { makeFakeClockSources, type FakeClockSources } from './makeFakeClockSources';
+export { makeSessionHarness, type SessionHarness } from './makeSessionHarness';

@@ -10,4 +10,4 @@ export { newRun } from './newRun';
 export { replay, replayFrom } from './replay';
 export { toRunSeed, type RunSeed } from './runSeed';
 export type { RunStart } from './runStart';
-export { gameSpeeds, timings, type GameSpeed, type Settings, type Timing } from './settings';
+export { timings, type Settings, type Timing } from './settings';

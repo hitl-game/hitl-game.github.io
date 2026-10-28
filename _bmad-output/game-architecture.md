@@ -274,13 +274,15 @@ Versions verified on npm on 2026-10-27.
   - present: `performance.now()` deltas × game-speed factor, frozen while a pausing overlay is open (Clock States table);
   - away: `Date.now()` difference between leaving and returning, recorded as an absence input;
   - a negative real delta (system clock moved back) counts as zero.
+- **Present clock (Story 1.6).** `platform/clock` is anchor-based, not a sum of frame deltas: game time at real time `t` is `anchorGameMs + floor(max(0, t − anchorRealMs) / realMsPerGameMs)`, re-anchored on every start, stop, speed change and return to a visible tab, so it cannot drift and a resume never jumps. The divisor is an integer game constant, `REAL_MS_PER_GAME_MS_BY_SPEED = { full: 1, half: 2, quarter: 4 }` (`core/constants.ts`), never tuning. `GameSpeed` lives in `core/time` (`gameSpeed.ts`) so the time helpers can use it without a `core/run` cycle.
+- **Clock states (Story 1.6).** `core/time` owns the pause-reason vocabulary (`pauseReasons`: `heavyDecision`, `awayReport`, `settings`, `shortcutOverlay`, `backlog`); `app/session` holds the live set as a `ReadonlySet` signal with idempotent add and remove. The clock runs when `isVisible && !isAwaitingDeploy && no pause reason && !isBlockedByStop`. A hidden tab stops the `requestAnimationFrame` loop and the hidden time is dropped until the away simulation (Story 3.5). Awaiting Deploy is a session flag with a `markDeployed()` seam until Story 1.8 adds the logged `deploy` command.
 
 **Time bases** (GDD M1):
 
 | Quantity | Base | Rule |
 |---|---|---|
 | Economy step, message arrivals, staff throughput, event cadence, ticker, routine inference lines, spine beat gaps | Game time | Defined in game-ms (values quoted "per second" are at 1×); Game speed never changes them per game day |
-| Message response windows | Real seconds × Timing | Converted to game-ms **once** at creation with the speed in force; never recomputed after a speed change (property test) |
+| Message response windows | Real seconds × Timing | Converted to game-ms **once** at creation with the speed in force by `convertRealWindowToGameMs(windowRealMs, speed)` (`core/time`, shared by Stories 2.3 and 3.8); never recomputed after a speed change (property test) |
 | Backlog top-item window | Real seconds × Timing, measured in real time | The game clock is paused during the backlog queue, so `app/session` measures the window with a real timer; on lapse it dispatches `expireBacklogItem { messageId }` stamped with the frozen `atGameMs`, so the expiry is in the input log and replays exactly. Answering uses the normal `answerMessage`. |
 | Toast duration, rolling-number and flash animations | Real time | Presentation only; outside the core |
 
@@ -304,7 +306,7 @@ Versions verified on npm on 2026-10-27.
   - `advance(state, untilGameMs, { mode, tuning })`: time progression (D1).
 - **Layers.** `app` owns the live state, calls the two entry points and publishes the state through signals. Views read derived `computed` selectors. Components contain no game rules.
 - **Replay.** `replay(start, inputLog, tuning)` folds the same two entry points (`replay(start, log, tuning)` = `replayFrom(newRun(start, tuning), log, tuning)`; snapshot + tail uses `replayFrom`). It is the same code, not a parallel implementation. The tuning is the pinned pack's (`contentPackVersion`), so replay with the same pack gives the same run.
-- **Replay contract (callers of `advance`/`applyCommand`, Story 1.6 `app/session`).** Replay does exactly one `advance(state, entry.atGameMs, { mode: 'present', tuning })` before each logged command, so live play must too: call `advance` up to `nowGameMs` before every command (a zero-length advance can still process another event due at that time), except right after a blocking stop: from a blocking stop until a command has been logged there, make no `advance` call of any length, not even a zero-length one (it would process a second blocking event due at the same `gameMs` that replay leaves queued). Two commands back to back with no `advance` between them replay differently.
+- **Replay contract (callers of `advance`/`applyCommand`, Story 1.6 `app/session`).** Replay does exactly one `advance(state, entry.atGameMs, { mode: 'present', tuning })` before each logged command, so live play must too: call `advance` up to `nowGameMs` before every command (a zero-length advance can still process another event due at that time), except right after a blocking stop: from a blocking stop until a command has been logged there, make no `advance` call of any length, not even a zero-length one (it would process a second blocking event due at the same `gameMs` that replay leaves queued). Two commands back to back with no `advance` between them replay differently. `app/session.dispatch` enforces this contract (Story 1.6): it advances to the clock's game time before every command unless the session is blocked by a stop, and the logged command clears the stop; there is no separate core `step()` entry point.
 
 ### Data Persistence (D4)
 
@@ -757,7 +759,8 @@ human-in-the-loop/
 │   ├── core/
 │   │   ├── run/                 GameState, Command, DomainEvent, applyCommand, newRun,
 │   │   │                        replay, fingerprint, invariants
-│   │   ├── time/                event queue, advance, clock-state pause rules      (M1)
+│   │   ├── time/                event queue, advance, game speeds, pause reasons,  (M1)
+│   │   │                        real-window → game-ms conversion
 │   │   ├── rng/                 per-subsystem streams                              (D2)
 │   │   ├── numerics/            divideRounded (only rounding path), withoutNegativeZero (D2)
 │   │   ├── messages/            lifecycle, windows, expiry, template instancing    (M2)
@@ -848,7 +851,7 @@ human-in-the-loop/
 
 | System (Project Context) | Location | Responsibility |
 |---|---|---|
-| Time and clock states | `core/time`, `platform/clock` | Event queue and `advance`; real → game time conversion |
+| Time and clock states | `core/time`, `platform/clock`, `platform/visibility`, `app/session` | Event queue and `advance`, pause-reason vocabulary, speed divisors; anchor-based real → game time conversion and frame loop; the live pause set, awaiting-Deploy flag and present loop |
 | Unified simulation step | `core/time`, `core/run` | `advance`, `applyCommand` |
 | Absence and backlog | `core/absence` | Away rules, cap, stop conditions, backlog ranking |
 | Seed determinism, replay | `core/rng`, `core/numerics`, `core/run`, `app/replayCheck` | Streams, rounding, replay, fingerprint, desync detection |
