@@ -159,17 +159,28 @@ describe('tuning schema', () => {
     ]);
   });
 
-  it('accepts the bounds themselves: a one-day month and free costs', () => {
+  it('accepts the bounds themselves: a one-day month, free costs and an empty start', () => {
     const { tuning: edge } = makeContentPack({
       'economy.billingMonthDays': 1,
       'start.cashUsd': 0,
+      'start.hypeIndex': 0,
+      'start.alignmentPoints': 0,
+      'start.gpuCapacityUnits': 0,
       'phases.garage.baseCostsPerDayUsd': 0,
       'phases.garage.gpuUnitCostPerDayUsd': 0,
     });
 
     expect(edge.economy.billingMonthGameMs).toBe(GAME_DAY_MS);
-    expect(edge.start.cashCents).toBe(0);
-    expect(edge.phases.garage.baseCostsPerDayCents).toBe(0);
+    expect(edge.start).toMatchObject({
+      cashCents: 0,
+      hypeBp: 0,
+      alignmentMilli: 0,
+      gpuCapacityUnits: 0,
+    });
+    expect(edge.phases.garage).toMatchObject({
+      baseCostsPerDayCents: 0,
+      gpuUnitCostPerDayCents: 0,
+    });
   });
 
   it('rejects a range whose min exceeds its max', () => {

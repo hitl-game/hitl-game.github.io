@@ -324,6 +324,14 @@ Code review run 3 (2026-10-28, full workflow: Blind Hunter, Edge Case Hunter and
 
 Dismissed (one line each): day start before settlement, per-day rounding drift, unbounded salary, the `billingMonthDays` JSON Schema `maximum`, the `selectRunway` hidden-state test and the float-cash `/safe integers/` case were dismissed in runs 1–2 and no failing input was found; random `economyStep` events in `pendingEventArbitrary` feed the generic chunk-invariance and tie-break properties (the queue-shape invariant is the run-1 defer, and ECO-02's property covers the real schedule); `noBurn` winning over negative cash needs burn ≤ 0 with cash below zero, which no current path reaches (start cash ≥ 0, costs ≥ 0); `atLeast` / `wholeAtLeast` and the test helpers `countOf` / `expectedEventOf` follow the existing `range` and `issuesOf` precedents.
 
+Code review run 4 (2026-10-28, full workflow: Blind Hunter, Edge Case Hunter and Acceptance Auditor as parallel subagents). 0 decision_needed, 2 patch (both applied, tests only), 1 defer, 15 dismissed. No logic or behaviour finding in production code.
+
+- [x] [Review][Patch] The `> 0` half of the billing-month invariant had no test. A compiled `billingMonthGameMs: 0` passes `% GAME_DAY_MS === 0`, so deleting `> 0` would let a division by zero through. The test now covers 90,000 and 0 [src/core/economy/applyDailyEconomy.test.ts]
+- [x] [Review][Patch] "accepts the bounds themselves" did not cover the zero `start` bounds added in run 1 (Hype, Alignment, GPU units) and never asserted the compiled GPU unit cost. All of them are now pinned at 0 [src/core/contentSchema/tuningSchema/tuningSchema.test.ts]
+- [x] [Review][Defer] The runway uses gross burn. That is correct while MRR is 0, but it becomes misleading once Story 2.4 moves MRR (net burn, and `noBurn` when profitable) [src/core/economy/computeRunwayDays.ts]. Deferred to Story 2.4. C-8 is unchanged here.
+
+Dismissed (one line each): the float-cash `/safe integers/` case, the `selectRunway` hidden-state test, revenue tests compared against `divideRounded`, per-day rounding drift and the `billingMonthDays` JSON Schema `maximum` were all dismissed in runs 1–3, and no new failing input came up. `typeof` before `Number.isSafeInteger` was dismissed in run 2. A huge `start.gpuCapacityUnits` (1e15) builds clean and then fails at the first burn read: run 2 chose that fail-fast assert, and upper bounds belong to the 1.3 range-check defer. The `selectRunway` comment says it "can never leak", which is true at the type level the comment describes. The `selectRunway` tests repeat the runway cases because C2 asks for selector tests. Completion Notes "exactly those fields" is a historical dev record, and run 2 corrected the live note in `deferred-work.md`. `unknown phase ${state.phase}` without `String()` only produces a poor message for a non-string phase on a corrupt snapshot, and the lint gate accepts it. `game-test-design.md` uses `replay(start, inputLog)` as scenario shorthand, like the `epics.md` signatures dismissed in run 1. The `advance(state, entry.atGameMs)` in the Story 1.2 deferral is shorthand inside a historical note that still holds. In the DET-06 property, burn from the final state matches today because nothing changes GPU or phase, which is the run-1 settle-at-day-end dismissal.
+
 ## Change Log
 
 - 2026-10-28: Story created (status ready-for-dev) by gds-create-story, unattended.
@@ -331,3 +339,4 @@ Dismissed (one line each): day start before settlement, per-day rounding drift, 
 - 2026-10-28: Code review run 1 (full workflow): 8 patches applied, 3 items deferred.
 - 2026-10-28: Code review run 2 (full workflow): 6 patches applied, nothing deferred.
 - 2026-10-28: Code review run 3 (full workflow): 2 cosmetic patches applied (naming, test title), nothing deferred.
+- 2026-10-28: Code review run 4 (full workflow): 2 test-only patches applied, 1 item deferred (net-burn runway, Story 2.4).

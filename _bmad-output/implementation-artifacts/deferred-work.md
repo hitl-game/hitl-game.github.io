@@ -52,3 +52,7 @@ Items a code review found real but not actionable in the story under review. Eac
 
 - **Replay does not tie the tuning to `contentPackVersion`** (`src/core/run/replay.ts`, `src/core/economy/economyTuning.ts`). `replay(start, inputLog, tuning)` trusts the caller to pass the pinned pack's tuning; `EconomyTuning` carries no version, so a different pack replays to a different fingerprint with no error. Decide with the Story 1.9 load path (check the pack version where `app` binds tuning).
 - **The hidden-state import boundary has no lint rule** (`eslint.config.js`, Story 1.5 task C2). Only `app/selectors/hiddenState.ts` may read `alignmentMilli` outside `core/`, but that file does not exist yet and no rule enforces it. Add the `no-restricted-imports` / selector rule with Story 5.x when `hiddenState.ts` lands.
+
+## Deferred from: code review of story-1-5-daily-economy-step (2026-10-28, run 4)
+
+- **The runway uses gross burn, not net of revenue** (`src/core/economy/computeRunwayDays.ts`). C-8 specifies `floor(cash / burn)`, which is right while MRR is always 0. Once Story 2.4 gives MRR a value, a company that earns more per day than it burns will still show a shrinking runway and never `noBurn`. Decide with Story 2.4: should the runway divide by net burn (burn minus daily revenue), and what should it show when net burn is ≤ 0?

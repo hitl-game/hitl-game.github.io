@@ -91,16 +91,16 @@ describe('computeDailyRevenueCents', () => {
     expect(computeDailyRevenueCents(makeState({ mrrCents: 3_000_000 }), longMonth)).toBe(50_000);
   });
 
-  it('treats a billing month that is not a whole number of game days as a bug', () => {
-    const broken = {
-      ...tuning,
-      economy: { ...tuning.economy, billingMonthGameMs: 90_000 },
-    };
+  it.each([90_000, 0])(
+    'treats a billing month of %i game-ms as a bug: not a positive whole number of days',
+    (billingMonthGameMs) => {
+      const broken = { ...tuning, economy: { ...tuning.economy, billingMonthGameMs } };
 
-    expect(() => computeDailyRevenueCents(makeState(), broken)).toThrow(
-      /whole number of game days/,
-    );
-  });
+      expect(() => computeDailyRevenueCents(makeState(), broken)).toThrow(
+        /positive whole number of game days/,
+      );
+    },
+  );
 });
 
 describe('applyDailyEconomy', () => {
