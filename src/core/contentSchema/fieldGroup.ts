@@ -100,7 +100,7 @@ export const wholeAtLeast = <Unit extends UnitName>(
   whole: true,
 });
 
-const unitOf = (spec: FieldSpec): UnitName => {
+const readUnitName = (spec: FieldSpec): UnitName => {
   if (typeof spec === 'string') return spec;
   return 'range' in spec ? spec.range : spec.unit;
 };
@@ -114,7 +114,7 @@ function defineHumanNumber(spec: FieldSpec, isCount: boolean): z.ZodNumber {
 }
 
 function defineValueSchema(spec: FieldSpec): z.ZodType<number> {
-  const { convert } = fieldUnits[unitOf(spec)];
+  const { convert } = fieldUnits[readUnitName(spec)];
   const number = defineHumanNumber(spec, convert === null);
   if (convert === null) return number.transform(withoutNegativeZero);
   return number.transform((value, context) => {
@@ -137,7 +137,7 @@ export function defineFieldGroup<const Table extends FieldTable>(
   table: Table,
 ): z.ZodType<CompiledFields<Table>> {
   const fields = Object.entries(table).map(([name, spec]) => {
-    const unit = fieldUnits[unitOf(spec)];
+    const unit = fieldUnits[readUnitName(spec)];
     return {
       humanKey: `${name}${unit.humanSuffix}`,
       compiledKey: `${name}${unit.integerSuffix}`,

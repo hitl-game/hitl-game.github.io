@@ -317,9 +317,17 @@ Code review run 2 (2026-10-28, full workflow: Blind Hunter, Edge Case Hunter and
 
 Dismissed (one line each): the queue-shape invariant and replay/pack-version binding are run-1 defers; salary and `belowZeroLimit` bounds are out of scope by C-9 (their stories add them); the `selectRunway` hidden-state test and shared default tuning were dismissed in run 1; the float-cash `/safe integers/` case was dismissed in run 1 (string and null cases cover the `cashCents` branch); `typeof` before `Number.isSafeInteger` mirrors the validator's type-check-first pattern; Hype and Alignment set in `newRun` rather than `createStartingEconomy` follows C-7 (`EconomyState` is the economy slice only); `divideRounded` after the divisibility assert is the project's only division path; `tuning.yaml` trailing comments (`# Daily simulation`, `# M7`) are GDD source tags, unchanged; the JSON Schema `maximum` on `billingMonthDays` (from `z.int()`) is above the compile ceiling, but the build rejects with a clear message and the editor schema is advisory; reactors seeing `gameDayStarted` before `dailyEconomyApplied` at one `gameMs` is the approved C-4 order.
 
+Code review run 3 (2026-10-28, full workflow: Blind Hunter, Edge Case Hunter and Acceptance Auditor as parallel subagents). 0 decision_needed, 2 patch (both applied, naming and test-title only), 0 defer, 9 dismissed. No logic or behaviour finding.
+
+- [x] [Review][Patch] The helper `unitOf` did not start with a verb (project-context Naming Rules); renamed `readUnitName` [src/core/contentSchema/fieldGroup.ts:103]
+- [x] [Review][Patch] The `it.each` title "rounds MRR %i half away from zero" also covered non-half cases; now "rounds MRR %i to the nearest cent" (the literal half cases keep their own test) [src/core/economy/applyDailyEconomy.test.ts:59]
+
+Dismissed (one line each): day start before settlement, per-day rounding drift, unbounded salary, the `billingMonthDays` JSON Schema `maximum`, the `selectRunway` hidden-state test and the float-cash `/safe integers/` case were dismissed in runs 1–2 and no failing input was found; random `economyStep` events in `pendingEventArbitrary` feed the generic chunk-invariance and tie-break properties (the queue-shape invariant is the run-1 defer, and ECO-02's property covers the real schedule); `noBurn` winning over negative cash needs burn ≤ 0 with cash below zero, which no current path reaches (start cash ≥ 0, costs ≥ 0); `atLeast` / `wholeAtLeast` and the test helpers `countOf` / `expectedEventOf` follow the existing `range` and `issuesOf` precedents.
+
 ## Change Log
 
 - 2026-10-28: Story created (status ready-for-dev) by gds-create-story, unattended.
 - 2026-10-28: Implemented by gds-dev-story, unattended (status review): `core/economy` module, `economyStep` event and handler, `AdvanceContext` (`advance`/`newRun`/`replay` now take tuning), `GameState` economy and hidden fields with validation, `app/selectors/selectRunway`, tuning schema bounds for the fields read here, builders, tests and docs. `npm run check` and e2e (Chromium, WebKit) green.
 - 2026-10-28: Code review run 1 (full workflow): 8 patches applied, 3 items deferred.
 - 2026-10-28: Code review run 2 (full workflow): 6 patches applied, nothing deferred.
+- 2026-10-28: Code review run 3 (full workflow): 2 cosmetic patches applied (naming, test title), nothing deferred.

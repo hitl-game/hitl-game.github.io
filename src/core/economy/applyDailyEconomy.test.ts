@@ -56,7 +56,7 @@ describe('computeDailyRevenueCents', () => {
   });
 
   it.each([1_015, 1_014, 1_004, 15, 45, 44])(
-    'rounds MRR %i half away from zero like divideRounded',
+    'rounds MRR %i to the nearest cent like divideRounded',
     (mrrCents) => {
       expect(computeDailyRevenueCents(makeState({ mrrCents }), tuning)).toBe(
         divideRounded(mrrCents, billingMonthDays),
