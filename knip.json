@@ -3,5 +3,5 @@
   "entry": ["index.html", "src/spike/pdfSpikePage.ts", "tools/**/*.ts", "src/*/index.ts"],
   "project": ["src/**/*.{ts,tsx}", "tools/**/*.ts", "tests/**/*.ts"],
   "ignore": ["tests/lint-fixtures/**"],
-  "ignoreDependencies": ["idb", "intl-messageformat", "@preact/signals", "vite-plugin-pwa"]
+  "ignoreDependencies": ["idb", "@preact/signals", "vite-plugin-pwa"]
 }
